@@ -25,18 +25,17 @@ class JobOffer extends Model
         'content_hash',
     ];
 
-    public function company()
-    {
+    
+
+    public function company() {
         return $this->belongsTo(Company::class);
     }
 
-    public function source()
-    {
-        return $this->belongsTo(Source::class, 'source_internal_id');
+    public function source() {
+        return $this->belongsTo(Source::class, "source_internal_id");
     }
 
-    public function views()
-    {
+    public function offerViews() {
         return $this->hasMany(OfferView::class);
     }
 }

@@ -18,13 +18,11 @@ class OfferView extends Model
         'viewed_at' => 'datetime',
     ];
 
-    public function jobOffer()
-    {
+    public function jobOffer() {
         return $this->belongsTo(JobOffer::class);
     }
 
-    public function user()
-    {
+    public function user() {
         return $this->belongsTo(User::class);
     }
 }
