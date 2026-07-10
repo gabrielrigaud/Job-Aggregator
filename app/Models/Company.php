@@ -6,5 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Company extends Model
 {
-    //
+    public function jobOffers(){
+        return $this->hasMany(JobOffer::class);
+    }
 }
