@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 
 use App\Models\JobOffer;
+use App\Models\Company;
+use App\Models\Source;
 use Inertia\Inertia;
 
 class JobController extends Controller
@@ -15,8 +17,12 @@ class JobController extends Controller
     public function index()
     {
         $allJ= JobOffer::all();
+        $allC= Company::all();
+        $allS= Source::all();
         return Inertia::render('Job/Index',[
-            'allJ'=>$allJ
+            'allJ'=>$allJ,
+            'allC'=>$allC,
+            'allS'=>$allS
         ]);
     }
 
