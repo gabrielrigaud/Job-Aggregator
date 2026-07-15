@@ -35,6 +35,9 @@ return new class extends Migration
     $table->string('salary_currency')->nullable();
     $table->string('salary_period')->nullable();
     
+    // Hash du contenu pour la détection exacte de doublons
+    $table->string('content_hash')->unique();
+
     $table->timestamps();
 
     // Contrainte d'unicité (Idempotence brique Cyber/Data)
