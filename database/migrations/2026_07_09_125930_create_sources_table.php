@@ -13,8 +13,9 @@ return new class extends Migration
     {
         Schema::create('sources', function (Blueprint $table) {
     $table->id();
-    $table->string('source_name');
-    $table->string('source_url');
+    $table->string('name')->unique();
+    $table->string('url')->nullable();
+    $table->string('type')->default('API');
     $table->timestamps();
 });
     }

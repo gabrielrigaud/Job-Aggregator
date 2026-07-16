@@ -6,7 +6,17 @@ use Illuminate\Database\Eloquent\Model;
 
 class Source extends Model
 {
-    public function jobOffers(){
-        return $this->hasMany(JobOffer::class);
-    }
+
+    protected $fillable = [
+        'name',
+        'url',
+        'type', // API, RSS, Scraping
+    ];
+
+    public function jobOffers()
+    {
+        return $this->hasMany(JobOffer::class, 'source_internal_id');
+
+   
+}
 }
