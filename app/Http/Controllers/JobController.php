@@ -6,8 +6,10 @@ use Illuminate\Http\Request;
 
 use App\Models\JobOffer;
 use App\Models\Company;
+use App\Models\OfferView;
 use App\Models\Source;
 use Inertia\Inertia;
+use Illuminate\Support\Facades\Auth;
 
 class JobController extends Controller
 {
@@ -48,9 +50,26 @@ class JobController extends Controller
     public function show(string $id)
     {
         $job = JobOffer::findOrFail($id);
+
+        $user = Auth::user();
+        if ($user) {
+            $existingView = OfferView::where('user_id', $user->id)
+                ->where('job_offer_id', $job->id)
+                ->first();
+
+            if (!$existingView) {
+                OfferView::create([
+                    'user_id' => $user->id,
+                    'job_offer_id' => $job->id,
+                ]);
+            }
+        }
+
         return Inertia::render('Job/Show', [
             'job' => $job
         ]);
+
+        
     }
 
     /**
