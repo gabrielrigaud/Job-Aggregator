@@ -7,7 +7,7 @@ use App\Models\User;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\Hash;
 use Spatie\Permission\Models\Role;
-
+use Illuminate\Support\Facades\Auth;
 
 class AdminUserController extends Controller
 {
@@ -32,6 +32,10 @@ class AdminUserController extends Controller
 
     public function destroy($id)
     {
+        $userCurrent = Auth::user();
+        if ($userCurrent->id == $id) {
+            return redirect()->route('admin.users.index')->with('error', 'You cannot delete your own account.');
+        }
         $user = User::findOrFail($id);
         $user->delete();
         return redirect()->route('admin.users.index')->with('success', 'User deleted successfully.');
@@ -46,7 +50,8 @@ class AdminUserController extends Controller
         ]);
 
         $user = User::findOrFail($id);
-        $user->update($validated);
+        $user->update($request->only(['name', 'email']));
+        $user->syncRoles([$validated['role']]);
         return redirect()->route('admin.users.index')->with('success', 'User updated successfully.');
     }
 
@@ -65,7 +70,10 @@ class AdminUserController extends Controller
         ]);
 
         $validated['password'] = Hash::make($validated['password']);
+        $role = $validated['role'];
+        unset($validated['role']);
         $user = User::create($validated);
+        $user->assignRole($role); // Assign the selected role
         return redirect()->route('admin.users.index')->with('success', 'User created successfully.');
     }
 }
