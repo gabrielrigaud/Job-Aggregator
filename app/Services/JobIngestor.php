@@ -34,10 +34,10 @@ class JobIngestor
             DB::transaction(function () use ($normalizedJob, $source, $contentHash) {
                 // Créer ou récupérer la Company
                 $company = Company::firstOrCreate(
-                    ['name' => $normalizedJob['company_name']],
+                    ['name' => $this->sanitizeUtf8($normalizedJob['company_name'])],
                     [
-                        'website_url' => $normalizedJob['company_website'],
-                        'logo_url' => $normalizedJob['company_logo']
+                        'website_url' => $this->sanitizeUtf8($normalizedJob['company_website'] ?? null),
+                        'logo_url' => $this->sanitizeUtf8($normalizedJob['company_logo'] ?? null)
                     ]
                 );
 
@@ -45,19 +45,19 @@ class JobIngestor
                 JobOffer::create([
                     'company_id' => $company->id,
                     'source_internal_id' => $source->id,
-                    'source_external_id' => $normalizedJob['source_external_id'] ?? uniqid('ext_'),
-                    'title' => $normalizedJob['title'],
-                    'description' => $normalizedJob['description'],
-                    'location' => $normalizedJob['location'],
-                    'country' => $normalizedJob['country'],
+                    'source_external_id' => $this->sanitizeUtf8($normalizedJob['source_external_id'] ?? uniqid('ext_')),
+                    'title' => $this->sanitizeUtf8($normalizedJob['title']),
+                    'description' => $this->sanitizeUtf8($normalizedJob['description']),
+                    'location' => $this->sanitizeUtf8($normalizedJob['location']),
+                    'country' => $this->sanitizeUtf8($normalizedJob['country']),
                     'is_remote' => $normalizedJob['is_remote'],
-                    'contract_type' => $normalizedJob['contract_type'],
+                    'contract_type' => $this->sanitizeUtf8($normalizedJob['contract_type']),
                     'date_of_publi' => $normalizedJob['date_of_publi'],
                     'date_of_collect' => $normalizedJob['date_of_collect'],
                     'salary_min' => $normalizedJob['salary_min'],
                     'salary_max' => $normalizedJob['salary_max'],
-                    'salary_currency' => $normalizedJob['salary_currency'],
-                    'salary_period' => $normalizedJob['salary_period'],
+                    'salary_currency' => $this->sanitizeUtf8($normalizedJob['salary_currency']),
+                    'salary_period' => $this->sanitizeUtf8($normalizedJob['salary_period']),
                     'content_hash' => $contentHash,
                 ]);
             });
@@ -68,5 +68,13 @@ class JobIngestor
             Log::error('Erreur lors de l\'ingestion du job : ' . $e->getMessage());
             return false;
         }
+    }
+
+    private function sanitizeUtf8(mixed $value): mixed
+    {
+        if (is_string($value) && !mb_check_encoding($value, 'UTF-8')) {
+            return mb_convert_encoding($value, 'UTF-8', 'ISO-8859-1');
+        }
+        return $value;
     }
 }
