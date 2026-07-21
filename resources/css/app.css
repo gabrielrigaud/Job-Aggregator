@@ -78,12 +78,44 @@
     --sidebar-ring: oklch(0.556 0 0)
   }
   * {
-    @apply border-border outline-ring/50;
+    @apply border-outline-variant;
   }
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-on-surface;
   }
   html {
     @apply font-sans;
   }
 }
+.glass-panel {
+    background-color: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(12px);
+    border: 1px solid #c7c4d7;
+}
+.dark .glass-panel {
+    background-color: rgba(40, 48, 68, 0.6);
+    border: 1px solid #464554;
+}
+
+.glass-input {
+    background-color: #ffffff;
+    border: 1px solid #c7c4d7;
+    color: #464554;
+}
+.dark .glass-input {
+    background-color: #131b2e;
+    border: 1px solid #464554;
+    color: #faf8ff;
+}
+
+.glass-input:focus-within {
+    border-color: #4648d4;
+    box-shadow: 0 0 0 2px rgba(70, 72, 212, 0.2);
+}
+
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #c7c4d7; border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: #767586; }
+.dark ::-webkit-scrollbar-thumb { background: #464554; }
+.dark ::-webkit-scrollbar-thumb:hover { background: #767586; }
