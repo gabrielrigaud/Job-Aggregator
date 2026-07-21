@@ -1,9 +1,7 @@
-@import "tw-animate-css";
-@import "shadcn/tailwind.css";
-@import "@fontsource-variable/geist";
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
 
 @layer base {
   .theme {
@@ -119,3 +117,4 @@
 ::-webkit-scrollbar-thumb:hover { background: #767586; }
 .dark ::-webkit-scrollbar-thumb { background: #464554; }
 .dark ::-webkit-scrollbar-thumb:hover { background: #767586; }
+
