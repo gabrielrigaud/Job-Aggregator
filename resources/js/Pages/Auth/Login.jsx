@@ -1,9 +1,4 @@
-import Checkbox from '@/Components/Checkbox';
-import InputError from '@/Components/InputError';
-import InputLabel from '@/Components/InputLabel';
-import PrimaryButton from '@/Components/PrimaryButton';
-import TextInput from '@/Components/TextInput';
-import GuestLayout from '@/Layouts/GuestLayout';
+import React from 'react';
 import { Head, Link, useForm } from '@inertiajs/react';
 
 export default function Login({ status, canResetPassword }) {
@@ -15,86 +10,144 @@ export default function Login({ status, canResetPassword }) {
 
     const submit = (e) => {
         e.preventDefault();
-
         post(route('login'), {
             onFinish: () => reset('password'),
         });
     };
 
     return (
-        <GuestLayout>
-            <Head title="Log in" />
+        <div className="bg-background text-on-surface min-h-screen flex items-center justify-center p-md relative overflow-hidden font-body-md">
+            <Head title="JobMind - Login" />
 
-            {status && (
-                <div className="mb-4 text-sm font-medium text-green-600">
-                    {status}
-                </div>
-            )}
+            {/* Background Glow */}
+            <div className="fixed inset-0 z-0 overflow-hidden pointer-events-none">
+                <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-primary/15 rounded-full mix-blend-screen filter blur-[120px] opacity-70"></div>
+                <div className="absolute bottom-1/4 right-1/3 w-[400px] h-[400px] bg-secondary/15 rounded-full mix-blend-screen filter blur-[100px] opacity-60"></div>
+            </div>
 
-            <form onSubmit={submit}>
-                <div>
-                    <InputLabel htmlFor="email" value="Email" />
-
-                    <TextInput
-                        id="email"
-                        type="email"
-                        name="email"
-                        value={data.email}
-                        className="mt-1 block w-full"
-                        autoComplete="username"
-                        isFocused={true}
-                        onChange={(e) => setData('email', e.target.value)}
-                    />
-
-                    <InputError message={errors.email} className="mt-2" />
+            <main className="w-full max-w-md z-10">
+                {/* Brand Header */}
+                <div className="text-center mb-xl">
+                    <Link href="/">
+                        <h1 className="font-display text-headline-md md:text-display text-primary mb-sm tracking-tight font-bold">JobMind</h1>
+                    </Link>
+                    <p className="font-body-md text-body-md text-on-surface-variant">Welcome back, developer.</p>
                 </div>
 
-                <div className="mt-4">
-                    <InputLabel htmlFor="password" value="Password" />
-
-                    <TextInput
-                        id="password"
-                        type="password"
-                        name="password"
-                        value={data.password}
-                        className="mt-1 block w-full"
-                        autoComplete="current-password"
-                        onChange={(e) => setData('password', e.target.value)}
-                    />
-
-                    <InputError message={errors.password} className="mt-2" />
-                </div>
-
-                <div className="mt-4 block">
-                    <label className="flex items-center">
-                        <Checkbox
-                            name="remember"
-                            checked={data.remember}
-                            onChange={(e) =>
-                                setData('remember', e.target.checked)
-                            }
-                        />
-                        <span className="ms-2 text-sm text-gray-600 dark:text-gray-400">
-                            Remember me
-                        </span>
-                    </label>
-                </div>
-
-                <div className="mt-4 flex items-center justify-end">
-                    {canResetPassword && (
-                        <Link
-                            href={route('password.request')}
-                            className="rounded-md text-sm text-gray-600 underline hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 dark:text-gray-400 dark:hover:text-gray-100 dark:focus:ring-offset-gray-800"
+                {/* Glassmorphic Card */}
+                <div className="bg-surface-container/40 backdrop-blur-xl border border-outline-variant rounded-xl p-lg md:p-margin shadow-[0_8px_32px_rgba(0,0,0,0.05)]">
+                    {/* Segmented Control Tabs */}
+                    <div className="flex bg-surface-container-highest/60 p-xs rounded-lg mb-xl border border-outline-variant">
+                        <Link 
+                            href={route('login')}
+                            className="flex-1 py-sm text-center rounded-md bg-primary text-on-primary font-label-md text-label-md font-bold shadow-sm transition-colors"
                         >
-                            Forgot your password?
+                            Log In
                         </Link>
+                        <Link 
+                            href={route('register')}
+                            className="flex-1 py-sm text-center rounded-md text-on-surface-variant hover:text-on-surface font-label-md text-label-md transition-colors"
+                        >
+                            Sign Up
+                        </Link>
+                    </div>
+
+                    {status && (
+                        <div className="mb-md p-sm bg-primary/10 border border-primary/30 rounded-lg text-primary text-sm font-label-md">
+                            {status}
+                        </div>
                     )}
 
-                    <PrimaryButton className="ms-4" disabled={processing}>
-                        Log in
-                    </PrimaryButton>
+                    {/* Login Form */}
+                    <form onSubmit={submit} className="flex flex-col gap-md">
+                        {/* Email Input */}
+                        <div className="flex flex-col gap-xs">
+                            <label className="font-label-md text-on-surface-variant text-xs" htmlFor="email">Email Address</label>
+                            <input
+                                id="email"
+                                type="email"
+                                name="email"
+                                value={data.email}
+                                autoComplete="username"
+                                onChange={(e) => setData('email', e.target.value)}
+                                className="bg-surface-container-highest/30 border border-outline-variant text-on-surface rounded-lg px-4 py-3 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary w-full transition-all text-sm"
+                                placeholder="name@company.com"
+                                required
+                            />
+                            {errors.email && (
+                                <p className="font-body-sm text-xs text-error mt-xs">{errors.email}</p>
+                            )}
+                        </div>
+
+                        {/* Password Input */}
+                        <div className="flex flex-col gap-xs">
+                            <label className="font-label-md text-on-surface-variant text-xs" htmlFor="password">Password</label>
+                            <input
+                                id="password"
+                                type="password"
+                                name="password"
+                                value={data.password}
+                                autoComplete="current-password"
+                                onChange={(e) => setData('password', e.target.value)}
+                                className="bg-surface-container-highest/30 border border-outline-variant text-on-surface rounded-lg px-4 py-3 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary w-full transition-all text-sm"
+                                placeholder="••••••••"
+                                required
+                            />
+                            {errors.password && (
+                                <p className="font-body-sm text-xs text-error mt-xs">{errors.password}</p>
+                            )}
+                        </div>
+
+                        {/* Remember Me & Forgot Password */}
+                        <div className="flex justify-between items-center mt-xs">
+                            <label className="flex items-center gap-xs cursor-pointer">
+                                <input
+                                    type="checkbox"
+                                    name="remember"
+                                    checked={data.remember}
+                                    onChange={(e) => setData('remember', e.target.checked)}
+                                    className="rounded border-outline-variant bg-surface-container-lowest text-primary focus:ring-primary"
+                                />
+                                <span className="font-body-sm text-xs text-on-surface-variant">Remember me</span>
+                            </label>
+                            {canResetPassword && (
+                                <Link
+                                    href={route('password.request')}
+                                    className="font-label-md text-xs text-primary hover:underline transition-colors"
+                                >
+                                    Forgot password?
+                                </Link>
+                            )}
+                        </div>
+
+                        {/* Primary Action Button */}
+                        <button
+                            type="submit"
+                            disabled={processing}
+                            className="w-full py-3 px-lg bg-primary text-on-primary rounded-lg font-label-md text-label-md mt-md flex justify-center items-center gap-xs hover:bg-primary/90 transition-all shadow-[0_0_15px_rgba(70,72,212,0.4)] disabled:opacity-50"
+                        >
+                            {processing ? 'Logging in...' : 'Log In'}
+                            <span className="material-symbols-outlined text-[18px]">login</span>
+                        </button>
+
+                        {/* Divider */}
+                        <div className="flex items-center gap-md my-sm opacity-60">
+                            <div className="h-px bg-outline-variant flex-1"></div>
+                            <span className="font-label-md text-on-surface-variant uppercase text-xs">Or</span>
+                            <div className="h-px bg-outline-variant flex-1"></div>
+                        </div>
+
+                        {/* Secondary SSO Button */}
+                        <button
+                            type="button"
+                            className="w-full py-3 px-lg rounded-lg border border-outline-variant bg-transparent text-on-surface hover:bg-surface-container-high transition-colors font-label-md text-label-md flex justify-center items-center gap-sm"
+                        >
+                            <span className="material-symbols-outlined text-[20px]">code</span>
+                            Continue with GitHub
+                        </button>
+                    </form>
                 </div>
-            </form>
-        </GuestLayout>
+            </main>
+        </div>
     );
 }
