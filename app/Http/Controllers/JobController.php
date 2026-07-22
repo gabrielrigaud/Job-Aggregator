@@ -95,6 +95,6 @@ class JobController extends Controller
     {
         $job = JobOffer::findOrFail($id);
         $job->delete();
-        return redirect()->route('job.index')->with('success', 'Job offer deleted successfully.');
+        return redirect()->route('jobs.index')->with('success', 'Job offer deleted successfully.');
     }
 }
