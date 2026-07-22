@@ -8,13 +8,26 @@ use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
 Route::get('/', function () {
-    return Inertia::render('Welcome', [
+    $jobs = \App\Models\JobOffer::with(['company:id,name,logo_url,website_url', 'source:id,name'])
+        ->select('id', 'company_id', 'source_internal_id', 'title', 'description', 'location', 'country', 'is_remote', 'contract_type', 'date_of_publi', 'salary_min', 'salary_max', 'salary_currency', 'salary_period', 'created_at')
+        ->latest()
+        ->take(50)
+        ->get();
+
+    return Inertia::render('Discover', [
+        'jobs' => $jobs,
         'canLogin' => Route::has('login'),
         'canRegister' => Route::has('register'),
-        'laravelVersion' => Application::VERSION,
-        'phpVersion' => PHP_VERSION,
     ]);
 });
+
+Route::get('/jobs/{job}', function (\App\Models\JobOffer $job) {
+    $job->load(['company', 'source']);
+
+    return Inertia::render('JobDetail', [
+        'job' => $job,
+    ]);
+})->name('jobs.show');
 
 Route::get('/dashboard', function () {
     return Inertia::render('Dashboard');

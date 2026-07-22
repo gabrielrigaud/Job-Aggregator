@@ -35,22 +35,17 @@ class JobNormalizer
     /**
      * Normalise une offre issue du scraper Indeed.
      */
-        /**
-     * Normalise une offre issue du scraper Indeed.
-     */
-        /**
-     * Normalise une offre issue du scraper Indeed.
-     */
+
     public function normalizeIndeed(array $rawJob): array
     {
-        $location = $rawJob['location'] ?? 'Non spécifié';
+        $location = $rawJob['location'] ?? 'Non spÃ©cifiÃ©';
         $description = $rawJob['description'] ?? '';
-        $contract = $rawJob['contract'] ?? 'Non spécifié';
+        $contract = $rawJob['contract'] ?? 'Non spÃ©cifiÃ©';
         $salaryRaw = $rawJob['salary'] ?? null;
 
-        // Détection intelligente du télétravail
+        // DÃ©tection intelligente du tÃ©lÃ©travail
         $isRemote = false;
-        $remoteKeywords = ['télétravail', 'teletravail', 'hybride', 'remote', 'domicile'];
+        $remoteKeywords = ['tÃ©lÃ©travail', 'teletravail', 'hybride', 'remote', 'domicile'];
         $textToSearch = strtolower($location . ' ' . $description);
         foreach ($remoteKeywords as $kw) {
             if (str_contains($textToSearch, $kw)) {
@@ -59,9 +54,9 @@ class JobNormalizer
             }
         }
         
-        // Extraction du contrat depuis la description si non spécifié
-        if ($contract === 'Non spécifié') {
-            $contractKeywords = ['CDI', 'CDD', 'Stage', 'Alternance', 'Freelance', 'Indépendant'];
+        // Extraction du contrat depuis la description si non spÃ©cifiÃ©
+        if ($contract === 'Non spÃ©cifiÃ©') {
+            $contractKeywords = ['CDI', 'CDD', 'Stage', 'Alternance', 'Freelance', 'IndÃ©pendant'];
             foreach ($contractKeywords as $kw) {
                 if (stripos($description, $kw) !== false) {
                     $contract = $kw;
@@ -75,7 +70,7 @@ class JobNormalizer
         $salaryMax = null;
         $salaryPeriod = 'yearly';
 
-        if (!$salaryRaw && preg_match('/(?:Rémunération|Salaire)\s*[:]?\s*(.*€)/iu', $description, $matches)) {
+        if (!$salaryRaw && preg_match('/(?:RÃ©munÃ©ration|Salaire)\s*[:]?\s*(.*Ã©)/iu', $description, $matches)) {
              $salaryRaw = $matches[1];
         }
 
@@ -86,8 +81,8 @@ class JobNormalizer
                 $salaryPeriod = 'hourly';
             }
 
-            // Gérer les espaces insécables (\u{202F} ou \u{A0})
-            $cleanSalary = preg_replace('/[^\d,.]/', '', str_replace([' ', 'k', 'K', '€', "\u{202F}", "\u{A0}"], ['', '000', '000', '', '', ''], $salaryRaw));
+            // GÃ©rer les espaces insÃ©cables (\u{202F} ou \u{A0})
+            $cleanSalary = preg_replace('/[^\d,.]/', '', str_replace([' ', 'k', 'K', 'Ã©', "\u{202F}", "\u{A0}"], ['', '000', '000', '', '', ''], $salaryRaw));
             
             // Chercher des nombres (ex: 48000)
             if (preg_match_all('/(\d{2,3}(?:\s?\d{3})?|\d{2}\s?[kK])/', $salaryRaw, $matches)) {
@@ -111,7 +106,7 @@ class JobNormalizer
             'source_external_id' => null,
             'title' => $rawJob['title'] ?? 'Titre inconnu',
             'description' => empty($description) ? 'Aucune description' : $description,
-            'company_name' => $rawJob['company'] ?? 'Non spécifié',
+            'company_name' => $rawJob['company'] ?? 'Non spÃ©cifiÃ©',
             'company_website' => null,
             'company_logo' => null,
             'location' => $location,
