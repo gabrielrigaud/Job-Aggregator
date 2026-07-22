@@ -118,3 +118,70 @@
 .dark ::-webkit-scrollbar-thumb { background: #464554; }
 .dark ::-webkit-scrollbar-thumb:hover { background: #767586; }
 
+/* Global Dark Mode Overrides */
+.dark body,
+.dark main {
+    background-color: #10131a !important;
+    color: #e1e2ec !important;
+}
+
+.dark .bg-background {
+    background-color: #10131a !important;
+}
+
+.dark .text-on-surface {
+    color: #e1e2ec !important;
+}
+
+.dark .text-on-surface-variant {
+    color: #c2c6d6 !important;
+}
+
+.dark .border-outline-variant {
+    border-color: #424754 !important;
+}
+
+.dark .bg-surface-container-low\/80,
+.dark .bg-surface\/80,
+.dark .bg-surface\/90 {
+    background-color: rgba(16, 19, 26, 0.85) !important;
+}
+
+.dark .bg-surface-container\/40 {
+    background-color: rgba(29, 32, 39, 0.5) !important;
+}
+
+.dark .bg-surface-container-highest {
+    background-color: #32353c !important;
+}
+
+.dark .bg-surface-container-highest\/30 {
+    background-color: rgba(50, 53, 60, 0.4) !important;
+}
+
+.dark .bg-surface-container {
+    background-color: rgba(29, 32, 39, 0.8) !important;
+    color: #c2c6d6 !important;
+}
+
+.dark .bg-surface-variant {
+    background-color: rgba(50, 53, 60, 0.8) !important;
+    color: #e1e2ec !important;
+}
+
+.dark .bg-surface-container-low {
+    background-color: rgba(25, 27, 35, 0.9) !important;
+    color: #e1e2ec !important;
+}
+
+.dark .bg-surface-container-highest {
+    background-color: rgba(50, 53, 60, 0.9) !important;
+    color: #e1e2ec !important;
+}
+
+.dark .bg-surface\/50 {
+    background-color: rgba(16, 19, 26, 0.6) !important;
+}
+
+
+

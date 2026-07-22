@@ -37,6 +37,18 @@ Route::get('/dashboard', function () {
 Route::get('/jobs', [JobController::class, 'index'])->name('jobs.index');
 Route::get('/jobs/{id}', [JobController::class, 'show'])->name('jobs.show');
 
+Route::get('/saved', function () {
+    return Inertia::render('Saved');
+})->name('saved');
+
+Route::get('/insights', function () {
+    return Inertia::render('SalaryInsights');
+})->name('insights');
+
+Route::get('/settings', function () {
+    return Inertia::render('Settings');
+})->name('settings');
+
 
 //route pour les utilisateurs authentifiés
 Route::middleware('auth')->group(function () {
