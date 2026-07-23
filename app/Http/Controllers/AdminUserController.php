@@ -18,7 +18,7 @@ class AdminUserController extends Controller
             'users' => $users,
         ]);
     }
-
+//TODO #7  middleware custome ou fichier validator
     public function changeRole(Request $request, $id)
     {
             $validated = $request->validate([
