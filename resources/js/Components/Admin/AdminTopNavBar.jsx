@@ -13,21 +13,21 @@ export default function AdminTopNavBar() {
                     />
                 </div>
             </div>
-            <div className="flex items-center gap-4">
-                <button className="relative text-on-surface-variant transition-colors hover:text-primary">
-                    <span className="material-symbols-outlined text-[24px]">notifications</span>
-                    <span className="absolute right-0 top-0 h-2 w-2 rounded-full border-2 border-surface bg-error"></span>
+            <div className="flex items-center gap-3">
+                <button className="relative flex h-9 w-9 items-center justify-center rounded-lg text-on-surface-variant transition-colors hover:bg-surface-variant/50 hover:text-primary outline-none focus:outline-none focus:ring-0">
+                    <span className="material-symbols-outlined text-[20px]">notifications</span>
+                    <span className="absolute right-1 top-1 h-2 w-2 rounded-full border-2 border-surface bg-error"></span>
                 </button>
                 <button
                     onClick={() => {
                         const isDark = document.documentElement.classList.toggle('dark');
                         localStorage.setItem('theme', isDark ? 'dark' : 'light');
                     }}
-                    className="text-on-surface-variant transition-colors hover:text-primary"
+                    className="flex h-9 w-9 items-center justify-center rounded-lg text-on-surface-variant transition-colors hover:bg-surface-variant/50 hover:text-primary outline-none focus:outline-none focus:ring-0"
                     title="Toggle Theme"
                 >
-                    <span className="material-symbols-outlined text-[24px] dark:hidden">dark_mode</span>
-                    <span className="material-symbols-outlined text-[24px] hidden dark:block">light_mode</span>
+                    <span className="material-symbols-outlined text-[20px] dark:hidden">dark_mode</span>
+                    <span className="material-symbols-outlined text-[20px] hidden dark:inline-block">light_mode</span>
                 </button>
             </div>
         </header>
