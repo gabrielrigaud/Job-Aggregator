@@ -21,14 +21,14 @@ export default function JobDetailPanel({ job, onClose }) {
     return (
         <div className="glass-panel rounded-2xl border border-outline-variant shadow-lg flex flex-col overflow-hidden h-full">
             {/* Header Section (Sticky at the top of the panel) */}
-            <div className="p-lg md:p-xl border-b border-outline-variant bg-surface-container-low flex flex-col gap-md">
+            <div className="p-5 md:p-6 border-b border-outline-variant bg-surface-container-low flex flex-col gap-3">
                 
-                <h2 className="font-headline-lg text-body-lg md:text-headline-md font-bold text-on-surface">
+                <h2 className="text-xl font-bold text-on-surface">
                     {job.title}
                 </h2>
                 
-                <div className="flex flex-col gap-xs font-body-md text-on-surface-variant">
-                    <div className="flex items-center gap-xs">
+                <div className="flex flex-col gap-1 text-sm text-on-surface-variant">
+                    <div className="flex items-center gap-1">
                         <span className="font-medium underline decoration-outline-variant underline-offset-4 cursor-pointer hover:text-primary transition-colors">{companyName}</span>
                         <span className="material-symbols-outlined text-sm">open_in_new</span>
                     </div>
@@ -40,12 +40,12 @@ export default function JobDetailPanel({ job, onClose }) {
                     </div>
                 </div>
 
-                <div className="flex items-center gap-sm mt-sm">
+                <div className="flex items-center gap-2 mt-1">
                     <a
                         href={`/jobs/${job.id}`}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="px-xl py-3 rounded-xl bg-[#2557a7] text-white hover:bg-[#1e4687] transition-colors font-label-md text-sm font-bold shadow-sm"
+                        className="px-6 py-2.5 rounded-lg bg-[#2557a7] text-white hover:bg-[#1e4687] transition-colors text-sm font-semibold shadow-sm"
                     >
                         Postuler sur {job.source?.name || 'le site'}
                     </a>

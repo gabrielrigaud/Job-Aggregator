@@ -27,8 +27,8 @@ export default function AdminSideNavBar() {
                     <Link
                         className={`flex items-center rounded-lg px-3 py-2.5 transition-all ${
                             isOverview
-                                ? 'bg-primary-container/20 text-primary font-semibold'
-                                : 'text-on-surface-variant hover:bg-surface-variant/50 font-medium'
+                                ? 'bg-primary/10 text-primary dark:bg-primary/25 dark:text-indigo-300 font-semibold'
+                                : 'text-on-surface-variant hover:bg-surface-variant/50 dark:hover:bg-white/5 font-medium'
                         }`}
                         href="/admin/dashboard"
                     >
@@ -38,8 +38,8 @@ export default function AdminSideNavBar() {
                     <Link
                         className={`flex items-center rounded-lg px-3 py-2.5 transition-all ${
                             isUsers
-                                ? 'bg-primary-container/20 text-primary font-semibold'
-                                : 'text-on-surface-variant hover:bg-surface-variant/50 font-medium'
+                                ? 'bg-primary/10 text-primary dark:bg-primary/25 dark:text-indigo-300 font-semibold'
+                                : 'text-on-surface-variant hover:bg-surface-variant/50 dark:hover:bg-white/5 font-medium'
                         }`}
                         href="/admin/users"
                     >
@@ -49,8 +49,8 @@ export default function AdminSideNavBar() {
                     <Link
                         className={`flex items-center rounded-lg px-3 py-2.5 transition-all ${
                             isJobs
-                                ? 'bg-primary-container/20 text-primary font-semibold'
-                                : 'text-on-surface-variant hover:bg-surface-variant/50 font-medium'
+                                ? 'bg-primary/10 text-primary dark:bg-primary/25 dark:text-indigo-300 font-semibold'
+                                : 'text-on-surface-variant hover:bg-surface-variant/50 dark:hover:bg-white/5 font-medium'
                         }`}
                         href="/admin/jobs"
                     >
@@ -60,8 +60,8 @@ export default function AdminSideNavBar() {
                     <Link
                         className={`flex items-center rounded-lg px-3 py-2.5 transition-all ${
                             isAdminMgmt
-                                ? 'bg-primary-container/20 text-primary font-semibold'
-                                : 'text-on-surface-variant hover:bg-surface-variant/50 font-medium'
+                                ? 'bg-primary/10 text-primary dark:bg-primary/25 dark:text-indigo-300 font-semibold'
+                                : 'text-on-surface-variant hover:bg-surface-variant/50 dark:hover:bg-white/5 font-medium'
                         }`}
                         href="/admin/admins"
                     >

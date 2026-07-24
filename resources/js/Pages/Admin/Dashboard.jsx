@@ -170,13 +170,13 @@ export default function Dashboard() {
                                 <div>
                                     <div className="mb-5 flex items-center justify-between">
                                         <h3 className="text-xl font-bold text-on-surface">Trending Jobs</h3>
-                                        <a className="text-sm font-semibold text-[#4f46e5] hover:underline" href="#">Manage All</a>
+                                        <a className="text-sm font-semibold text-primary dark:text-indigo-300 hover:underline" href="#">Manage All</a>
                                     </div>
                                     <div className="flex flex-col gap-3">
                                         <div className="flex cursor-pointer items-center justify-between rounded-xl border border-outline-variant/50 bg-surface-container-low/50 p-4 transition-all hover:border-primary">
                                             <div className="flex items-center gap-4">
                                                 <div className="flex h-12 w-12 items-center justify-center rounded-lg border border-outline-variant/40 bg-white p-1 shadow-sm">
-                                                    <span className="material-symbols-outlined text-[#4f46e5]">corporate_fare</span>
+                                                    <span className="material-symbols-outlined text-primary dark:text-indigo-300">corporate_fare</span>
                                                 </div>
                                                 <div>
                                                     <p className="text-sm font-semibold text-on-surface">Senior Frontend Engineer</p>
@@ -222,7 +222,7 @@ export default function Dashboard() {
                                                 src="https://ui-avatars.com/api/?name=Elena+G&background=4f46e5&color=fff"
                                             />
                                             <p className="text-center text-xs font-semibold text-on-surface">Elena G.</p>
-                                            <p className="mt-1 font-mono text-[10px] font-medium text-[#4f46e5]">12 Tasks</p>
+                                            <p className="mt-1 font-mono text-[10px] font-medium text-primary dark:text-indigo-300">12 Tasks</p>
                                         </div>
                                         <div className="flex flex-1 flex-col items-center justify-center rounded-xl border border-outline-variant/50 bg-surface-container-low/50 p-4">
                                             <img
@@ -242,13 +242,13 @@ export default function Dashboard() {
                                         </div>
                                     </div>
                                 </div>
-                                <div className="mt-5 rounded-xl border border-outline-variant/60 bg-surface-container-high/40 p-4">
+                                <div className="mt-5 rounded-xl border border-outline-variant/60 bg-surface-container-low/60 dark:bg-surface-container-highest/30 p-4">
                                     <div className="mb-2 flex items-center justify-between">
                                         <span className="text-xs font-semibold text-on-surface">Global Queue Progress</span>
-                                        <span className="font-mono text-xs font-bold text-[#4f46e5]">82%</span>
+                                        <span className="font-mono text-xs font-bold text-primary dark:text-indigo-300">82%</span>
                                     </div>
-                                    <div className="h-2 w-full overflow-hidden rounded-full bg-surface-container-highest">
-                                        <div className="h-full w-[82%] rounded-full bg-[#4f46e5]"></div>
+                                    <div className="h-2 w-full overflow-hidden rounded-full bg-surface-container-highest dark:bg-surface-variant/50">
+                                        <div className="h-full w-[82%] rounded-full bg-primary dark:bg-indigo-500"></div>
                                     </div>
                                 </div>
                             </div>
