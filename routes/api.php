@@ -10,7 +10,7 @@ Route::get('/user', function (Request $request) {
     return $request->user();
 })->middleware('auth:sanctum');
 
-Route::post('/jobs', [JobApiController::class, 'store'])->middleware('auth:sanctum');
+Route::post('/jobs', [JobApiController::class, 'store'])->middleware(['auth:sanctum', 'admin']); // Ajout du middleware admin pour restreindre l'accès aux utilisateurs avec le rôle d'administrateur
 // Route d'authentification API pour générer le token Sanctum
 Route::post('/login', function (Request $request) {
     $request->validate([

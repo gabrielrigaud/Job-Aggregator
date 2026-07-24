@@ -20,6 +20,8 @@ return Application::configure(basePath: dirname(__DIR__))
 
         $middleware->alias(['role' => \Spatie\Permission\Middleware\RoleMiddleware::class]);
 
+        $middleware->alias(['admin' => \App\Http\Middleware\AdminAccessMiddleware::class]);
+
         // Ignorer la vérification CSRF pour les tests d'API dans Postman 
         $middleware->preventRequestForgery(except: [
             'admin/*',
@@ -33,9 +35,6 @@ return Application::configure(basePath: dirname(__DIR__))
             'logout',
         ]);
     
-        
-
-        $middleware->alias(['role'=>\Spatie\Permission\Middleware\RoleMiddleware::class]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->shouldRenderJsonWhen(
