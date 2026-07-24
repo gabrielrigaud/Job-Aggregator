@@ -57,10 +57,27 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
+// Admin Dashboard & Users (Temporary direct access for testing)
+Route::get('/admin/dashboard', function () {
+    return Inertia::render('Admin/Dashboard');
+})->name('admin.dashboard');
+
+Route::get('/admin/users', function () {
+    return Inertia::render('Admin/Users');
+})->name('admin.users.preview');
+
+Route::get('/admin/jobs', function () {
+    return Inertia::render('Admin/Jobs');
+})->name('admin.jobs.preview');
+
+Route::get('/admin/admins', function () {
+    return Inertia::render('Admin/Admins');
+})->name('admin.admins.preview');
+
 // Admin routes
 Route::middleware(['auth', 'role:admin'])->group(function () {
     //modif ou suppression d'un utilisateur
-    Route::get('/admin/users', [AdminUserController::class, 'index'])->name('admin.users.index');
+    // Route::get('/admin/users', [AdminUserController::class, 'index'])->name('admin.users.index');
     Route::get('/admin/users/create', [AdminUserController::class, 'create'])->name('admin.users.create');
     Route::post('/admin/users', [AdminUserController::class, 'store'])->name('admin.users.store');
 
