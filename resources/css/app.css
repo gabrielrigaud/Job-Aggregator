@@ -183,5 +183,18 @@
     background-color: rgba(16, 19, 26, 0.6) !important;
 }
 
-
-
+.stat-card {
+    transition: all 0.3s ease;
+}
+.stat-card-tertiary:hover {
+    border-color: #904900 !important;
+    box-shadow: 0 0 0 1px #904900, 0 4px 6px -1px rgba(144, 73, 0, 0.2) !important;
+}
+.stat-card-error:hover {
+    border-color: #ba1a1a !important;
+    box-shadow: 0 0 0 1px #ba1a1a, 0 4px 6px -1px rgba(186, 26, 26, 0.2) !important;
+}
+.stat-card-secondary:hover {
+    border-color: #6b38d4 !important;
+    box-shadow: 0 0 0 1px #6b38d4, 0 4px 6px -1px rgba(107, 56, 212, 0.2) !important;
+}
