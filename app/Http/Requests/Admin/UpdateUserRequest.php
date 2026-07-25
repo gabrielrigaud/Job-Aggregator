@@ -24,7 +24,7 @@ class UpdateUserRequest extends FormRequest
     {
         return [
             'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email,' . $this->route('id')],
+            'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email,' . $this->route('id')], //ignore l'utilisateur actuel lors de la vérification de l'unicité
             'role' => ['required', 'in:admin,user'],
         ];
     }

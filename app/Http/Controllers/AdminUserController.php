@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Auth;
 use App\Http\Requests\Admin\StoreUserRequest;
 use App\Http\Requests\Admin\UpdateUserRequest;
 use App\Http\Requests\Admin\ChangeRoleRequest;
+use App\Services\UserService;
 
 class AdminUserController extends Controller
 {
@@ -40,11 +41,10 @@ class AdminUserController extends Controller
         return redirect()->route('admin.users.index')->with('success', 'User deleted successfully.');
     }
 
-    public function update(UpdateUserRequest $request, $id)
+    public function update(UpdateUserRequest $request, $id, UserService $userService)
     {
         $user = User::findOrFail($id);
-        $user->update($request->only(['name', 'email']));
-        $user->syncRoles([$request->validated()['role']]);
+        $userService->updateUser($user, $request->validated());
         return redirect()->route('admin.users.index')->with('success', 'User updated successfully.');
     }
 
@@ -53,15 +53,11 @@ class AdminUserController extends Controller
         return Inertia::render('Admin/Users/Create');
     }
 
-    public function store(StoreUserRequest $request)
+    public function store(StoreUserRequest $request , UserService $userService)
     {
         $validated = $request->validated();
 
-        $validated['password'] = Hash::make($validated['password']);
-        $role = $validated['role'];
-        unset($validated['role']);
-        $user = User::create($validated);
-        $user->assignRole($role); // Assign the selected role
+        $userService->createUser($request->validated());
         return redirect()->route('admin.users.index')->with('success', 'User created successfully.');
     }
 
