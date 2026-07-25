@@ -8,6 +8,10 @@ use Inertia\Inertia;
 use Illuminate\Support\Facades\Hash;
 use Spatie\Permission\Models\Role;
 use Illuminate\Support\Facades\Auth;
+use App\Http\Requests\Admin\StoreUserRequest;
+use App\Http\Requests\Admin\UpdateUserRequest;
+use App\Http\Requests\Admin\ChangeRoleRequest;
+use App\Services\UserService;
 
 class AdminUserController extends Controller
 {
@@ -18,15 +22,11 @@ class AdminUserController extends Controller
             'users' => $users,
         ]);
     }
-//TODO #7  middleware custome ou fichier validator
-    public function changeRole(Request $request, $id)
+
+    public function changeRole(ChangeRoleRequest $request, $id)
     {
-            $validated = $request->validate([
-                'role' => 'required|in:admin,user',
-            ]);
-        
         $user = User::findOrFail($id);
-        $user->syncRoles([$validated['role']]);
+        $user->syncRoles([$request->validated()['role']]);
         return redirect()->route('admin.users.index')->with('success', 'User role updated successfully.');
     }
 
@@ -41,17 +41,10 @@ class AdminUserController extends Controller
         return redirect()->route('admin.users.index')->with('success', 'User deleted successfully.');
     }
 
-    public function update(Request $request, $id)
+    public function update(UpdateUserRequest $request, $id, UserService $userService)
     {
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users,email,' . $id,
-            'role' => 'required|in:admin,user',
-        ]);
-
         $user = User::findOrFail($id);
-        $user->update($request->only(['name', 'email']));
-        $user->syncRoles([$validated['role']]);
+        $userService->updateUser($user, $request->validated());
         return redirect()->route('admin.users.index')->with('success', 'User updated successfully.');
     }
 
@@ -60,21 +53,12 @@ class AdminUserController extends Controller
         return Inertia::render('Admin/Users/Create');
     }
 
-    public function store(Request $request)
+    public function store(StoreUserRequest $request , UserService $userService)
     {
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users,email',
-            'password' => 'required|string|min:8',
-            'role' => 'required|in:admin,user',
-        ]);
+        $validated = $request->validated();
 
-        $validated['password'] = Hash::make($validated['password']);
-        $role = $validated['role'];
-        unset($validated['role']);
-        $user = User::create($validated);
-        $user->assignRole($role); // Assign the selected role
+        $userService->createUser($request->validated());
         return redirect()->route('admin.users.index')->with('success', 'User created successfully.');
     }
-}
 
+}
