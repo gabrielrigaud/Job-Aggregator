@@ -40,20 +40,20 @@ export default function Login({ status, canResetPassword }) {
                     <div className="flex bg-surface-container-highest/60 p-xs rounded-lg mb-xl border border-outline-variant">
                         <Link 
                             href={route('login')}
-                            className="flex-1 py-sm text-center rounded-md bg-primary text-on-primary font-label-md text-label-md font-bold shadow-sm transition-colors"
+                            className="flex-1 py-sm text-center rounded-md bg-primary text-on-primary font-medium text-sm font-bold shadow-sm transition-colors"
                         >
                             Log In
                         </Link>
                         <Link 
                             href={route('register')}
-                            className="flex-1 py-sm text-center rounded-md text-on-surface-variant hover:text-on-surface font-label-md text-label-md transition-colors"
+                            className="flex-1 py-sm text-center rounded-md text-on-surface-variant hover:text-on-surface font-medium text-sm transition-colors"
                         >
                             Sign Up
                         </Link>
                     </div>
 
                     {status && (
-                        <div className="mb-md p-sm bg-primary/10 border border-primary/30 rounded-lg text-primary text-sm font-label-md">
+                        <div className="mb-md p-sm bg-primary/10 border border-primary/30 rounded-lg text-primary text-sm font-medium">
                             {status}
                         </div>
                     )}
@@ -62,7 +62,7 @@ export default function Login({ status, canResetPassword }) {
                     <form onSubmit={submit} className="flex flex-col gap-md">
                         {/* Email Input */}
                         <div className="flex flex-col gap-xs">
-                            <label className="font-label-md text-on-surface-variant text-xs" htmlFor="email">Email Address</label>
+                            <label className="font-medium text-on-surface-variant text-xs" htmlFor="email">Email Address</label>
                             <input
                                 id="email"
                                 type="email"
@@ -81,7 +81,7 @@ export default function Login({ status, canResetPassword }) {
 
                         {/* Password Input */}
                         <div className="flex flex-col gap-xs">
-                            <label className="font-label-md text-on-surface-variant text-xs" htmlFor="password">Password</label>
+                            <label className="font-medium text-on-surface-variant text-xs" htmlFor="password">Password</label>
                             <input
                                 id="password"
                                 type="password"
@@ -113,7 +113,7 @@ export default function Login({ status, canResetPassword }) {
                             {canResetPassword && (
                                 <Link
                                     href={route('password.request')}
-                                    className="font-label-md text-xs text-primary hover:underline transition-colors"
+                                    className="font-medium text-xs text-primary hover:underline transition-colors"
                                 >
                                     Forgot password?
                                 </Link>
@@ -124,7 +124,7 @@ export default function Login({ status, canResetPassword }) {
                         <button
                             type="submit"
                             disabled={processing}
-                            className="w-full py-3 px-lg bg-primary text-on-primary rounded-lg font-label-md text-label-md mt-md flex justify-center items-center gap-xs hover:bg-primary/90 transition-all shadow-[0_0_15px_rgba(70,72,212,0.4)] disabled:opacity-50"
+                            className="w-full py-3 px-lg bg-primary text-on-primary rounded-lg font-medium text-sm mt-md flex justify-center items-center gap-xs hover:bg-primary/90 transition-all shadow-[0_0_15px_rgba(70,72,212,0.4)] disabled:opacity-50"
                         >
                             {processing ? 'Logging in...' : 'Log In'}
                             <span className="material-symbols-outlined text-[18px]">login</span>
@@ -133,14 +133,14 @@ export default function Login({ status, canResetPassword }) {
                         {/* Divider */}
                         <div className="flex items-center gap-md my-sm opacity-60">
                             <div className="h-px bg-outline-variant flex-1"></div>
-                            <span className="font-label-md text-on-surface-variant uppercase text-xs">Or</span>
+                            <span className="font-medium text-on-surface-variant uppercase text-xs">Or</span>
                             <div className="h-px bg-outline-variant flex-1"></div>
                         </div>
 
                         {/* Secondary SSO Button */}
                         <button
                             type="button"
-                            className="w-full py-3 px-lg rounded-lg border border-outline-variant bg-transparent text-on-surface hover:bg-surface-container-high transition-colors font-label-md text-label-md flex justify-center items-center gap-sm"
+                            className="w-full py-3 px-lg rounded-lg border border-outline-variant bg-transparent text-on-surface hover:bg-surface-container-high transition-colors font-medium text-sm flex justify-center items-center gap-sm"
                         >
                             <span className="material-symbols-outlined text-[20px]">code</span>
                             Continue with GitHub

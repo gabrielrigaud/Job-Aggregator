@@ -10,39 +10,39 @@ export default function SideNavBar() {
     };
 
     return (
-        <nav className="hidden lg:flex flex-col p-md gap-sm bg-surface-container-low/80 backdrop-blur-xl h-screen w-64 left-0 top-0 border-r border-outline-variant fixed z-40 transition-all duration-200 ease-in-out">
-            <div className="mb-xl px-sm pt-sm">
-                <h1 className="font-display-lg text-headline-md font-bold text-primary tracking-tight">JobMind</h1>
+        <nav className="hidden lg:flex flex-col p-4 gap-2 bg-surface-container-low/80 backdrop-blur-xl h-screen w-64 left-0 top-0 border-r border-outline-variant fixed z-40 transition-all duration-200 ease-in-out">
+            <div className="mb-8 px-2 pt-2">
+                <h1 className="text-xl font-bold text-primary tracking-tight">JobMind</h1>
             </div>
-            <div className="flex flex-col gap-sm flex-1 font-label-md text-label-md">
+            <div className="flex flex-col space-y-1 flex-1 px-2">
                 <Link 
-                    className={`flex items-center gap-md px-md py-sm rounded-lg transition-all duration-200 ease-in-out ${isActive('/') ? 'bg-secondary-container text-on-secondary-container' : 'text-on-surface-variant hover:bg-surface-container-highest hover:bg-surface-variant/50'}`} 
+                    className={`group flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${isActive('/') ? 'bg-primary/10 text-primary' : 'text-on-surface-variant hover:bg-surface-variant/50 hover:text-on-surface'}`} 
                     href="/"
                 >
-                    <span className="material-symbols-outlined" style={{ fontVariationSettings: isActive('/') ? "'FILL' 1" : "'FILL' 0" }}>search</span>
+                    <span className={`material-symbols-outlined text-[20px] ${isActive('/') ? 'text-primary' : 'text-outline'}`}>search</span>
                     Home
                 </Link>
                 <Link 
-                    className={`flex items-center gap-md px-md py-sm rounded-lg transition-all duration-200 ease-in-out ${isActive('/saved') ? 'bg-secondary-container text-on-secondary-container' : 'text-on-surface-variant hover:bg-surface-container-highest hover:bg-surface-variant/50'}`} 
+                    className={`group flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${isActive('/saved') ? 'bg-primary/10 text-primary' : 'text-on-surface-variant hover:bg-surface-variant/50 hover:text-on-surface'}`} 
                     href="/saved"
                 >
-                    <span className="material-symbols-outlined" style={{ fontVariationSettings: isActive('/saved') ? "'FILL' 1" : "'FILL' 0" }}>bookmark</span>
+                    <span className={`material-symbols-outlined text-[20px] ${isActive('/saved') ? 'text-primary' : 'text-outline'}`}>bookmark</span>
                     Saved
                 </Link>
                 <Link 
-                    className={`flex items-center gap-md px-md py-sm rounded-lg transition-all duration-200 ease-in-out ${isActive('/insights') ? 'bg-secondary-container text-on-secondary-container' : 'text-on-surface-variant hover:bg-surface-container-highest hover:bg-surface-variant/50'}`} 
+                    className={`group flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${isActive('/insights') ? 'bg-primary/10 text-primary' : 'text-on-surface-variant hover:bg-surface-variant/50 hover:text-on-surface'}`} 
                     href="/insights"
                 >
-                    <span className="material-symbols-outlined" style={{ fontVariationSettings: isActive('/insights') ? "'FILL' 1" : "'FILL' 0" }}>query_stats</span>
+                    <span className={`material-symbols-outlined text-[20px] ${isActive('/insights') ? 'text-primary' : 'text-outline'}`}>query_stats</span>
                     Salary Insights
                 </Link>
             </div>
-            <div className="mt-auto flex flex-col gap-sm pt-xl border-t border-outline-variant">
+            <div className="mt-auto flex flex-col space-y-1 px-2 pt-6 border-t border-outline-variant">
                 <Link 
-                    className={`flex items-center gap-md px-md py-sm rounded-lg transition-all duration-200 ease-in-out font-label-md text-label-md ${isActive('/settings') ? 'bg-secondary-container text-on-secondary-container' : 'text-on-surface-variant hover:bg-surface-container-highest hover:bg-surface-variant/50'}`} 
+                    className={`group flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${isActive('/settings') ? 'bg-primary/10 text-primary' : 'text-on-surface-variant hover:bg-surface-variant/50 hover:text-on-surface'}`} 
                     href="/settings"
                 >
-                    <span className="material-symbols-outlined" style={{ fontVariationSettings: isActive('/settings') ? "'FILL' 1" : "'FILL' 0" }}>settings</span>
+                    <span className={`material-symbols-outlined text-[20px] ${isActive('/settings') ? 'text-primary' : 'text-outline'}`}>settings</span>
                     Settings
                 </Link>
             </div>

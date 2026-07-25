@@ -91,8 +91,8 @@
     border: 1px solid #c7c4d7;
 }
 .dark .glass-panel {
-    background-color: rgba(40, 48, 68, 0.6);
-    border: 1px solid #464554;
+    background-color: rgba(27, 30, 42, 0.8);
+    border: 1px solid #2b3040;
 }
 
 .glass-input {
@@ -101,9 +101,9 @@
     color: #464554;
 }
 .dark .glass-input {
-    background-color: #131b2e;
-    border: 1px solid #464554;
-    color: #faf8ff;
+    background-color: #1b1e2a;
+    border: 1px solid #2b3040;
+    color: #e1e2ec;
 }
 
 .glass-input:focus-within {
@@ -134,54 +134,83 @@
 }
 
 .dark .text-on-surface-variant {
-    color: #c2c6d6 !important;
+    color: #a0a6b8 !important;
+}
+
+.dark .text-outline {
+    color: #8e94a5 !important;
 }
 
 .dark .border-outline-variant {
-    border-color: #424754 !important;
+    border-color: #2b3040 !important;
 }
 
-.dark .bg-surface-container-low\/80,
+.dark .bg-white {
+    background-color: #1b1e2a !important;
+    color: #e1e2ec !important;
+}
+
+/* Explicit Dark Mode Overrides for custom theme surface containers and opacity modifiers */
+.dark .bg-surface,
 .dark .bg-surface\/80,
-.dark .bg-surface\/90 {
-    background-color: rgba(16, 19, 26, 0.85) !important;
-}
-
-.dark .bg-surface-container\/40 {
-    background-color: rgba(29, 32, 39, 0.5) !important;
-}
-
-.dark .bg-surface-container-highest {
-    background-color: #32353c !important;
-}
-
-.dark .bg-surface-container-highest\/30 {
-    background-color: rgba(50, 53, 60, 0.4) !important;
-}
-
-.dark .bg-surface-container {
-    background-color: rgba(29, 32, 39, 0.8) !important;
-    color: #c2c6d6 !important;
-}
-
-.dark .bg-surface-variant {
-    background-color: rgba(50, 53, 60, 0.8) !important;
-    color: #e1e2ec !important;
-}
-
-.dark .bg-surface-container-low {
-    background-color: rgba(25, 27, 35, 0.9) !important;
-    color: #e1e2ec !important;
-}
-
-.dark .bg-surface-container-highest {
-    background-color: rgba(50, 53, 60, 0.9) !important;
-    color: #e1e2ec !important;
-}
-
+.dark .bg-surface\/90,
 .dark .bg-surface\/50 {
-    background-color: rgba(16, 19, 26, 0.6) !important;
+    background-color: rgba(22, 25, 35, 0.9) !important;
+    color: #e1e2ec !important;
 }
 
+.dark .bg-surface-container,
+.dark .bg-surface-container\/80,
+.dark .bg-surface-container\/50,
+.dark .bg-surface-container\/40,
+.dark .bg-surface-container-lowest,
+.dark .bg-surface-container-lowest\/30,
+.dark .bg-surface-container-low,
+.dark .bg-surface-container-low\/80,
+.dark .bg-surface-container-low\/50,
+.dark .bg-surface-container-low\/40,
+.dark .bg-surface-container-low\/20 {
+    background-color: #1b1e2a !important;
+    color: #e1e2ec !important;
+}
 
+.dark .bg-surface-container-high,
+.dark .bg-surface-container-high\/90,
+.dark .bg-surface-container-highest,
+.dark .bg-surface-container-highest\/30,
+.dark .bg-surface-container-highest\/60,
+.dark .bg-surface-container-highest\/90,
+.dark .bg-surface-variant,
+.dark .bg-surface-variant\/80,
+.dark .bg-surface-variant\/50,
+.dark .bg-surface-variant\/30,
+.dark .bg-surface-variant\/20 {
+    background-color: #242838 !important;
+    color: #e1e2ec !important;
+}
 
+.dark tr.hover\:bg-surface-variant\/20:hover,
+.dark div.hover\:bg-surface-variant\/20:hover,
+.dark button.hover\:bg-surface-variant\/50:hover {
+    background-color: #2e3448 !important;
+}
+
+.dark .bg-[#2557a7] {
+    background-color: #3b82f6 !important;
+}
+
+.stat-card {
+    transition: all 0.3s ease;
+}
+.stat-card-tertiary:hover {
+    border-color: #904900 !important;
+    box-shadow: 0 0 0 1px #904900, 0 4px 6px -1px rgba(144, 73, 0, 0.2) !important;
+}
+.stat-card-error:hover {
+    border-color: #ba1a1a !important;
+    box-shadow: 0 0 0 1px #ba1a1a, 0 4px 6px -1px rgba(186, 26, 26, 0.2) !important;
+}
+.stat-card-secondary:hover {
+    border-color: #6b38d4 !important;
+    box-shadow: 0 0 0 1px #6b38d4, 0 4px 6px -1px rgba(107, 56, 212, 0.2) !important;
+}

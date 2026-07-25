@@ -7,27 +7,27 @@ export default function SalaryInsights() {
         <MainLayout>
             <Head title="JobMind - Analytics & AI Insights" />
             
-            <div className="flex-1 px-lg lg:px-xl pt-24 pb-32 max-w-[1440px] mx-auto w-full relative z-10">
-                <header className="mb-xl flex flex-col md:flex-row md:items-end justify-between gap-md">
+            <div className="flex-1 px-6 lg:px-8 pt-20 pb-16 max-w-[1440px] mx-auto w-full relative z-10">
+                <header className="mb-6 flex flex-col md:flex-row md:items-end justify-between gap-4">
                     <div>
-                        <h2 className="font-headline-lg-mobile lg:font-headline-lg text-headline-lg-mobile lg:text-headline-lg text-on-surface mb-xs">Analytics & AI Insights</h2>
-                        <p className="font-body-md text-body-md text-on-surface-variant">Real-time developer market intelligence and trends.</p>
+                        <h2 className="text-2xl font-bold text-on-surface mb-1">Analytics & AI Insights</h2>
+                        <p className="text-sm text-on-surface-variant">Real-time developer market intelligence and trends.</p>
                     </div>
-                    <div className="hidden md:flex gap-sm">
-                        <button className="px-md py-sm border border-white/20 text-on-surface rounded-lg font-label-md text-label-md hover:bg-surface-variant/30 backdrop-blur-sm transition-colors flex items-center gap-xs">
-                            <span className="material-symbols-outlined text-[18px]" style={{ fontVariationSettings: "'FILL' 0" }}>download</span> Export Report
+                    <div className="hidden md:flex gap-2">
+                        <button className="px-3 py-1.5 border border-white/20 text-on-surface rounded-lg text-xs font-medium hover:bg-surface-variant/30 backdrop-blur-sm transition-colors flex items-center gap-1.5">
+                            <span className="material-symbols-outlined text-[16px]" style={{ fontVariationSettings: "'FILL' 0" }}>download</span> Export Report
                         </button>
                     </div>
                 </header>
                 
-                <div className="grid grid-cols-1 lg:grid-cols-12 gap-lg pb-32">
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 pb-16">
                     {/* Map Widget */}
-                    <div className="bg-surface-container/40 backdrop-blur-xl border border-white/10 rounded-xl shadow-lg col-span-1 lg:col-span-8 p-lg flex flex-col h-[500px]">
-                        <div className="flex justify-between items-center mb-md">
-                            <h3 className="font-headline-md text-headline-md text-on-surface">Global Job Density</h3>
-                            <div className="flex gap-xs">
-                                <span className="font-code-sm px-2 py-1 rounded bg-primary/10 text-primary border border-primary/20">Remote</span>
-                                <span className="font-code-sm px-2 py-1 rounded bg-surface-container/50 border-white/10 text-on-surface-variant backdrop-blur-sm border">On-site</span>
+                    <div className="bg-surface-container/40 backdrop-blur-xl border border-white/10 rounded-xl shadow-lg col-span-1 lg:col-span-8 p-5 flex flex-col h-[450px]">
+                        <div className="flex justify-between items-center mb-4">
+                            <h3 className="text-base font-semibold text-on-surface">Global Job Density</h3>
+                            <div className="flex gap-2">
+                                <span className="font-mono text-xs px-2 py-0.5 rounded bg-primary/10 text-primary border border-primary/20">Remote</span>
+                                <span className="font-mono text-xs px-2 py-0.5 rounded bg-surface-container/50 border-white/10 text-on-surface-variant backdrop-blur-sm border">On-site</span>
                             </div>
                         </div>
                         <div className="flex-1 rounded-lg overflow-hidden relative border border-white/10 bg-surface-container-lowest/30">
@@ -41,28 +41,28 @@ export default function SalaryInsights() {
                     </div>
                     
                     {/* Side Stats Widget */}
-                    <div className="col-span-1 lg:col-span-4 flex flex-col gap-lg">
-                        <div className="bg-surface-container/40 backdrop-blur-xl border border-white/10 rounded-xl shadow-lg p-lg flex-1">
-                            <h3 className="font-label-md text-label-md text-on-surface-variant uppercase tracking-wider mb-xs">Active Postings</h3>
-                            <div className="font-display-lg text-display-lg text-primary mb-sm">14,239</div>
-                            <div className="flex items-center text-tertiary gap-xs font-label-md text-label-md">
+                    <div className="col-span-1 lg:col-span-4 flex flex-col gap-4">
+                        <div className="bg-surface-container/40 backdrop-blur-xl border border-white/10 rounded-xl shadow-lg p-5 flex-1">
+                            <h3 className="text-xs font-semibold text-on-surface-variant uppercase tracking-wider mb-1">Active Postings</h3>
+                            <div className="text-3xl font-bold text-primary mb-2">14,239</div>
+                            <div className="flex items-center text-tertiary gap-1 text-xs font-medium">
                                 <span className="material-symbols-outlined text-[16px]" style={{ fontVariationSettings: "'FILL' 0" }}>trending_up</span>
                                 <span>+12.5% this week</span>
                             </div>
                         </div>
-                        <div className="bg-surface-container/40 backdrop-blur-xl border border-white/10 rounded-xl shadow-lg p-lg flex-1">
-                            <h3 className="font-label-md text-label-md text-on-surface-variant uppercase tracking-wider mb-xs">AI Predicted Demand</h3>
-                            <div className="font-display-lg text-display-lg text-secondary mb-sm">High</div>
-                            <p className="font-body-sm text-body-sm text-on-surface-variant mt-sm border-t border-white/10 pt-sm">Based on trending keywords in Rust and AI engineering.</p>
+                        <div className="bg-surface-container/40 backdrop-blur-xl border border-white/10 rounded-xl shadow-lg p-5 flex-1">
+                            <h3 className="text-xs font-semibold text-on-surface-variant uppercase tracking-wider mb-1">AI Predicted Demand</h3>
+                            <div className="text-3xl font-bold text-secondary mb-2">High</div>
+                            <p className="text-xs text-on-surface-variant mt-2 border-t border-white/10 pt-2">Based on trending keywords in Rust and AI engineering.</p>
                         </div>
                     </div>
                     
                     {/* Bar Chart Widget */}
-                    <div className="bg-surface-container/40 backdrop-blur-xl border border-white/10 rounded-xl shadow-lg col-span-1 lg:col-span-7 p-lg h-[400px] flex flex-col">
-                        <h3 className="font-headline-md text-headline-md text-on-surface mb-md">Median Salary by Tech Specialty</h3>
+                    <div className="bg-surface-container/40 backdrop-blur-xl border border-white/10 rounded-xl shadow-lg col-span-1 lg:col-span-7 p-5 h-[360px] flex flex-col">
+                        <h3 className="text-base font-semibold text-on-surface mb-4">Median Salary by Tech Specialty</h3>
                         <div className="flex-1 flex flex-col justify-around">
                             <div className="flex flex-col gap-xs">
-                                <div className="flex justify-between items-center font-label-md text-on-surface-variant">
+                                <div className="flex justify-between items-center font-medium text-on-surface-variant">
                                     <span>AI/ML</span>
                                     <span className="text-primary font-bold">$185k</span>
                                 </div>
@@ -71,7 +71,7 @@ export default function SalaryInsights() {
                                 </div>
                             </div>
                             <div className="flex flex-col gap-xs">
-                                <div className="flex justify-between items-center font-label-md text-on-surface-variant">
+                                <div className="flex justify-between items-center font-medium text-on-surface-variant">
                                     <span>DevOps</span>
                                     <span className="text-primary font-bold">$165k</span>
                                 </div>
@@ -80,7 +80,7 @@ export default function SalaryInsights() {
                                 </div>
                             </div>
                             <div className="flex flex-col gap-xs">
-                                <div className="flex justify-between items-center font-label-md text-on-surface-variant">
+                                <div className="flex justify-between items-center font-medium text-on-surface-variant">
                                     <span>Backend</span>
                                     <span className="text-primary font-bold">$160k</span>
                                 </div>
@@ -89,7 +89,7 @@ export default function SalaryInsights() {
                                 </div>
                             </div>
                             <div className="flex flex-col gap-xs">
-                                <div className="flex justify-between items-center font-label-md text-on-surface-variant">
+                                <div className="flex justify-between items-center font-medium text-on-surface-variant">
                                     <span>Mobile</span>
                                     <span className="text-primary font-bold">$150k</span>
                                 </div>
@@ -98,7 +98,7 @@ export default function SalaryInsights() {
                                 </div>
                             </div>
                             <div className="flex flex-col gap-xs">
-                                <div className="flex justify-between items-center font-label-md text-on-surface-variant">
+                                <div className="flex justify-between items-center font-medium text-on-surface-variant">
                                     <span>Frontend</span>
                                     <span className="text-primary font-bold">$145k</span>
                                 </div>
@@ -114,23 +114,23 @@ export default function SalaryInsights() {
                         <h3 className="font-headline-md text-headline-md text-on-surface mb-md">Top Hiring Companies</h3>
                         <div className="flex-1 flex flex-col gap-md overflow-y-auto">
                             <div className="flex items-center justify-between p-sm rounded-lg hover:bg-surface-variant/30 transition-colors">
-                                <span className="font-label-md text-on-surface">Google</span>
+                                <span className="font-medium text-on-surface">Google</span>
                                 <span className="font-code-sm px-2 py-1 rounded bg-primary/10 text-primary border border-primary/20">124 jobs</span>
                             </div>
                             <div className="flex items-center justify-between p-sm rounded-lg hover:bg-surface-variant/30 transition-colors">
-                                <span className="font-label-md text-on-surface">Amazon</span>
+                                <span className="font-medium text-on-surface">Amazon</span>
                                 <span className="font-code-sm px-2 py-1 rounded bg-primary/10 text-primary border border-primary/20">98 jobs</span>
                             </div>
                             <div className="flex items-center justify-between p-sm rounded-lg hover:bg-surface-variant/30 transition-colors">
-                                <span className="font-label-md text-on-surface">Microsoft</span>
+                                <span className="font-medium text-on-surface">Microsoft</span>
                                 <span className="font-code-sm px-2 py-1 rounded bg-primary/10 text-primary border border-primary/20">82 jobs</span>
                             </div>
                             <div className="flex items-center justify-between p-sm rounded-lg hover:bg-surface-variant/30 transition-colors">
-                                <span className="font-label-md text-on-surface">Meta</span>
+                                <span className="font-medium text-on-surface">Meta</span>
                                 <span className="font-code-sm px-2 py-1 rounded bg-primary/10 text-primary border border-primary/20">65 jobs</span>
                             </div>
                             <div className="flex items-center justify-between p-sm rounded-lg hover:bg-surface-variant/30 transition-colors">
-                                <span className="font-label-md text-on-surface">Apple</span>
+                                <span className="font-medium text-on-surface">Apple</span>
                                 <span className="font-code-sm px-2 py-1 rounded bg-primary/10 text-primary border border-primary/20">54 jobs</span>
                             </div>
                         </div>
@@ -149,7 +149,7 @@ export default function SalaryInsights() {
                                 </svg>
                                 <div className="absolute inset-0 flex flex-col items-center justify-center">
                                     <span className="text-headline-md font-bold text-on-surface">100%</span>
-                                    <span className="text-label-md text-on-surface-variant">Total</span>
+                                    <span className="text-xs text-on-surface-variant">Total</span>
                                 </div>
                             </div>
                             {/* Vertical Legend */}
@@ -157,21 +157,21 @@ export default function SalaryInsights() {
                                 <div className="flex items-center gap-sm">
                                     <div className="w-3 h-3 rounded-full bg-primary"></div>
                                     <div className="flex flex-col">
-                                        <span className="font-label-md text-on-surface">Remote</span>
+                                        <span className="font-medium text-on-surface">Remote</span>
                                         <span className="font-code-sm text-primary">45%</span>
                                     </div>
                                 </div>
                                 <div className="flex items-center gap-sm">
                                     <div className="w-3 h-3 rounded-full bg-secondary"></div>
                                     <div className="flex flex-col">
-                                        <span className="font-label-md text-on-surface">Hybrid</span>
+                                        <span className="font-medium text-on-surface">Hybrid</span>
                                         <span className="font-code-sm text-secondary">30%</span>
                                     </div>
                                 </div>
                                 <div className="flex items-center gap-sm">
                                     <div className="w-3 h-3 rounded-full bg-outline"></div>
                                     <div className="flex flex-col">
-                                        <span className="font-label-md text-on-surface">On-site</span>
+                                        <span className="font-medium text-on-surface">On-site</span>
                                         <span className="font-code-sm text-outline">25%</span>
                                     </div>
                                 </div>

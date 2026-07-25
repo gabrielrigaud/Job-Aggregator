@@ -9,32 +9,32 @@ export default function Saved() {
         <MainLayout>
             <Head title="JobMind - Saved Jobs" />
             
-            <div className="flex-grow p-lg pt-24 md:pt-24 max-w-[1440px] w-full mx-auto pb-32 md:pb-lg">
+            <div className="flex-1 px-6 lg:px-8 pt-20 pb-16 max-w-[1440px] mx-auto w-full relative z-10">
                 {/* Welcome Section */}
-                <header className="mb-xl flex flex-col md:flex-row md:items-end justify-between gap-md">
+                <header className="mb-6 flex flex-col md:flex-row md:items-end justify-between gap-4">
                     <div>
-                        <h1 className="font-headline-lg text-headline-lg-mobile md:text-headline-lg text-on-surface mb-xs">Hello, Alex</h1>
-                        <p className="font-body-md text-body-md text-on-surface-variant">Here is a summary of your recent activity and saved opportunities.</p>
+                        <h1 className="text-2xl font-bold text-on-surface mb-1">Saved Opportunities</h1>
+                        <p className="text-sm text-on-surface-variant">Review and manage your favorite jobs and application history.</p>
                     </div>
-                    <div className="flex gap-sm">
-                        <button className="px-md py-sm bg-white/5 backdrop-blur-md border border-white/10 rounded-lg text-on-surface font-label-md text-label-md hover:bg-white/10 transition-colors flex items-center gap-sm">
-                            <span className="material-symbols-outlined text-[20px]" style={{ fontVariationSettings: "'FILL' 0" }}>download</span>
+                    <div className="flex gap-2">
+                        <button className="px-3 py-1.5 bg-white/5 backdrop-blur-md border border-white/10 rounded-lg text-on-surface text-xs font-medium hover:bg-white/10 transition-colors flex items-center gap-1.5">
+                            <span className="material-symbols-outlined text-[18px]" style={{ fontVariationSettings: "'FILL' 0" }}>download</span>
                             Export Resume
                         </button>
                     </div>
                 </header>
 
                 {/* Tabs */}
-                <div className="flex border-b border-white/10 mb-lg gap-lg">
+                <div className="flex border-b border-white/10 mb-6 gap-6">
                     <button 
-                        className={`pb-sm font-label-md text-label-md flex items-center gap-xs ${activeTab === 'favorites' ? 'text-primary border-b-2 border-primary' : 'text-on-surface-variant border-b-2 border-transparent hover:text-primary'}`}
+                        className={`pb-2 text-sm font-medium flex items-center gap-1.5 ${activeTab === 'favorites' ? 'text-primary border-b-2 border-primary' : 'text-on-surface-variant border-b-2 border-transparent hover:text-primary'}`}
                         onClick={() => setActiveTab('favorites')}
                     >
                         <span className="material-symbols-outlined text-[18px]" style={{ fontVariationSettings: activeTab === 'favorites' ? "'FILL' 1" : "'FILL' 0" }}>favorite</span>
                         Favorites
                     </button>
                     <button 
-                        className={`pb-sm font-label-md text-label-md flex items-center gap-xs ${activeTab === 'history' ? 'text-primary border-b-2 border-primary' : 'text-on-surface-variant border-b-2 border-transparent hover:text-primary'}`}
+                        className={`pb-2 text-sm font-medium flex items-center gap-1.5 ${activeTab === 'history' ? 'text-primary border-b-2 border-primary' : 'text-on-surface-variant border-b-2 border-transparent hover:text-primary'}`}
                         onClick={() => setActiveTab('history')}
                     >
                         <span className="material-symbols-outlined text-[18px]" style={{ fontVariationSettings: activeTab === 'history' ? "'FILL' 1" : "'FILL' 0" }}>history</span>
@@ -56,7 +56,7 @@ export default function Saved() {
                                         <span className="material-symbols-outlined text-primary" style={{ fontVariationSettings: "'FILL' 0" }}>code</span>
                                     </div>
                                     <div>
-                                        <h3 className="font-label-md text-label-md text-on-surface mb-xs">Senior Frontend Engineer</h3>
+                                        <h3 className="font-medium text-sm text-on-surface mb-xs">Senior Frontend Engineer</h3>
                                         <p className="font-code-sm text-code-sm text-on-surface-variant">Stripe • Remote</p>
                                     </div>
                                 </div>
@@ -77,7 +77,7 @@ export default function Saved() {
                                         <span className="material-symbols-outlined text-secondary" style={{ fontVariationSettings: "'FILL' 0" }}>database</span>
                                     </div>
                                     <div>
-                                        <h3 className="font-label-md text-label-md text-on-surface mb-xs">Backend Developer (Go)</h3>
+                                        <h3 className="font-medium text-sm text-on-surface mb-xs">Backend Developer (Go)</h3>
                                         <p className="font-code-sm text-code-sm text-on-surface-variant">Vercel • San Francisco, CA</p>
                                     </div>
                                 </div>
@@ -98,7 +98,7 @@ export default function Saved() {
                                         <span className="material-symbols-outlined text-tertiary" style={{ fontVariationSettings: "'FILL' 0" }}>architecture</span>
                                     </div>
                                     <div>
-                                        <h3 className="font-label-md text-label-md text-on-surface mb-xs">Staff Software Engineer</h3>
+                                        <h3 className="font-medium text-sm text-on-surface mb-xs">Staff Software Engineer</h3>
                                         <p className="font-code-sm text-code-sm text-on-surface-variant">Netflix • Remote</p>
                                     </div>
                                 </div>
@@ -119,10 +119,10 @@ export default function Saved() {
                             <table className="w-full text-left border-collapse">
                                 <thead>
                                     <tr className="border-b border-white/10 bg-white/5">
-                                        <th className="p-md font-label-md text-label-md text-on-surface-variant font-medium">Job Title</th>
-                                        <th className="p-md font-label-md text-label-md text-on-surface-variant font-medium">Company</th>
-                                        <th className="p-md font-label-md text-label-md text-on-surface-variant font-medium">Viewed Date</th>
-                                        <th className="p-md font-label-md text-label-md text-on-surface-variant font-medium">Status</th>
+                                        <th className="p-md font-medium text-sm text-on-surface-variant font-medium">Job Title</th>
+                                        <th className="p-md font-medium text-sm text-on-surface-variant font-medium">Company</th>
+                                        <th className="p-md font-medium text-sm text-on-surface-variant font-medium">Viewed Date</th>
+                                        <th className="p-md font-medium text-sm text-on-surface-variant font-medium">Status</th>
                                     </tr>
                                 </thead>
                                 <tbody className="font-body-sm text-body-sm text-on-surface">
