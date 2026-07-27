@@ -1,5 +1,10 @@
 <?php
 
+// Guard: return empty config if Scribe is not installed (production)
+if (!class_exists(\Knuckles\Scribe\Config\AuthIn::class)) {
+    return [];
+}
+
 use Knuckles\Scribe\Config\AuthIn;
 use Knuckles\Scribe\Config\Defaults;
 use Knuckles\Scribe\Extracting\Strategies;
