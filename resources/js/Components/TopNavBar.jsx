@@ -1,9 +1,21 @@
-import React from 'react';
-import { Link, usePage } from '@inertiajs/react';
+import React, { useState, useEffect } from 'react';
+import { Link, usePage, router } from '@inertiajs/react';
 
 export default function TopNavBar() {
-    const { auth } = usePage().props;
+    const { auth, filters = {} } = usePage().props;
     const user = auth?.user;
+    
+    const [search, setSearch] = useState(filters.search || '');
+
+    useEffect(() => {
+        setSearch(filters.search || '');
+    }, [filters.search]);
+
+    const handleSearch = (e) => {
+        if (e.key === 'Enter') {
+            router.get('/', { ...filters, search }, { preserveState: true, preserveScroll: true, replace: true });
+        }
+    };
 
     return (
         <header className="fixed top-0 w-full lg:w-[calc(100%-16rem)] z-30 flex justify-between items-center px-lg h-16 bg-surface/80 backdrop-blur-xl border-b border-outline-variant shadow-sm transition-all duration-200">
@@ -15,10 +27,14 @@ export default function TopNavBar() {
             <div className="flex-1 max-w-2xl mr-auto hidden sm:flex">
                 <div className="w-full relative group glass-input rounded-lg flex items-center px-sm transition-all duration-200">
                     <span className="material-symbols-outlined text-outline p-sm">search</span>
-                    <input className="w-full bg-transparent border-none text-on-surface placeholder:text-outline focus:ring-0 font-body-sm py-sm outline-none" placeholder="Search roles, skills, or companies... (Cmd + K)" type="text" />
-                    <div className="hidden lg:flex items-center gap-xs px-2 py-1 bg-surface-container-highest rounded border border-outline-variant text-outline font-code-sm text-xs">
-                        <span>⌘</span><span>K</span>
-                    </div>
+                    <input 
+                        value={search}
+                        onChange={(e) => setSearch(e.target.value)}
+                        onKeyDown={handleSearch}
+                        className="w-full bg-transparent border-none text-on-surface placeholder:text-outline focus:ring-0 font-body-sm py-sm outline-none" 
+                        placeholder="Search roles, skills, or companies..." 
+                        type="text" 
+                    />
                 </div>
             </div>
 

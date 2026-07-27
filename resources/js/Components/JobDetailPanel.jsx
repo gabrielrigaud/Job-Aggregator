@@ -1,5 +1,5 @@
 import React from 'react';
-
+import ReactMarkdown from 'react-markdown';
 export default function JobDetailPanel({ job, onClose }) {
     if (!job) {
         return (
@@ -14,9 +14,27 @@ export default function JobDetailPanel({ job, onClose }) {
     const companyName = job.company?.name || 'Company Confidential';
     const logoUrl = job.company?.logo_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(companyName)}&background=eaedff&color=4648d4`;
 
-    const formattedSalary = job.salary_min && job.salary_max
-        ? `${job.salary_min} - ${job.salary_max} ${job.salary_currency || '€'}`
-        : (job.salary_min ? `From ${job.salary_min} ${job.salary_currency || '€'}` : 'Salary undisclosed');
+    const isFreelance = job.contract_type && job.contract_type.toLowerCase() === 'freelance';
+    
+    let formattedSalary = 'Salary undisclosed';
+    if (job.salary_min || job.salary_max) {
+        const formatNum = (num) => {
+            if (!num) return null;
+            const n = Number(num);
+            if (n < 200) return `${n}k`; 
+            if (n >= 1000) return `${Math.round(n / 1000)}k`; 
+            return `${n}`; 
+        };
+        
+        const min = formatNum(job.salary_min);
+        const max = formatNum(job.salary_max);
+        const curr = job.salary_currency || '€';
+        const suffix = isFreelance ? ' / j' : '';
+        
+        if (min && max) formattedSalary = `${min} - ${max} ${curr}${suffix}`;
+        else if (min) formattedSalary = `From ${min} ${curr}${suffix}`;
+        else formattedSalary = `Up to ${max} ${curr}${suffix}`;
+    }
 
     return (
         <div className="glass-panel rounded-2xl border border-outline-variant shadow-lg flex flex-col overflow-hidden h-full">
@@ -112,10 +130,9 @@ export default function JobDetailPanel({ job, onClose }) {
                 {/* Job Description */}
                 <div className="flex flex-col gap-md">
                     {job.description ? (
-                        <div
-                            className="prose dark:prose-invert max-w-none text-on-surface space-y-4 text-sm leading-relaxed"
-                            dangerouslySetInnerHTML={{ __html: job.description }}
-                        />
+                        <div className="prose dark:prose-invert max-w-none text-on-surface space-y-4 text-sm leading-relaxed marker:text-primary">
+                            <ReactMarkdown>{job.description}</ReactMarkdown>
+                        </div>
                     ) : (
                         <p className="text-on-surface-variant italic">Aucune description complète fournie pour cette offre.</p>
                     )}
