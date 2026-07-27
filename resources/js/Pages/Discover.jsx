@@ -4,9 +4,43 @@ import { Popover, PopoverButton, PopoverPanel } from '@headlessui/react';
 import JobDetailPanel from '../Components/JobDetailPanel';
 import MainLayout from '../Layouts/MainLayout';
 
-export default function Discover({ jobs = [], savedJobIds = [] }) {
+export default function Discover({ jobs = [], savedJobIds = [], filters = {} }) {
+    const safeFilters = Array.isArray(filters) ? {} : (filters || {});
+
     const [selectedJob, setSelectedJob] = useState(null);
     const [isScrolled, setIsScrolled] = useState(false);
+
+    const [location, setLocation] = useState(safeFilters.location || '');
+    const [contractType, setContractType] = useState(safeFilters.contract_type || '');
+    const [remoteOnly, setRemoteOnly] = useState(safeFilters.remote_only === 'true');
+    const [salaryMin, setSalaryMin] = useState(safeFilters.salary_min || '');
+    const [sort, setSort] = useState(typeof safeFilters.sort === 'string' ? safeFilters.sort : 'recent');
+
+    // Debounce location search
+    useEffect(() => {
+        const timeoutId = setTimeout(() => {
+            if (location !== (filters.location || '')) {
+                updateFilters({ location });
+            }
+        }, 500);
+        return () => clearTimeout(timeoutId);
+    }, [location]);
+
+    const updateFilters = (newFilters) => {
+        const queryParams = { ...filters, ...newFilters };
+        // Remove empty values to clean URL
+        Object.keys(queryParams).forEach(key => {
+            if (queryParams[key] === '' || queryParams[key] === null || queryParams[key] === false) {
+                delete queryParams[key];
+            }
+        });
+        
+        router.get('/', queryParams, {
+            preserveState: true,
+            preserveScroll: true,
+            replace: true
+        });
+    };
 
     useEffect(() => {
         const handleKeyDown = (e) => {
@@ -30,11 +64,24 @@ export default function Discover({ jobs = [], savedJobIds = [] }) {
                         <div className="flex items-center gap-3 md:gap-4 overflow-x-auto hide-scrollbar w-full pb-2">
                             <div className="flex items-center glass-input rounded-lg px-3 min-w-[180px]">
                                 <span className="material-symbols-outlined text-outline text-sm">location_on</span>
-                                <input className="w-full bg-transparent border-none text-on-surface placeholder:text-outline focus:ring-0 font-body-sm py-2 outline-none" placeholder="Location..." type="text" />
+                                <input 
+                                    value={location}
+                                    onChange={(e) => setLocation(e.target.value)}
+                                    className="w-full bg-transparent border-none text-on-surface placeholder:text-outline focus:ring-0 font-body-sm py-2 outline-none" 
+                                    placeholder="Location..." 
+                                    type="text" 
+                                />
                             </div>
                             <div className="relative min-w-[150px]">
-                                <select defaultValue="" className="w-full glass-input rounded-lg pl-3 pr-8 py-2 font-body-sm text-on-surface outline-none cursor-pointer">
-                                    <option className="bg-surface" disabled value="">Contract Type</option>
+                                <select 
+                                    value={contractType}
+                                    onChange={(e) => {
+                                        setContractType(e.target.value);
+                                        updateFilters({ contract_type: e.target.value });
+                                    }}
+                                    className="w-full glass-input rounded-lg pl-3 pr-8 py-2 font-body-sm text-on-surface outline-none cursor-pointer"
+                                >
+                                    <option className="bg-surface" value="">Contract Type (All)</option>
                                     <option className="bg-surface" value="full-time">Full-Time</option>
                                     <option className="bg-surface" value="contract">Contract</option>
                                     <option className="bg-surface" value="freelance">Freelance</option>
@@ -43,7 +90,9 @@ export default function Discover({ jobs = [], savedJobIds = [] }) {
                             <Popover className="relative">
                                 <PopoverButton className="flex items-center gap-2 glass-input rounded-lg px-3 py-2 cursor-pointer outline-none min-w-[150px]">
                                     <span className="material-symbols-outlined text-outline text-sm">payments</span>
-                                    <span className="font-body-sm text-on-surface whitespace-nowrap">Salary Range</span>
+                                    <span className="font-body-sm text-on-surface whitespace-nowrap">
+                                        {salaryMin ? `> ${salaryMin / 1000}k €` : 'Salary Range'}
+                                    </span>
                                     <span className="material-symbols-outlined text-outline text-sm ml-auto">expand_more</span>
                                 </PopoverButton>
                                 <PopoverPanel 
@@ -53,28 +102,54 @@ export default function Discover({ jobs = [], savedJobIds = [] }) {
                                 >
                                     <div className="flex flex-col gap-4">
                                         <div className="flex justify-between items-center">
-                                            <span className="font-body-sm text-on-surface-variant font-medium whitespace-nowrap">$80k</span>
-                                            <span className="font-body-sm text-on-surface-variant font-medium whitespace-nowrap">$200k+</span>
+                                            <span className="font-body-sm text-on-surface-variant font-medium whitespace-nowrap">0 €</span>
+                                            <span className="font-body-sm text-on-surface-variant font-medium whitespace-nowrap">150k+ €</span>
                                         </div>
-                                        <div className="w-full h-1 bg-surface-variant rounded-full relative mt-2 mb-2">
-                                            <div className="absolute left-[20%] right-[30%] h-full bg-gradient-to-r from-primary to-secondary-container rounded-full"></div>
-                                            <div className="absolute left-[20%] top-1/2 -translate-y-1/2 w-4 h-4 bg-white rounded-full shadow-md cursor-pointer border-2 border-primary"></div>
-                                            <div className="absolute right-[30%] top-1/2 -translate-y-1/2 w-4 h-4 bg-white rounded-full shadow-md cursor-pointer border-2 border-primary"></div>
+                                        <div className="w-full relative mt-2 mb-2 flex items-center">
+                                            <input 
+                                                type="range" 
+                                                min="0" max="150000" step="10000"
+                                                value={salaryMin || 0}
+                                                onChange={(e) => {
+                                                    const val = e.target.value;
+                                                    setSalaryMin(val === '0' ? '' : val);
+                                                }}
+                                                onMouseUp={() => updateFilters({ salary_min: salaryMin })}
+                                                onTouchEnd={() => updateFilters({ salary_min: salaryMin })}
+                                                className="w-full h-1.5 bg-surface-variant rounded-full appearance-none cursor-pointer accent-primary"
+                                            />
+                                        </div>
+                                        <div className="text-center font-body-sm text-primary font-bold mt-1">
+                                            {salaryMin ? `Minimum: ${salaryMin} €` : 'Any Salary'}
                                         </div>
                                     </div>
                                 </PopoverPanel>
                             </Popover>
-                            <div className="flex items-center gap-2 glass-panel rounded-lg px-4 py-2 cursor-pointer hover:border-primary transition-colors whitespace-nowrap">
-                                <div className="w-8 h-4 bg-primary-container rounded-full relative">
-                                    <div className="absolute right-1 top-0.5 w-3 h-3 bg-on-primary-container rounded-full shadow-sm"></div>
+                            <div 
+                                onClick={() => {
+                                    const newValue = !remoteOnly;
+                                    setRemoteOnly(newValue);
+                                    updateFilters({ remote_only: newValue ? 'true' : '' });
+                                }}
+                                className={`flex items-center gap-2 rounded-lg px-4 py-2 cursor-pointer transition-colors whitespace-nowrap border ${remoteOnly ? 'bg-primary-container/20 border-primary text-primary' : 'glass-panel border-transparent hover:border-outline-variant text-on-surface'}`}
+                            >
+                                <div className={`w-8 h-4 rounded-full relative transition-colors ${remoteOnly ? 'bg-primary' : 'bg-surface-variant'}`}>
+                                    <div className={`absolute top-0.5 w-3 h-3 rounded-full shadow-sm transition-all ${remoteOnly ? 'right-1 bg-white' : 'left-1 bg-outline'}`}></div>
                                 </div>
-                                <span className="font-body-sm text-on-surface">Remote Only</span>
+                                <span className="font-body-sm">Remote Only</span>
                             </div>
                             {/* Sort Button pushed to right */}
                             <div className="flex-1 min-w-[150px] flex justify-end ml-auto">
-                                <button className="flex items-center gap-1 text-on-surface-variant hover:text-primary transition-colors font-body-sm font-medium px-3 py-2 rounded-lg hover:bg-surface-variant/50 border border-transparent hover:border-outline-variant whitespace-nowrap">
+                                <button 
+                                    onClick={() => {
+                                        const newSort = sort === 'recent' ? 'relevance' : 'recent';
+                                        setSort(newSort);
+                                        updateFilters({ sort: newSort });
+                                    }}
+                                    className="flex items-center gap-1 text-on-surface-variant hover:text-primary transition-colors font-body-sm font-medium px-3 py-2 rounded-lg hover:bg-surface-variant/50 border border-transparent hover:border-outline-variant whitespace-nowrap outline-none focus:ring-0"
+                                >
                                     <span className="material-symbols-outlined text-sm">sort</span>
-                                    Sort: Relevance
+                                    {sort === 'relevance' ? 'Sort: Relevance' : 'Sort: Recent'}
                                 </button>
                             </div>
                         </div>
@@ -157,9 +232,27 @@ export default function Discover({ jobs = [], savedJobIds = [] }) {
                                             </div>
                                             <div className="flex justify-between items-center mt-sm">
                                                 <span className="font-medium text-xs text-on-surface bg-surface-variant px-2 py-0.5 rounded border border-outline-variant">
-                                                    {job.salary_min && job.salary_max
-                                                        ? `${job.salary_min} - ${job.salary_max} ${job.salary_currency || '€'}`
-                                                        : (job.salary_min ? `From ${job.salary_min} ${job.salary_currency || '€'}` : 'Salary undisclosed')}
+                                                    {(() => {
+                                                        if (!job.salary_min && !job.salary_max) return 'Salary undisclosed';
+                                                        
+                                                        const isFreelance = job.contract_type && job.contract_type.toLowerCase() === 'freelance';
+                                                        const formatNum = (num) => {
+                                                            if (!num) return null;
+                                                            const n = Number(num);
+                                                            if (n < 200) return `${n}k`; 
+                                                            if (n >= 1000) return `${Math.round(n / 1000)}k`; 
+                                                            return `${n}`; 
+                                                        };
+                                                        
+                                                        const min = formatNum(job.salary_min);
+                                                        const max = formatNum(job.salary_max);
+                                                        const curr = job.salary_currency || '€';
+                                                        const suffix = isFreelance ? ' / j' : '';
+                                                        
+                                                        if (min && max) return `${min} - ${max} ${curr}${suffix}`;
+                                                        if (min) return `From ${min} ${curr}${suffix}`;
+                                                        return `Up to ${max} ${curr}${suffix}`;
+                                                    })()}
                                                 </span>
                                                 <span className="font-body-sm text-outline text-xs">
                                                     {new Date(job.date_of_publi || job.created_at).toLocaleDateString()}

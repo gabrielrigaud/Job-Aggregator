@@ -65,10 +65,11 @@ class JobController extends Controller
             }
         }
 
-        return Inertia::render('Job/Show', [
+        $job->load(['company', 'source']);
+
+        return Inertia::render('JobDetail', [
             'job' => $job
         ]);
-
         
     }
 
