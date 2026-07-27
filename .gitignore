@@ -27,3 +27,10 @@ Homestead.yaml
 Thumbs.db
 .prettierrc
 /projet
+
+# Python & Scraper exclusions
+__pycache__/
+*.py[cod]
+/scraper_api/.venv/
+/scraper_api/user_data/
+*.png
