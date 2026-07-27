@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
 Route::get('/', function (\Illuminate\Http\Request $request) {
-    $jobs = \App\Models\JobOffer::with(['company:id,name,logo_url,website_url', 'source:id,name'])
+    $jobs = \App\Models\JobOffer::with(['company'])
         ->select('id', 'company_id', 'source_internal_id', 'title', 'description', 'location', 'country', 'is_remote', 'contract_type', 'date_of_publi', 'salary_min', 'salary_max', 'salary_currency', 'salary_period', 'created_at')
         ->latest()
         ->take(50)
