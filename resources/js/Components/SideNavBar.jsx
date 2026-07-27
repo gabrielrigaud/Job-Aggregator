@@ -2,7 +2,8 @@ import React from 'react';
 import { Link, usePage } from '@inertiajs/react';
 
 export default function SideNavBar() {
-    const { url } = usePage();
+    const { url, props } = usePage();
+    const user = props.auth?.user;
     
     const isActive = (path) => {
         if (path === '/') return url === '/';
@@ -36,8 +37,18 @@ export default function SideNavBar() {
                     <span className={`material-symbols-outlined text-[20px] ${isActive('/insights') ? 'text-primary' : 'text-outline'}`}>query_stats</span>
                     Salary Insights
                 </Link>
+
+                {user?.is_admin && (
+                    <Link 
+                        className={`group flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${isActive('/admin') ? 'bg-primary/10 text-primary' : 'text-on-surface-variant hover:bg-surface-variant/50 hover:text-on-surface'}`} 
+                        href="/admin/users"
+                    >
+                        <span className={`material-symbols-outlined text-[20px] ${isActive('/admin') ? 'text-primary' : 'text-outline'}`}>admin_panel_settings</span>
+                        Admin Panel
+                    </Link>
+                )}
             </div>
-            <div className="mt-auto flex flex-col space-y-1 px-2 pt-6 border-t border-outline-variant">
+            <div className="mt-auto flex flex-col space-y-3 px-2 pt-4 border-t border-outline-variant">
                 <Link 
                     className={`group flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${isActive('/settings') ? 'bg-primary/10 text-primary' : 'text-on-surface-variant hover:bg-surface-variant/50 hover:text-on-surface'}`} 
                     href="/settings"
@@ -45,6 +56,24 @@ export default function SideNavBar() {
                     <span className={`material-symbols-outlined text-[20px] ${isActive('/settings') ? 'text-primary' : 'text-outline'}`}>settings</span>
                     Settings
                 </Link>
+
+                {user && (
+                    <div className="flex items-center justify-between p-2 rounded-lg bg-surface-container/50 border border-outline-variant/60">
+                        <div className="flex flex-col min-w-0 pr-2">
+                            <span className="text-xs font-semibold text-on-surface truncate">{user.name}</span>
+                            <span className="text-[11px] text-on-surface-variant truncate">{user.email}</span>
+                        </div>
+                        <Link
+                            href={route('logout')}
+                            method="post"
+                            as="button"
+                            className="text-on-surface-variant hover:text-error transition-colors p-1 rounded-md hover:bg-error/10"
+                            title="Log Out"
+                        >
+                            <span className="material-symbols-outlined text-[18px]">logout</span>
+                        </Link>
+                    </div>
+                )}
             </div>
         </nav>
     );

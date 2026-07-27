@@ -12,10 +12,12 @@ class OfferView extends Model
         'job_offer_id',
         'user_id',
         'viewed_at',
+        'is_saved',
     ];
 
     protected $casts = [
         'viewed_at' => 'datetime',
+        'is_saved' => 'boolean',
     ];
 
     public function jobOffer() {

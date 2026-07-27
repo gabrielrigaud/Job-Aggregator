@@ -97,4 +97,32 @@ class JobController extends Controller
         $job->delete();
         return redirect()->route('jobs.index')->with('success', 'Job offer deleted successfully.');
     }
+
+    public function toggleSave(Request $request, JobOffer $job)
+    {
+        $user = $request->user();
+        $view = OfferView::firstOrNew([
+            'user_id' => $user->id,
+            'job_offer_id' => $job->id,
+        ]);
+
+        $view->is_saved = !$view->is_saved;
+        $view->save();
+
+        return redirect()->back();
+    }
+
+    public function logView(Request $request, JobOffer $job)
+    {
+        if ($user = $request->user()) {
+            $view = OfferView::firstOrCreate([
+                'user_id' => $user->id,
+                'job_offer_id' => $job->id,
+            ]);
+            // Update the viewed_at timestamp so it jumps to top of history
+            $view->viewed_at = now();
+            $view->save();
+        }
+        return response()->json(['success' => true]);
+    }
 }

@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { Head, Link } from '@inertiajs/react';
+import { Head, Link, router } from '@inertiajs/react';
 import { Popover, PopoverButton, PopoverPanel } from '@headlessui/react';
 import JobDetailPanel from '../Components/JobDetailPanel';
 import MainLayout from '../Layouts/MainLayout';
 
-export default function Discover({ jobs = [] }) {
+export default function Discover({ jobs = [], savedJobIds = [] }) {
     const [selectedJob, setSelectedJob] = useState(null);
     const [isScrolled, setIsScrolled] = useState(false);
 
@@ -106,6 +106,9 @@ export default function Discover({ jobs = [] }) {
                                                 window.location.href = `/jobs/${job.id}`;
                                             } else {
                                                 setSelectedJob(job);
+                                                if (window.axios) {
+                                                    window.axios.post(`/jobs/${job.id}/view`).catch(e => console.error(e));
+                                                }
                                             }
                                         }}
                                         className={`glass-panel rounded-xl p-4 flex flex-col sm:flex-row gap-4 transition-all duration-200 group cursor-pointer relative overflow-hidden flex-shrink-0 ${isSelected
@@ -126,10 +129,15 @@ export default function Discover({ jobs = [] }) {
                                                     <p className="text-sm text-on-surface-variant mt-0.5">{job.company?.name || 'Company Confidential'}</p>
                                                 </div>
                                                 <button
-                                                    onClick={(e) => { e.stopPropagation(); }}
+                                                    onClick={(e) => { 
+                                                        e.stopPropagation(); 
+                                                        router.post(`/jobs/${job.id}/toggle-save`, {}, { preserveScroll: true, preserveState: true });
+                                                    }}
                                                     className="text-outline hover:text-primary transition-colors p-xs rounded-full hover:bg-surface-variant/50"
                                                 >
-                                                    <span className="material-symbols-outlined">bookmark_border</span>
+                                                    <span className="material-symbols-outlined" style={savedJobIds.includes(job.id) ? { fontVariationSettings: "'FILL' 1", color: 'var(--primary)' } : {}}>
+                                                        {savedJobIds.includes(job.id) ? 'bookmark' : 'bookmark_border'}
+                                                    </span>
                                                 </button>
                                             </div>
                                             <div className="flex flex-wrap items-center gap-1 mt-1">

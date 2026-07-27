@@ -1,23 +1,88 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { Head, usePage, useForm } from '@inertiajs/react';
 import MainLayout from '../Layouts/MainLayout';
+import Modal from '../Components/Modal';
+import DangerButton from '../Components/DangerButton';
+import SecondaryButton from '../Components/SecondaryButton';
+import TextInput from '../Components/TextInput';
+import InputError from '../Components/InputError';
+import InputLabel from '../Components/InputLabel';
 
 export default function Settings() {
     const { auth } = usePage().props;
     const user = auth?.user || { name: 'Alex Chen', email: 'alex.chen@example.com' };
 
     const [activeSection, setActiveSection] = useState('profile');
+    const [confirmingUserDeletion, setConfirmingUserDeletion] = useState(false);
+    const passwordInput = useRef();
 
-    const { data, setData, patch, errors, processing, recentlySuccessful } = useForm({
+    // Profile Form
+    const { data: profileData, setData: setProfileData, patch: patchProfile, errors: profileErrors, processing: profileProcessing, recentlySuccessful: profileSuccessful } = useForm({
         name: user.name || '',
         email: user.email || '',
     });
 
     const submitProfile = (e) => {
         e.preventDefault();
-        patch(route('profile.update'), {
+        patchProfile(route('profile.update'), {
             preserveScroll: true,
         });
+    };
+
+    // Password Form
+    const { data: passwordData, setData: setPasswordData, put: updatePassword, errors: passwordErrors, processing: passwordProcessing, recentlySuccessful: passwordSuccessful, reset: resetPasswordForm } = useForm({
+        current_password: '',
+        password: '',
+        password_confirmation: '',
+    });
+
+    const submitPassword = (e) => {
+        e.preventDefault();
+        updatePassword(route('password.update'), {
+            preserveScroll: true,
+            onSuccess: () => resetPasswordForm(),
+            onError: (errors) => {
+                if (errors.password) {
+                    resetPasswordForm('password', 'password_confirmation');
+                }
+                if (errors.current_password) {
+                    resetPasswordForm('current_password');
+                }
+            },
+        });
+    };
+
+    // Delete User Form
+    const {
+        data: deleteData,
+        setData: setDeleteData,
+        delete: destroyUser,
+        processing: deleteProcessing,
+        reset: resetDeleteForm,
+        errors: deleteErrors,
+        clearErrors: clearDeleteErrors
+    } = useForm({
+        password: '',
+    });
+
+    const confirmUserDeletion = () => {
+        setConfirmingUserDeletion(true);
+    };
+
+    const deleteUser = (e) => {
+        e.preventDefault();
+        destroyUser(route('profile.destroy'), {
+            preserveScroll: true,
+            onSuccess: () => closeModal(),
+            onError: () => passwordInput.current?.focus(),
+            onFinish: () => resetDeleteForm(),
+        });
+    };
+
+    const closeModal = () => {
+        setConfirmingUserDeletion(false);
+        clearDeleteErrors();
+        resetDeleteForm();
     };
 
     return (
@@ -30,23 +95,7 @@ export default function Settings() {
                         <h2 className="text-2xl font-bold text-on-surface mb-1">Settings</h2>
                         <p className="text-sm text-on-surface-variant">Manage your account preferences and profile details.</p>
                     </div>
-                    <div className="flex gap-2">
-                        <button 
-                            onClick={submitProfile}
-                            disabled={processing}
-                            className="px-3 py-1.5 bg-primary text-on-primary rounded-lg text-xs font-medium hover:bg-primary/90 transition-colors flex items-center gap-1.5 shadow-[0_0_15px_rgba(173,198,255,0.3)] disabled:opacity-50"
-                        >
-                            <span className="material-symbols-outlined text-[18px]" style={{ fontVariationSettings: "'FILL' 0" }}>save</span>
-                            {processing ? 'Saving...' : 'Save Changes'}
-                        </button>
-                    </div>
                 </header>
-                
-                {recentlySuccessful && (
-                    <div className="mb-lg p-md bg-primary/10 border border-primary/30 rounded-xl text-primary font-medium">
-                        Settings saved successfully!
-                    </div>
-                )}
                 
                 <div className="flex flex-col lg:flex-row gap-6 items-start">
                     {/* Settings Navigation Menu (Desktop) */}
@@ -84,27 +133,42 @@ export default function Settings() {
                                 <h3 className="text-lg font-semibold text-on-surface mb-1">Profile Information</h3>
                                 <p className="text-xs text-on-surface-variant mb-4">Update your account's profile name and email address.</p>
                                 
+                                {profileSuccessful && (
+                                    <div className="mb-4 p-3 bg-primary/10 border border-primary/30 rounded-lg text-primary text-sm font-medium">
+                                        Profile updated successfully!
+                                    </div>
+                                )}
+                                
                                 <div className="grid grid-cols-1 gap-4">
                                     <div className="flex flex-col gap-1">
                                         <label className="text-xs font-medium text-on-surface-variant">Full Name</label>
                                         <input 
                                             type="text" 
-                                            value={data.name} 
-                                            onChange={e => setData('name', e.target.value)} 
+                                            value={profileData.name} 
+                                            onChange={e => setProfileData('name', e.target.value)} 
                                             className="bg-surface-container-highest/30 border border-white/10 text-on-surface rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary w-full transition-all" 
                                         />
-                                        {errors.name && <span className="text-error text-xs font-medium">{errors.name}</span>}
+                                        {profileErrors.name && <span className="text-error text-xs font-medium">{profileErrors.name}</span>}
                                     </div>
                                     <div className="flex flex-col gap-1">
                                         <label className="text-xs font-medium text-on-surface-variant">Email Address</label>
                                         <input 
                                             type="email" 
-                                            value={data.email} 
-                                            onChange={e => setData('email', e.target.value)} 
+                                            value={profileData.email} 
+                                            onChange={e => setProfileData('email', e.target.value)} 
                                             className="bg-surface-container-highest/30 border border-white/10 text-on-surface rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary w-full transition-all" 
                                         />
-                                        {errors.email && <span className="text-error text-xs font-medium">{errors.email}</span>}
+                                        {profileErrors.email && <span className="text-error text-xs font-medium">{profileErrors.email}</span>}
                                     </div>
+                                </div>
+                                <div className="mt-6 pt-4 border-t border-white/10 flex justify-end">
+                                    <button 
+                                        disabled={profileProcessing}
+                                        type="submit"
+                                        className="px-4 py-2 bg-primary text-on-primary rounded-lg text-sm font-medium hover:bg-primary/90 transition-colors flex items-center gap-2 shadow-[0_0_15px_rgba(173,198,255,0.3)] disabled:opacity-50"
+                                    >
+                                        {profileProcessing ? 'Saving...' : 'Save Profile'}
+                                    </button>
                                 </div>
                             </form>
                         )}
@@ -112,30 +176,111 @@ export default function Settings() {
                         {/* Account Section */}
                         {activeSection === 'account' && (
                             <section className="bg-surface-container/40 backdrop-blur-xl border border-white/10 rounded-xl shadow-lg p-5 md:p-6 animate-in fade-in duration-300">
-                                <h3 className="text-lg font-semibold text-on-surface mb-1">Account Security</h3>
-                                <p className="text-xs text-on-surface-variant mb-4">Ensure your account is using a long, random password to stay secure.</p>
-                                
-                                <div className="grid grid-cols-1 gap-4">
-                                    <div className="flex flex-col gap-1">
-                                        <label className="text-xs font-medium text-on-surface-variant">Email Address</label>
-                                        <input type="email" defaultValue="alex.chen@example.com" className="bg-surface-container-highest/30 border border-white/10 text-on-surface rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary w-full transition-all" />
+                                <form onSubmit={submitPassword}>
+                                    <h3 className="text-lg font-semibold text-on-surface mb-1">Update Password</h3>
+                                    <p className="text-xs text-on-surface-variant mb-4">Ensure your account is using a long, random password to stay secure.</p>
+                                    
+                                    {passwordSuccessful && (
+                                        <div className="mb-4 p-3 bg-primary/10 border border-primary/30 rounded-lg text-primary text-sm font-medium">
+                                            Password updated successfully!
+                                        </div>
+                                    )}
+                                    
+                                    <div className="grid grid-cols-1 gap-4">
+                                        <div className="flex flex-col gap-1">
+                                            <label className="text-xs font-medium text-on-surface-variant">Current Password</label>
+                                            <input 
+                                                type="password" 
+                                                value={passwordData.current_password}
+                                                onChange={e => setPasswordData('current_password', e.target.value)}
+                                                placeholder="••••••••" 
+                                                className="bg-surface-container-highest/30 border border-white/10 text-on-surface rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary w-full transition-all" 
+                                            />
+                                            {passwordErrors.current_password && <span className="text-error text-xs font-medium">{passwordErrors.current_password}</span>}
+                                        </div>
+                                        <div className="flex flex-col gap-1">
+                                            <label className="text-xs font-medium text-on-surface-variant">New Password</label>
+                                            <input 
+                                                type="password" 
+                                                value={passwordData.password}
+                                                onChange={e => setPasswordData('password', e.target.value)}
+                                                placeholder="••••••••" 
+                                                className="bg-surface-container-highest/30 border border-white/10 text-on-surface rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary w-full transition-all" 
+                                            />
+                                            {passwordErrors.password && <span className="text-error text-xs font-medium">{passwordErrors.password}</span>}
+                                        </div>
+                                        <div className="flex flex-col gap-1">
+                                            <label className="text-xs font-medium text-on-surface-variant">Confirm Password</label>
+                                            <input 
+                                                type="password" 
+                                                value={passwordData.password_confirmation}
+                                                onChange={e => setPasswordData('password_confirmation', e.target.value)}
+                                                placeholder="••••••••" 
+                                                className="bg-surface-container-highest/30 border border-white/10 text-on-surface rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary w-full transition-all" 
+                                            />
+                                            {passwordErrors.password_confirmation && <span className="text-error text-xs font-medium">{passwordErrors.password_confirmation}</span>}
+                                        </div>
                                     </div>
-                                    <div className="flex flex-col gap-1">
-                                        <label className="text-xs font-medium text-on-surface-variant">Current Password</label>
-                                        <input type="password" placeholder="••••••••" className="bg-surface-container-highest/30 border border-white/10 text-on-surface rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary w-full transition-all" />
+                                    <div className="mt-6 pt-4 border-t border-white/10 flex justify-end">
+                                        <button 
+                                            disabled={passwordProcessing}
+                                            type="submit"
+                                            className="px-4 py-2 bg-primary text-on-primary rounded-lg text-sm font-medium hover:bg-primary/90 transition-colors flex items-center gap-2 shadow-[0_0_15px_rgba(173,198,255,0.3)] disabled:opacity-50"
+                                        >
+                                            {passwordProcessing ? 'Saving...' : 'Save Password'}
+                                        </button>
                                     </div>
-                                    <div className="flex flex-col gap-1">
-                                        <label className="text-xs font-medium text-on-surface-variant">New Password</label>
-                                        <input type="password" placeholder="••••••••" className="bg-surface-container-highest/30 border border-white/10 text-on-surface rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary w-full transition-all" />
-                                    </div>
-                                </div>
+                                </form>
 
-                                <div className="mt-6 pt-4 border-t border-white/10">
+                                <div className="mt-8 pt-4 border-t border-white/10">
                                     <h4 className="text-xs font-semibold text-error mb-2">Danger Zone</h4>
-                                    <button className="px-3 py-1.5 bg-error/10 border border-error/30 text-error text-xs rounded-lg font-medium hover:bg-error/20 transition-colors">
+                                    <p className="text-xs text-on-surface-variant mb-4">Once your account is deleted, all of its resources and data will be permanently deleted. Before deleting your account, please download any data or information that you wish to retain.</p>
+                                    <button 
+                                        onClick={confirmUserDeletion}
+                                        className="px-4 py-2 bg-error/10 border border-error/30 text-error text-sm rounded-lg font-medium hover:bg-error/20 transition-colors"
+                                    >
                                         Delete Account
                                     </button>
                                 </div>
+
+                                <Modal show={confirmingUserDeletion} onClose={closeModal}>
+                                    <form onSubmit={deleteUser} className="p-6 bg-surface-container-highest">
+                                        <h2 className="text-lg font-medium text-on-surface">
+                                            Are you sure you want to delete your account?
+                                        </h2>
+
+                                        <p className="mt-1 text-sm text-on-surface-variant">
+                                            Once your account is deleted, all of its resources and data will be permanently deleted. Please
+                                            enter your password to confirm you would like to permanently delete your account.
+                                        </p>
+
+                                        <div className="mt-6">
+                                            <InputLabel htmlFor="password" value="Password" className="sr-only" />
+                                            <TextInput
+                                                id="password"
+                                                type="password"
+                                                name="password"
+                                                ref={passwordInput}
+                                                value={deleteData.password}
+                                                onChange={(e) => setDeleteData('password', e.target.value)}
+                                                className="mt-1 block w-full bg-surface-container/50 text-on-surface border-white/10 focus:border-error focus:ring-error"
+                                                isFocused
+                                                placeholder="Password"
+                                            />
+                                            <InputError message={deleteErrors.password} className="mt-2 text-error" />
+                                        </div>
+
+                                        <div className="mt-6 flex justify-end">
+                                            <SecondaryButton onClick={closeModal} className="bg-surface-variant text-on-surface hover:bg-surface-variant/80 border-none">
+                                                Cancel
+                                            </SecondaryButton>
+
+                                            <DangerButton className="ms-3 bg-error text-on-error hover:bg-error/90" disabled={deleteProcessing}>
+                                                Delete Account
+                                            </DangerButton>
+                                        </div>
+                                    </form>
+                                </Modal>
                             </section>
                         )}
 

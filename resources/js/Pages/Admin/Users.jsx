@@ -1,57 +1,14 @@
 import React, { useState } from 'react';
-import { Head } from '@inertiajs/react';
+import { Head, router } from '@inertiajs/react';
 import AdminLayout from '@/Layouts/AdminLayout';
 import PageHeader from '@/Components/Admin/PageHeader';
 import StatCard from '@/Components/Admin/StatCard';
 
-export default function Users() {
+export default function Users({ users = [] }) {
     const [selectedAll, setSelectedAll] = useState(false);
     const [selectedUsers, setSelectedUsers] = useState({});
 
-    const initialUsers = [
-        {
-            id: 1,
-            name: 'Jordan Rivera',
-            email: 'jordan.r@jobmind.tech',
-            role: 'Senior Frontend',
-            dept: 'Engineering',
-            status: 'Active',
-            joined: 'Oct 12, 2023',
-            avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
-        },
-        {
-            id: 2,
-            name: 'Elena Soros',
-            email: 'elena.design@jobmind.tech',
-            role: 'UX Lead',
-            dept: 'Creative',
-            status: 'Away',
-            joined: 'Jan 04, 2024',
-            avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150&auto=format&fit=crop&q=80',
-        },
-        {
-            id: 3,
-            name: 'Marcus Wu',
-            email: 'm.wu@jobmind.tech',
-            role: 'Data Analyst',
-            dept: 'Insights',
-            status: 'Inactive',
-            joined: 'Nov 22, 2023',
-            avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80',
-        },
-        {
-            id: 4,
-            name: 'Sarah Jenkins',
-            email: 's.jenkins@jobmind.tech',
-            role: 'Operations Director',
-            dept: 'Management',
-            status: 'Active',
-            joined: 'Aug 15, 2023',
-            avatar: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150&auto=format&fit=crop&q=80',
-        },
-    ];
-
-    const [usersList, setUsersList] = useState(initialUsers);
+    const [usersList, setUsersList] = useState(users);
 
     const toggleSelectAll = () => {
         const nextState = !selectedAll;
@@ -72,7 +29,7 @@ export default function Users() {
 
     const handleDelete = (id, name) => {
         if (confirm(`Are you sure you want to delete user: ${name}? This action is permanent.`)) {
-            setUsersList((prev) => prev.filter((u) => u.id !== id));
+            router.delete(`/admin/users/${id}`);
         }
     };
 
@@ -240,7 +197,11 @@ export default function Users() {
                                         </td>
                                         <td className="px-6 py-4 text-right">
                                             <div className="flex justify-end gap-1 opacity-80 transition-opacity group-hover:opacity-100">
-                                                <button className="rounded-lg p-1.5 text-primary hover:bg-primary/10 transition-colors" title="View Details">
+                                                <button 
+                                                    onClick={() => alert(`User details page for ${user.name} is under construction.`)}
+                                                    className="rounded-lg p-1.5 text-primary hover:bg-primary/10 transition-colors" 
+                                                    title="View Details"
+                                                >
                                                     <span className="material-symbols-outlined text-[20px]">visibility</span>
                                                 </button>
                                                 <button

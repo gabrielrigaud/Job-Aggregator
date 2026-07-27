@@ -31,4 +31,16 @@ class User extends Authenticatable implements MustVerifyEmail
             'password' => 'hashed',
         ];
     }
+
+    public function offerViews()
+    {
+        return $this->hasMany(OfferView::class);
+    }
+
+    public function savedJobs()
+    {
+        return $this->belongsToMany(JobOffer::class, 'offer_views')
+                    ->wherePivot('is_saved', true)
+                    ->withPivot('viewed_at', 'is_saved');
+    }
 }

@@ -1,9 +1,14 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Head } from '@inertiajs/react';
 import AdminLayout from '@/Layouts/AdminLayout';
 import PageHeader from '@/Components/Admin/PageHeader';
 
-export default function Admins() {
+export default function Admins({ admins = [] }) {
+    const [openMenuId, setOpenMenuId] = useState(null);
+
+    const toggleMenu = (id) => {
+        setOpenMenuId(openMenuId === id ? null : id);
+    };
     return (
         <AdminLayout>
             <Head title="JobMind Admin Console - Admin Management" />
@@ -60,6 +65,7 @@ export default function Admins() {
                             <p className="text-sm text-on-surface-variant">All administrative actions are logged in the immutable audit trail. Ensure 2FA is active for all accounts.</p>
                         </div>
                     </div>
+                    
                     {/* Admin List (Bento Style Right) */}
                     <div className="lg:col-span-8">
                         <section className="overflow-hidden rounded-xl border border-outline-variant bg-surface-container/80 backdrop-blur-md">
@@ -74,135 +80,53 @@ export default function Admins() {
                                     </button>
                                 </div>
                             </div>
-                            <div className="overflow-x-auto">
-                                <table className="w-full border-collapse text-left">
-                                    <thead>
-                                        <tr className="bg-surface-container-highest/30">
-                                            <th className="whitespace-nowrap border-b border-outline-variant/20 px-4 py-4 text-sm font-medium text-on-surface-variant">Name</th>
-                                            <th className="whitespace-nowrap border-b border-outline-variant/20 px-4 py-4 text-sm font-medium text-on-surface-variant">Role</th>
-                                            <th className="whitespace-nowrap border-b border-outline-variant/20 px-4 py-4 text-sm font-medium text-on-surface-variant">Status</th>
-                                            <th className="whitespace-nowrap border-b border-outline-variant/20 px-4 py-4 text-sm font-medium text-on-surface-variant">Last Active</th>
-                                            <th className="whitespace-nowrap border-b border-outline-variant/20 px-4 py-4 text-right text-sm font-medium text-on-surface-variant">Actions</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody className="divide-y divide-outline-variant/20">
-                                        {/* Admin Row 1 */}
-                                        <tr className="group transition-all hover:bg-surface-variant/20">
-                                            <td className="whitespace-nowrap px-4 py-4">
-                                                <div className="flex items-center gap-4">
-                                                    <img className="h-10 w-10 rounded-full border border-outline-variant/30 object-cover" src="https://ui-avatars.com/api/?name=Elena+Vance&background=random" />
-                                                    <div>
-                                                        <p className="text-sm font-medium text-on-surface">Elena Vance</p>
-                                                        <p className="font-mono text-sm text-on-surface-variant">elena.v@jobmind.com</p>
-                                                    </div>
+                            
+                            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 p-6 pt-0">
+                                {admins.length === 0 ? (
+                                    <div className="col-span-full py-8 text-center text-on-surface-variant">
+                                        No admins found.
+                                    </div>
+                                ) : admins.map((admin) => (
+                                    <div key={admin.id} className="group relative flex items-start gap-4 rounded-xl border border-outline-variant/30 bg-surface-container/30 p-4 transition-all hover:border-primary/30 hover:bg-surface-variant/20">
+                                        <img 
+                                            src={admin.avatar} 
+                                            alt={admin.name} 
+                                            className="h-12 w-12 rounded-lg border border-outline-variant/50 object-cover"
+                                        />
+                                        <div className="flex-1 relative">
+                                            <div className="flex items-center justify-between">
+                                                <h4 className="text-base font-bold text-on-surface">{admin.name}</h4>
+                                                <div className="relative">
+                                                    <button 
+                                                        onClick={() => toggleMenu(admin.id)}
+                                                        className={`flex h-8 w-8 items-center justify-center rounded-lg border border-outline-variant/30 bg-surface text-on-surface transition-all hover:bg-surface-variant hover:text-primary ${openMenuId === admin.id ? 'opacity-100 bg-surface-variant' : 'opacity-0 group-hover:opacity-100'}`}
+                                                    >
+                                                        <span className="material-symbols-outlined text-[16px]">more_vert</span>
+                                                    </button>
+                                                    
+                                                    {openMenuId === admin.id && (
+                                                        <>
+                                                            <div className="fixed inset-0 z-40" onClick={() => setOpenMenuId(null)}></div>
+                                                            <div className="absolute right-0 top-full z-50 mt-1 w-40 overflow-hidden rounded-xl border border-outline-variant bg-surface shadow-xl">
+                                                                <button className="flex w-full items-center gap-2 px-4 py-2.5 text-sm font-medium text-on-surface transition-colors hover:bg-surface-variant/50">
+                                                                    <span className="material-symbols-outlined text-[18px]">edit</span>
+                                                                    Edit Role
+                                                                </button>
+                                                                <button className="flex w-full items-center gap-2 px-4 py-2.5 text-sm font-medium text-error transition-colors hover:bg-error/10">
+                                                                    <span className="material-symbols-outlined text-[18px]">person_remove</span>
+                                                                    Revoke
+                                                                </button>
+                                                            </div>
+                                                        </>
+                                                    )}
                                                 </div>
-                                            </td>
-                                            <td className="whitespace-nowrap px-4 py-4">
-                                                <span className="rounded border border-primary/20 bg-primary-container/10 px-3 py-1 font-mono text-sm text-primary">Super Admin</span>
-                                            </td>
-                                            <td className="whitespace-nowrap px-4 py-4">
-                                                <div className="flex items-center gap-2">
-                                                    <span className="h-2 w-2 animate-pulse rounded-full bg-green-500"></span>
-                                                    <span className="text-sm text-on-surface">Active</span>
-                                                </div>
-                                            </td>
-                                            <td className="whitespace-nowrap px-4 py-4 text-sm text-on-surface-variant">2 mins ago</td>
-                                            <td className="whitespace-nowrap px-4 py-4 text-right">
-                                                <button className="text-on-surface-variant transition-colors hover:text-primary">
-                                                    <span className="material-symbols-outlined">more_vert</span>
-                                                </button>
-                                            </td>
-                                        </tr>
-                                        {/* Admin Row 2 */}
-                                        <tr className="group transition-all hover:bg-surface-variant/20">
-                                            <td className="whitespace-nowrap px-4 py-4">
-                                                <div className="flex items-center gap-4">
-                                                    <img className="h-10 w-10 rounded-full border border-outline-variant/30 object-cover" src="https://ui-avatars.com/api/?name=Marcus+Thorne&background=random" />
-                                                    <div>
-                                                        <p className="text-sm font-medium text-on-surface">Marcus Thorne</p>
-                                                        <p className="font-mono text-sm text-on-surface-variant">m.thorne@jobmind.com</p>
-                                                    </div>
-                                                </div>
-                                            </td>
-                                            <td className="whitespace-nowrap px-4 py-4">
-                                                <span className="rounded border border-outline-variant/20 bg-surface-variant/50 px-3 py-1 font-mono text-sm text-on-surface-variant">Moderator</span>
-                                            </td>
-                                            <td className="whitespace-nowrap px-4 py-4">
-                                                <div className="flex items-center gap-2 text-on-surface-variant">
-                                                    <span className="h-2 w-2 rounded-full bg-outline-variant"></span>
-                                                    <span className="text-sm">Offline</span>
-                                                </div>
-                                            </td>
-                                            <td className="whitespace-nowrap px-4 py-4 text-sm text-on-surface-variant">5 hours ago</td>
-                                            <td className="whitespace-nowrap px-4 py-4 text-right">
-                                                <button className="text-on-surface-variant transition-colors hover:text-primary">
-                                                    <span className="material-symbols-outlined">more_vert</span>
-                                                </button>
-                                            </td>
-                                        </tr>
-                                        {/* Admin Row 3 */}
-                                        <tr className="group transition-all hover:bg-surface-variant/20">
-                                            <td className="whitespace-nowrap px-4 py-4">
-                                                <div className="flex items-center gap-4">
-                                                    <img className="h-10 w-10 rounded-full border border-outline-variant/30 object-cover" src="https://ui-avatars.com/api/?name=Lina+Choi&background=random" />
-                                                    <div>
-                                                        <p className="text-sm font-medium text-on-surface">Lina Choi</p>
-                                                        <p className="font-mono text-sm text-on-surface-variant">l.choi@jobmind.com</p>
-                                                    </div>
-                                                </div>
-                                            </td>
-                                            <td className="whitespace-nowrap px-4 py-4">
-                                                <span className="rounded border border-outline-variant/20 bg-surface-variant/50 px-3 py-1 font-mono text-sm text-on-surface-variant">Editor</span>
-                                            </td>
-                                            <td className="whitespace-nowrap px-4 py-4">
-                                                <div className="flex items-center gap-2">
-                                                    <span className="h-2 w-2 animate-pulse rounded-full bg-green-500"></span>
-                                                    <span className="text-sm text-on-surface">Active</span>
-                                                </div>
-                                            </td>
-                                            <td className="whitespace-nowrap px-4 py-4 text-sm text-on-surface-variant">Online Now</td>
-                                            <td className="whitespace-nowrap px-4 py-4 text-right">
-                                                <button className="text-on-surface-variant transition-colors hover:text-primary">
-                                                    <span className="material-symbols-outlined">more_vert</span>
-                                                </button>
-                                            </td>
-                                        </tr>
-                                        {/* Admin Row 4 */}
-                                        <tr className="group transition-all hover:bg-surface-variant/20">
-                                            <td className="whitespace-nowrap px-4 py-4">
-                                                <div className="flex items-center gap-4">
-                                                    <img className="h-10 w-10 rounded-full border border-outline-variant/30 object-cover" src="https://ui-avatars.com/api/?name=David+Chen&background=random" />
-                                                    <div>
-                                                        <p className="text-sm font-medium text-on-surface">David Chen</p>
-                                                        <p className="font-mono text-sm text-on-surface-variant">d.chen@jobmind.com</p>
-                                                    </div>
-                                                </div>
-                                            </td>
-                                            <td className="whitespace-nowrap px-4 py-4">
-                                                <span className="rounded border border-outline-variant/20 bg-surface-variant/50 px-3 py-1 font-mono text-sm text-on-surface-variant">Viewer</span>
-                                            </td>
-                                            <td className="whitespace-nowrap px-4 py-4">
-                                                <div className="flex items-center gap-2 text-on-surface-variant">
-                                                    <span className="h-2 w-2 rounded-full bg-outline-variant"></span>
-                                                    <span className="text-sm">Offline</span>
-                                                </div>
-                                            </td>
-                                            <td className="whitespace-nowrap px-4 py-4 text-sm text-on-surface-variant">Yesterday</td>
-                                            <td className="whitespace-nowrap px-4 py-4 text-right">
-                                                <button className="text-on-surface-variant transition-colors hover:text-primary">
-                                                    <span className="material-symbols-outlined">more_vert</span>
-                                                </button>
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                            <div className="flex items-center justify-between border-t border-outline-variant/30 bg-surface-container/50 p-6">
-                                <span className="text-sm text-on-surface-variant">Showing 4 of 12 admins</span>
-                                <div className="flex gap-2">
-                                    <button className="rounded border border-outline-variant px-4 py-2 text-on-surface-variant transition-colors hover:bg-surface-variant/50 disabled:opacity-30" disabled>Previous</button>
-                                    <button className="rounded border border-outline-variant px-4 py-2 text-on-surface-variant transition-colors hover:bg-surface-variant/50">Next</button>
-                                </div>
+                                            </div>
+                                            <p className="text-sm font-medium text-primary">{admin.role}</p>
+                                            <p className="font-mono text-xs text-on-surface-variant">{admin.email}</p>
+                                            <p className="font-mono text-[10px] text-on-surface-variant/70 mt-1">Joined: {admin.joined}</p>
+                                        </div>
+                                    </div>
+                                ))}
                             </div>
                         </section>
                     </div>
