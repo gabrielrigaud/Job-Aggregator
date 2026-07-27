@@ -27,13 +27,13 @@ Route::get('/', function (\Illuminate\Http\Request $request) {
     ]);
 });
 
-Route::get('/jobs/{job}', function (\App\Models\JobOffer $job) {
-    $job->load(['company', 'source']);
+//Route::get('/jobs/{job}', function (\App\Models\JobOffer $job) {
+  //  $job->load(['company', 'source']);
 
-    return Inertia::render('JobDetail', [
-        'job' => $job,
-    ]);
-})->name('jobs.show');
+  //  return Inertia::render('JobDetail', [
+   //     'job' => $job,
+   // ]);
+//})->name('jobs.show');
 
 Route::get('/dashboard', function () {
     return redirect('/');
@@ -92,7 +92,6 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::get('/admin/admins', [AdminDashboardController::class, 'admins'])->name('admin.admins.preview');
 
     //modif ou suppression d'un utilisateur
-    // Route::get('/admin/users', [AdminUserController::class, 'index'])->name('admin.users.index');
     Route::get('/admin/users/create', [AdminUserController::class, 'create'])->name('admin.users.create');
     Route::post('/admin/users', [AdminUserController::class, 'store'])->name('admin.users.store');
 
