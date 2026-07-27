@@ -16,14 +16,70 @@ class AdminDashboardController extends Controller
         $totalUsers = User::count();
         $activeJobs = JobOffer::count();
         $activeAdmins = User::role('admin')->count();
+        $logFile = storage_path('logs/laravel.log');
+        $systemLogs = [];
+        if (file_exists($logFile)) {
+            $lines = file($logFile);
+            $lines = array_reverse($lines);
+            $parsed = 0;
+            foreach ($lines as $line) {
+                if (preg_match('/^\[(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})\] (.*?): (.*)/', $line, $matches)) {
+                    $systemLogs[] = [
+                        'date' => Carbon::parse($matches[1])->diffForHumans(),
+                        'level' => explode('.', $matches[2])[1] ?? $matches[2], // local.ERROR -> ERROR
+                        'message' => \Illuminate\Support\Str::limit($matches[3], 60),
+                    ];
+                    $parsed++;
+                    if ($parsed >= 4) break;
+                }
+            }
+        }
+
+        $pendingJobs = \Illuminate\Support\Facades\DB::table('jobs')->count();
+        $failedJobs = \Illuminate\Support\Facades\DB::table('failed_jobs')->count();
         
+        $queueStats = [
+            'pending' => $pendingJobs,
+            'failed' => $failedJobs,
+            'status' => $pendingJobs > 0 ? 'Processing' : 'Idle',
+            'progress' => $pendingJobs > 0 ? 50 : 100, // Mock progress for DB queue driver since we don't know total
+        ];
+
+        $adminsPulse = User::role('admin')->inRandomOrder()->take(2)->get()->map(function ($admin) {
+            return [
+                'name' => explode(' ', $admin->name)[0],
+                'initials' => strtoupper(substr($admin->name, 0, 2)),
+                'avatar' => 'https://ui-avatars.com/api/?name=' . urlencode($admin->name) . '&background=random&color=fff',
+            ];
+        });
+
+        $trendingJobs = JobOffer::with('company')->withCount('offerViews')
+            ->orderByDesc('offer_views_count')
+            ->orderByDesc('created_at')
+            ->take(2)
+            ->get()
+            ->map(function ($job) {
+                return [
+                    'id' => $job->id,
+                    'title' => \Illuminate\Support\Str::limit($job->title, 25),
+                    'company' => $job->company->name ?? 'Unknown',
+                    'location' => $job->location ?? 'Remote',
+                    'views' => $job->offer_views_count,
+                    'url' => route('admin.jobs.preview'), // Simple link to jobs list for now
+                ];
+            });
+
         return Inertia::render('Admin/Dashboard', [
             'stats' => [
                 'totalUsers' => number_format($totalUsers),
                 'activeJobs' => number_format($activeJobs),
                 'activeAdmins' => number_format($activeAdmins),
                 'pendingReports' => 0, // Mock for now
-            ]
+            ],
+            'logs' => $systemLogs,
+            'queue' => $queueStats,
+            'adminsPulse' => $adminsPulse,
+            'trendingJobs' => $trendingJobs,
         ]);
     }
 

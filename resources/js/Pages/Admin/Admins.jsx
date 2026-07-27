@@ -81,7 +81,7 @@ export default function Admins({ admins = [] }) {
                                 </div>
                             </div>
                             
-                            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 p-6 pt-0">
+                            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 p-6">
                                 {admins.length === 0 ? (
                                     <div className="col-span-full py-8 text-center text-on-surface-variant">
                                         No admins found.

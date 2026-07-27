@@ -4,7 +4,7 @@ import AdminLayout from '@/Layouts/AdminLayout';
 import PageHeader from '@/Components/Admin/PageHeader';
 import StatCard from '@/Components/Admin/StatCard';
 
-export default function Dashboard({ stats }) {
+export default function Dashboard({ stats, logs = [], queue = { pending: 0, failed: 0, status: 'Idle', progress: 100 }, adminsPulse = [], trendingJobs = [] }) {
     return (
         <AdminLayout>
             <Head title="Admin Console - Overview" />
@@ -102,64 +102,37 @@ export default function Dashboard({ stats }) {
                                 <div>
                                     <div className="mb-6 flex items-center justify-between">
                                         <h3 className="text-xl font-bold text-on-surface">System Logs</h3>
-                                        <button className="text-on-surface-variant hover:text-primary">
-                                            <span className="material-symbols-outlined">more_vert</span>
-                                        </button>
                                     </div>
                                     <div className="flex flex-col gap-4">
-                                        <div className="group flex gap-4">
-                                            <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full bg-amber-500/15 text-amber-600 dark:bg-amber-500/20 dark:text-amber-400">
-                                                <span className="material-symbols-outlined text-[18px]">person_add</span>
-                                            </div>
-                                            <div className="flex-1 border-b border-outline-variant pb-3">
-                                                <div className="mb-0.5 flex items-start justify-between">
-                                                    <p className="text-sm font-semibold text-on-surface transition-colors group-hover:text-primary">New Admin Added</p>
-                                                    <span className="font-mono text-[10px] text-on-surface-variant">2m ago</span>
+                                        {logs.length > 0 ? logs.map((log, index) => (
+                                            <div key={index} className="group flex gap-4">
+                                                <div className={`flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full ${
+                                                    log.level === 'ERROR' ? 'bg-red-500/15 text-red-600 dark:bg-red-500/20 dark:text-red-400' :
+                                                    log.level === 'WARNING' ? 'bg-amber-500/15 text-amber-600 dark:bg-amber-500/20 dark:text-amber-400' :
+                                                    'bg-indigo-500/15 text-indigo-600 dark:bg-indigo-500/20 dark:text-indigo-400'
+                                                }`}>
+                                                    <span className="material-symbols-outlined text-[18px]">
+                                                        {log.level === 'ERROR' ? 'error' : log.level === 'WARNING' ? 'warning' : 'info'}
+                                                    </span>
                                                 </div>
-                                                <p className="line-clamp-1 text-xs text-on-surface-variant">Sarah K. was granted Super Admin...</p>
-                                            </div>
-                                        </div>
-                                        <div className="group flex gap-4">
-                                            <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full bg-red-500/15 text-red-600 dark:bg-red-500/20 dark:text-red-400">
-                                                <span className="material-symbols-outlined text-[18px]">priority_high</span>
-                                            </div>
-                                            <div className="flex-1 border-b border-outline-variant pb-3">
-                                                <div className="mb-0.5 flex items-start justify-between">
-                                                    <p className="text-sm font-semibold text-on-surface transition-colors group-hover:text-red-600">Critical Report</p>
-                                                    <span className="font-mono text-[10px] text-on-surface-variant">45m ago</span>
+                                                <div className="flex-1 border-b border-outline-variant pb-3">
+                                                    <div className="mb-0.5 flex items-start justify-between">
+                                                        <p className="text-sm font-semibold text-on-surface transition-colors group-hover:text-primary">
+                                                            {log.level}
+                                                        </p>
+                                                        <span className="font-mono text-[10px] text-on-surface-variant">{log.date}</span>
+                                                    </div>
+                                                    <p className="line-clamp-2 text-xs text-on-surface-variant" title={log.message}>{log.message}</p>
                                                 </div>
-                                                <p className="line-clamp-1 text-xs text-on-surface-variant">Job ID #8812 flagged for...</p>
                                             </div>
-                                        </div>
-                                        <div className="group flex gap-4">
-                                            <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full bg-indigo-500/15 text-indigo-600 dark:bg-indigo-500/20 dark:text-indigo-400">
-                                                <span className="material-symbols-outlined text-[18px]">sync</span>
-                                            </div>
-                                            <div className="flex-1 border-b border-outline-variant pb-3">
-                                                <div className="mb-0.5 flex items-start justify-between">
-                                                    <p className="text-sm font-semibold text-on-surface transition-colors group-hover:text-indigo-600">Database Sync</p>
-                                                    <span className="font-mono text-[10px] text-on-surface-variant">1h ago</span>
-                                                </div>
-                                                <p className="line-clamp-1 text-xs text-on-surface-variant">Global database replication...</p>
-                                            </div>
-                                        </div>
-                                        <div className="group flex gap-4">
-                                            <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full bg-purple-500/15 text-purple-600 dark:bg-purple-500/20 dark:text-purple-400">
-                                                <span className="material-symbols-outlined text-[18px]">login</span>
-                                            </div>
-                                            <div className="flex-1">
-                                                <div className="mb-0.5 flex items-start justify-between">
-                                                    <p className="text-sm font-semibold text-on-surface transition-colors group-hover:text-purple-600">Security Audit</p>
-                                                    <span className="font-mono text-[10px] text-on-surface-variant">3h ago</span>
-                                                </div>
-                                                <p className="line-clamp-1 text-xs text-on-surface-variant">Login attempt from unknown IP:...</p>
-                                            </div>
-                                        </div>
+                                        )) : (
+                                            <p className="text-sm text-on-surface-variant text-center py-4">No recent system logs.</p>
+                                        )}
                                     </div>
                                 </div>
-                                <button className="mt-6 w-full rounded-lg bg-surface-container-high py-2.5 text-center text-sm font-medium text-on-surface transition-colors hover:bg-surface-variant hover:text-primary">
+                                <a href="/log-viewer" target="_blank" className="mt-6 block w-full rounded-lg bg-surface-container-high py-2.5 text-center text-sm font-medium text-on-surface transition-colors hover:bg-surface-variant hover:text-primary">
                                     View Full System Logs
-                                </button>
+                                </a>
                             </div>
                         </div>
 
@@ -168,41 +141,32 @@ export default function Dashboard({ stats }) {
                             {/* Active Postings List */}
                             <div className="flex w-full flex-col justify-between rounded-xl border border-outline-variant bg-surface p-6 shadow-sm lg:w-1/2">
                                 <div>
-                                    <div className="mb-5 flex items-center justify-between">
+                                    <div className="mb-6 flex items-center justify-between">
                                         <h3 className="text-xl font-bold text-on-surface">Trending Jobs</h3>
-                                        <a className="text-sm font-semibold text-primary dark:text-indigo-300 hover:underline" href="#">Manage All</a>
+                                        <a className="text-sm font-semibold text-primary dark:text-indigo-300 hover:underline" href={route('admin.jobs.preview')}>Manage All</a>
                                     </div>
                                     <div className="flex flex-col gap-3">
-                                        <div className="flex cursor-pointer items-center justify-between rounded-xl border border-outline-variant/50 bg-surface-container-low/50 p-4 transition-all hover:border-primary">
-                                            <div className="flex items-center gap-4">
-                                                <div className="flex h-12 w-12 items-center justify-center rounded-lg border border-outline-variant/40 bg-white p-1 shadow-sm">
-                                                    <span className="material-symbols-outlined text-primary dark:text-indigo-300">corporate_fare</span>
+                                        {trendingJobs.length > 0 ? trendingJobs.map((job, index) => (
+                                            <div key={job.id} className="flex cursor-pointer items-center justify-between rounded-xl border border-outline-variant/50 bg-surface-container-low/50 p-4 transition-all hover:border-primary" onClick={() => window.location.href = job.url}>
+                                                <div className="flex items-center gap-4">
+                                                    <div className="flex h-12 w-12 items-center justify-center rounded-lg border border-outline-variant/40 bg-white p-1 shadow-sm">
+                                                        <span className="material-symbols-outlined text-primary dark:text-indigo-300">
+                                                            {index === 0 ? 'corporate_fare' : 'account_balance'}
+                                                        </span>
+                                                    </div>
+                                                    <div>
+                                                        <p className="text-sm font-semibold text-on-surface">{job.title}</p>
+                                                        <p className="mt-0.5 text-xs text-on-surface-variant">{job.company} • {job.location}</p>
+                                                    </div>
                                                 </div>
-                                                <div>
-                                                    <p className="text-sm font-semibold text-on-surface">Senior Frontend Engineer</p>
-                                                    <p className="mt-0.5 text-xs text-on-surface-variant">TechNexus • Remote</p>
-                                                </div>
-                                            </div>
-                                            <div className="text-right">
-                                                <p className="font-mono text-base font-bold text-on-surface">412</p>
-                                                <p className="text-[10px] font-bold uppercase tracking-wider text-on-surface-variant">Applicants</p>
-                                            </div>
-                                        </div>
-                                        <div className="flex cursor-pointer items-center justify-between rounded-xl border border-outline-variant/50 bg-surface-container-low/50 p-4 transition-all hover:border-primary">
-                                            <div className="flex items-center gap-4">
-                                                <div className="flex h-12 w-12 items-center justify-center rounded-lg border border-outline-variant/40 bg-white p-1 shadow-sm">
-                                                    <span className="material-symbols-outlined text-[#9333ea]">account_balance</span>
-                                                </div>
-                                                <div>
-                                                    <p className="text-sm font-semibold text-on-surface">Product Design Lead</p>
-                                                    <p className="mt-0.5 text-xs text-on-surface-variant">FinFlow • San Francisco</p>
+                                                <div className="text-right">
+                                                    <p className="font-mono text-base font-bold text-on-surface">{job.views}</p>
+                                                    <p className="text-[10px] font-bold uppercase tracking-wider text-on-surface-variant">Views</p>
                                                 </div>
                                             </div>
-                                            <div className="text-right">
-                                                <p className="font-mono text-base font-bold text-on-surface">285</p>
-                                                <p className="text-[10px] font-bold uppercase tracking-wider text-on-surface-variant">Applicants</p>
-                                            </div>
-                                        </div>
+                                        )) : (
+                                            <p className="text-sm text-on-surface-variant">No jobs found yet.</p>
+                                        )}
                                     </div>
                                 </div>
                             </div>
@@ -215,24 +179,17 @@ export default function Dashboard({ stats }) {
                                         <span className="rounded-full bg-green-500/10 px-3 py-1 text-xs font-semibold text-green-600">Live Now</span>
                                     </div>
                                     <div className="flex flex-row gap-3">
-                                        <div className="flex flex-1 flex-col items-center justify-center rounded-xl border border-outline-variant/50 bg-surface-container-low/50 p-4">
-                                            <img
-                                                alt="Elena G."
-                                                className="mb-2.5 h-12 w-12 rounded-full border-2 border-[#4f46e5] object-cover shadow-sm"
-                                                src="https://ui-avatars.com/api/?name=Elena+G&background=4f46e5&color=fff"
-                                            />
-                                            <p className="text-center text-xs font-semibold text-on-surface">Elena G.</p>
-                                            <p className="mt-1 font-mono text-[10px] font-medium text-primary dark:text-indigo-300">12 Tasks</p>
-                                        </div>
-                                        <div className="flex flex-1 flex-col items-center justify-center rounded-xl border border-outline-variant/50 bg-surface-container-low/50 p-4">
-                                            <img
-                                                alt="Marcus V."
-                                                className="mb-2.5 h-12 w-12 rounded-full border-2 border-outline-variant object-cover shadow-sm"
-                                                src="https://ui-avatars.com/api/?name=Marcus+V&background=0d9488&color=fff"
-                                            />
-                                            <p className="text-center text-xs font-semibold text-on-surface">Marcus V.</p>
-                                            <p className="mt-1 font-mono text-[10px] text-on-surface-variant">8 Tasks</p>
-                                        </div>
+                                        {adminsPulse.map((admin, idx) => (
+                                            <div key={idx} className="flex flex-1 flex-col items-center justify-center rounded-xl border border-outline-variant/50 bg-surface-container-low/50 p-4">
+                                                <img
+                                                    alt={admin.name}
+                                                    className="mb-2.5 h-12 w-12 rounded-full border-2 border-primary object-cover shadow-sm"
+                                                    src={admin.avatar}
+                                                />
+                                                <p className="text-center text-xs font-semibold text-on-surface">{admin.name}</p>
+                                                <p className="mt-1 font-mono text-[10px] text-on-surface-variant">Admin</p>
+                                            </div>
+                                        ))}
                                         <div className="flex flex-1 flex-col items-center justify-center rounded-xl border border-outline-variant/50 bg-surface-container-low/50 p-4">
                                             <div className="mb-2.5 flex h-12 w-12 items-center justify-center rounded-full border-2 border-dashed border-outline-variant bg-surface-variant/40">
                                                 <span className="material-symbols-outlined text-[22px] text-on-surface-variant">add</span>
@@ -244,11 +201,13 @@ export default function Dashboard({ stats }) {
                                 </div>
                                 <div className="mt-5 rounded-xl border border-outline-variant/60 bg-surface-container-low/60 dark:bg-surface-container-highest/30 p-4">
                                     <div className="mb-2 flex items-center justify-between">
-                                        <span className="text-xs font-semibold text-on-surface">Global Queue Progress</span>
-                                        <span className="font-mono text-xs font-bold text-primary dark:text-indigo-300">82%</span>
+                                        <span className="text-xs font-semibold text-on-surface">Background Queue: {queue.status}</span>
+                                        <span className="font-mono text-xs font-bold text-primary dark:text-indigo-300">
+                                            {queue.pending} Pending / {queue.failed} Failed
+                                        </span>
                                     </div>
                                     <div className="h-2 w-full overflow-hidden rounded-full bg-surface-container-highest dark:bg-surface-variant/50">
-                                        <div className="h-full w-[82%] rounded-full bg-primary dark:bg-indigo-500"></div>
+                                        <div className={`h-full rounded-full bg-primary dark:bg-indigo-500 transition-all duration-500`} style={{ width: `${queue.progress}%` }}></div>
                                     </div>
                                 </div>
                             </div>

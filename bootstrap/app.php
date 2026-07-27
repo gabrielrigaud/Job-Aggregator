@@ -18,9 +18,10 @@ return Application::configure(basePath: dirname(__DIR__))
             \Illuminate\Http\Middleware\AddLinkHeadersForPreloadedAssets::class,
         ]);
 
-        $middleware->alias(['role' => \Spatie\Permission\Middleware\RoleMiddleware::class]);
-
-        $middleware->alias(['admin' => \App\Http\Middleware\AdminAccessMiddleware::class]);
+        $middleware->alias([
+            'role' => \Spatie\Permission\Middleware\RoleMiddleware::class,
+            'admin' => \App\Http\Middleware\AdminAccessMiddleware::class,
+        ]);
 
         // Ignorer la vérification CSRF pour les tests d'API dans Postman 
         $middleware->preventRequestForgery(except: [
