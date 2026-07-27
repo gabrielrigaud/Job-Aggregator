@@ -38,4 +38,10 @@ class JobOffer extends Model
     public function offerViews() {
         return $this->hasMany(OfferView::class);
     }
+
+    public function savedByUsers() {
+        return $this->belongsToMany(User::class, 'offer_views')
+                    ->wherePivot('is_saved', true)
+                    ->withPivot('viewed_at', 'is_saved');
+    }
 }

@@ -4,7 +4,7 @@ import AdminLayout from '@/Layouts/AdminLayout';
 import PageHeader from '@/Components/Admin/PageHeader';
 import StatCard from '@/Components/Admin/StatCard';
 
-export default function Dashboard() {
+export default function Dashboard({ stats }) {
     return (
         <AdminLayout>
             <Head title="Admin Console - Overview" />
@@ -29,31 +29,31 @@ export default function Dashboard() {
                         <div className="mb-6 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
                             <StatCard
                                 title="Total Users"
-                                value="24,592"
+                                value={stats?.totalUsers || "0"}
                                 icon="group"
                                 variant="primary"
-                                badge={<span className="rounded bg-green-500/10 px-1.5 py-0.5 font-mono text-[10px] text-green-600">+12.4%</span>}
+                                badge={<span className="rounded bg-green-500/10 px-1.5 py-0.5 font-mono text-[10px] text-green-600">Live</span>}
                             />
                             <StatCard
                                 title="Active Jobs"
-                                value="1,842"
+                                value={stats?.activeJobs || "0"}
                                 icon="work"
                                 variant="tertiary"
-                                badge={<span className="rounded bg-green-500/10 px-1.5 py-0.5 font-mono text-[10px] text-green-600">+8.1%</span>}
+                                badge={<span className="rounded bg-green-500/10 px-1.5 py-0.5 font-mono text-[10px] text-green-600">Live</span>}
                             />
                             <StatCard
                                 title="Pending Reports"
-                                value="14"
+                                value={stats?.pendingReports || "0"}
                                 icon="report"
                                 variant="error"
-                                badge={<span className="rounded bg-error/10 px-1.5 py-0.5 font-mono text-[10px] text-error">-2.4%</span>}
+                                badge={<span className="rounded bg-surface-variant px-1.5 py-0.5 font-mono text-[10px] text-on-surface-variant">Stable</span>}
                             />
                             <StatCard
                                 title="Active Admins"
-                                value="38"
+                                value={stats?.activeAdmins || "0"}
                                 icon="shield_person"
                                 variant="secondary"
-                                badge={<span className="rounded bg-surface-variant px-1.5 py-0.5 font-mono text-[10px] text-on-surface-variant">Stable</span>}
+                                badge={<span className="rounded bg-surface-variant px-1.5 py-0.5 font-mono text-[10px] text-on-surface-variant">Live</span>}
                             />
                         </div>
 

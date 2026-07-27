@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-import { Head } from '@inertiajs/react';
+import { Head, Link, router } from '@inertiajs/react';
 import MainLayout from '../Layouts/MainLayout';
 
-export default function Saved() {
+export default function Saved({ favorites = [], history = [] }) {
     const [activeTab, setActiveTab] = useState('favorites');
 
     return (
@@ -46,68 +46,45 @@ export default function Saved() {
                 {activeTab === 'favorites' && (
                     <section className="block">
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-md">
-                            {/* Job Card 1 */}
-                            <article className="glass-panel rounded-xl p-lg flex flex-col gap-md group hover:bg-white/5 transition-colors relative overflow-hidden">
-                                <div className="absolute top-0 right-0 p-sm opacity-0 group-hover:opacity-100 transition-opacity">
-                                    <button className="p-xs bg-white/10 backdrop-blur-md border border-white/10 rounded-md text-on-surface hover:text-primary"><span className="material-symbols-outlined text-[20px]" style={{ fontVariationSettings: "'FILL' 0" }}>open_in_new</span></button>
+                            {favorites.length === 0 && (
+                                <div className="col-span-full glass-panel rounded-xl p-xl text-center flex flex-col items-center justify-center gap-md">
+                                    <span className="material-symbols-outlined text-display-lg text-outline">bookmark_border</span>
+                                    <h3 className="font-headline-md text-body-lg text-on-surface">No saved jobs</h3>
+                                    <p className="font-body-sm text-on-surface-variant">You haven't saved any jobs yet.</p>
                                 </div>
-                                <div className="flex items-start gap-md">
-                                    <div className="w-12 h-12 rounded-lg bg-white/5 backdrop-blur-md flex items-center justify-center border border-white/10">
-                                        <span className="material-symbols-outlined text-primary" style={{ fontVariationSettings: "'FILL' 0" }}>code</span>
+                            )}
+                            {favorites.map(job => (
+                                <article key={job.id} onClick={() => window.location.href = `/jobs/${job.id}`} className="glass-panel rounded-xl p-lg flex flex-col gap-md group hover:bg-white/5 transition-colors relative overflow-hidden cursor-pointer">
+                                    <div className="absolute top-0 right-0 p-sm opacity-0 group-hover:opacity-100 transition-opacity">
+                                        <button 
+                                            onClick={(e) => { 
+                                                e.stopPropagation();
+                                                router.post(`/jobs/${job.id}/toggle-save`, {}, { preserveScroll: true, preserveState: true });
+                                            }}
+                                            className="p-xs bg-white/10 backdrop-blur-md border border-white/10 rounded-md text-on-surface hover:text-error transition-colors"
+                                            title="Remove from saved"
+                                        >
+                                            <span className="material-symbols-outlined text-[20px]" style={{ fontVariationSettings: "'FILL' 1" }}>bookmark_remove</span>
+                                        </button>
                                     </div>
-                                    <div>
-                                        <h3 className="font-medium text-sm text-on-surface mb-xs">Senior Frontend Engineer</h3>
-                                        <p className="font-code-sm text-code-sm text-on-surface-variant">Stripe • Remote</p>
+                                    <div className="flex items-start gap-md">
+                                        <div className="w-12 h-12 rounded-lg bg-white/5 backdrop-blur-md flex items-center justify-center border border-white/10 overflow-hidden">
+                                            <img className="w-full h-full object-contain" alt="Logo" src={job.company?.logo_url || "https://ui-avatars.com/api/?name=" + encodeURIComponent(job.company?.name || 'Company') + "&background=eaedff&color=4648d4"} />
+                                        </div>
+                                        <div>
+                                            <h3 className="font-medium text-sm text-on-surface mb-xs">{job.title}</h3>
+                                            <p className="font-code-sm text-code-sm text-on-surface-variant">{job.company?.name || 'Company'} • {job.location || 'Remote'}</p>
+                                        </div>
                                     </div>
-                                </div>
-                                <div className="flex flex-wrap gap-xs mt-auto">
-                                    <span className="px-xs py-xs rounded bg-white/5 backdrop-blur-sm border border-white/10 font-code-sm text-code-sm text-primary">React</span>
-                                    <span className="px-xs py-xs rounded bg-white/5 backdrop-blur-sm border border-white/10 font-code-sm text-code-sm text-primary">TypeScript</span>
-                                    <span className="px-xs py-xs rounded bg-white/5 backdrop-blur-sm border border-white/10 font-code-sm text-code-sm text-on-surface-variant">$160k - $210k</span>
-                                </div>
-                            </article>
-                            
-                            {/* Job Card 2 */}
-                            <article className="glass-panel rounded-xl p-lg flex flex-col gap-md group hover:bg-white/5 transition-colors relative overflow-hidden">
-                                <div className="absolute top-0 right-0 p-sm opacity-0 group-hover:opacity-100 transition-opacity">
-                                    <button className="p-xs bg-white/10 backdrop-blur-md border border-white/10 rounded-md text-on-surface hover:text-primary"><span className="material-symbols-outlined text-[20px]" style={{ fontVariationSettings: "'FILL' 0" }}>open_in_new</span></button>
-                                </div>
-                                <div className="flex items-start gap-md">
-                                    <div className="w-12 h-12 rounded-lg bg-white/5 backdrop-blur-md flex items-center justify-center border border-white/10">
-                                        <span className="material-symbols-outlined text-secondary" style={{ fontVariationSettings: "'FILL' 0" }}>database</span>
+                                    <div className="flex flex-wrap gap-xs mt-auto">
+                                        {job.is_remote ? <span className="px-xs py-xs rounded bg-white/5 backdrop-blur-sm border border-white/10 font-code-sm text-code-sm text-primary">Remote</span> : null}
+                                        {job.contract_type ? <span className="px-xs py-xs rounded bg-white/5 backdrop-blur-sm border border-white/10 font-code-sm text-code-sm text-primary capitalize">{job.contract_type}</span> : null}
+                                        <span className="px-xs py-xs rounded bg-white/5 backdrop-blur-sm border border-white/10 font-code-sm text-code-sm text-on-surface-variant">
+                                            {job.salary_min && job.salary_max ? `${job.salary_min} - ${job.salary_max} ${job.salary_currency || '€'}` : (job.salary_min ? `From ${job.salary_min}` : 'Salary undisclosed')}
+                                        </span>
                                     </div>
-                                    <div>
-                                        <h3 className="font-medium text-sm text-on-surface mb-xs">Backend Developer (Go)</h3>
-                                        <p className="font-code-sm text-code-sm text-on-surface-variant">Vercel • San Francisco, CA</p>
-                                    </div>
-                                </div>
-                                <div className="flex flex-wrap gap-xs mt-auto">
-                                    <span className="px-xs py-xs rounded bg-white/5 backdrop-blur-sm border border-white/10 font-code-sm text-code-sm text-primary">Go</span>
-                                    <span className="px-xs py-xs rounded bg-white/5 backdrop-blur-sm border border-white/10 font-code-sm text-code-sm text-primary">Kubernetes</span>
-                                    <span className="px-xs py-xs rounded bg-white/5 backdrop-blur-sm border border-white/10 font-code-sm text-code-sm text-on-surface-variant">$150k - $190k</span>
-                                </div>
-                            </article>
-
-                            {/* Job Card 3 */}
-                            <article className="glass-panel rounded-xl p-lg flex flex-col gap-md group hover:bg-white/5 transition-colors relative overflow-hidden">
-                                <div className="absolute top-0 right-0 p-sm opacity-0 group-hover:opacity-100 transition-opacity">
-                                    <button className="p-xs bg-white/10 backdrop-blur-md border border-white/10 rounded-md text-on-surface hover:text-primary"><span className="material-symbols-outlined text-[20px]" style={{ fontVariationSettings: "'FILL' 0" }}>open_in_new</span></button>
-                                </div>
-                                <div className="flex items-start gap-md">
-                                    <div className="w-12 h-12 rounded-lg bg-white/5 backdrop-blur-md flex items-center justify-center border border-white/10">
-                                        <span className="material-symbols-outlined text-tertiary" style={{ fontVariationSettings: "'FILL' 0" }}>architecture</span>
-                                    </div>
-                                    <div>
-                                        <h3 className="font-medium text-sm text-on-surface mb-xs">Staff Software Engineer</h3>
-                                        <p className="font-code-sm text-code-sm text-on-surface-variant">Netflix • Remote</p>
-                                    </div>
-                                </div>
-                                <div className="flex flex-wrap gap-xs mt-auto">
-                                    <span className="px-xs py-xs rounded bg-white/5 backdrop-blur-sm border border-white/10 font-code-sm text-code-sm text-primary">Java</span>
-                                    <span className="px-xs py-xs rounded bg-white/5 backdrop-blur-sm border border-white/10 font-code-sm text-code-sm text-primary">Microservices</span>
-                                    <span className="px-xs py-xs rounded bg-white/5 backdrop-blur-sm border border-white/10 font-code-sm text-code-sm text-on-surface-variant">$200k - $280k</span>
-                                </div>
-                            </article>
+                                </article>
+                            ))}
                         </div>
                     </section>
                 )}
@@ -126,30 +103,25 @@ export default function Saved() {
                                     </tr>
                                 </thead>
                                 <tbody className="font-body-sm text-body-sm text-on-surface">
-                                    <tr className="border-b border-white/5 hover:bg-white/5 transition-colors">
-                                        <td className="p-md font-medium text-primary">Full Stack Engineer</td>
-                                        <td className="p-md">Supabase</td>
-                                        <td className="p-md text-on-surface-variant font-code-sm">Oct 24, 2023</td>
-                                        <td className="p-md">
-                                            <span className="px-xs py-[2px] rounded-full border border-white/10 bg-white/5 backdrop-blur-sm text-primary font-code-sm text-[11px] uppercase tracking-wider">Applied</span>
-                                        </td>
-                                    </tr>
-                                    <tr className="border-b border-white/5 hover:bg-white/5 transition-colors">
-                                        <td className="p-md font-medium text-primary">Frontend Developer</td>
-                                        <td className="p-md">Linear</td>
-                                        <td className="p-md text-on-surface-variant font-code-sm">Oct 22, 2023</td>
-                                        <td className="p-md">
-                                            <span className="px-xs py-[2px] rounded-full border border-white/10 bg-white/5 backdrop-blur-sm text-on-surface-variant font-code-sm text-[11px] uppercase tracking-wider">Viewed</span>
-                                        </td>
-                                    </tr>
-                                    <tr className="hover:bg-white/5 transition-colors">
-                                        <td className="p-md font-medium text-primary">Platform Engineer</td>
-                                        <td className="p-md">Cloudflare</td>
-                                        <td className="p-md text-on-surface-variant font-code-sm">Oct 20, 2023</td>
-                                        <td className="p-md">
-                                            <span className="px-xs py-[2px] rounded-full border border-white/10 bg-white/5 backdrop-blur-sm text-on-surface-variant font-code-sm text-[11px] uppercase tracking-wider">Viewed</span>
-                                        </td>
-                                    </tr>
+                                    {history.length === 0 && (
+                                        <tr>
+                                            <td colSpan="4" className="p-md text-center text-on-surface-variant">No viewing history yet.</td>
+                                        </tr>
+                                    )}
+                                    {history.map(job => (
+                                        <tr key={job.id} onClick={() => window.location.href = `/jobs/${job.id}`} className="border-b border-white/5 hover:bg-white/5 transition-colors cursor-pointer">
+                                            <td className="p-md font-medium text-primary">{job.title}</td>
+                                            <td className="p-md">{job.company?.name || 'Company'}</td>
+                                            <td className="p-md text-on-surface-variant font-code-sm">
+                                                {new Date(job.pivot?.viewed_at || job.created_at).toLocaleDateString()}
+                                            </td>
+                                            <td className="p-md">
+                                                <span className="px-xs py-[2px] rounded-full border border-white/10 bg-white/5 backdrop-blur-sm text-on-surface-variant font-code-sm text-[11px] uppercase tracking-wider">
+                                                    Viewed
+                                                </span>
+                                            </td>
+                                        </tr>
+                                    ))}
                                 </tbody>
                             </table>
                         </div>

@@ -1,10 +1,10 @@
 import React from 'react';
-import { Head } from '@inertiajs/react';
+import { Head, Link, router } from '@inertiajs/react';
 import AdminLayout from '@/Layouts/AdminLayout';
 import PageHeader from '@/Components/Admin/PageHeader';
 import StatCard from '@/Components/Admin/StatCard';
 
-export default function Jobs() {
+export default function Jobs({ jobs = [], stats = {} }) {
     return (
         <AdminLayout>
             <Head title="JobMind Admin - Job Moderation" />
@@ -29,31 +29,31 @@ export default function Jobs() {
                 <div className="mb-12 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
                     <StatCard
                         title="Total Active"
-                        value="1,284"
+                        value={stats?.totalActive || "0"}
                         icon="work"
                         variant="primary"
-                        badge={<span className="rounded bg-green-500/10 px-1.5 py-0.5 font-mono text-[10px] text-green-600">+12.0%</span>}
+                        badge={<span className="rounded bg-green-500/10 px-1.5 py-0.5 font-mono text-[10px] text-green-600">Live</span>}
                     />
 
                     <StatCard
                         title="Pending Review"
-                        value="42"
+                        value={stats?.pendingReview || "0"}
                         icon="timer"
                         variant="tertiary"
-                        badge={<span className="rounded bg-tertiary/10 px-1.5 py-0.5 font-mono text-[10px] text-tertiary">Critical</span>}
+                        badge={<span className="rounded bg-tertiary/10 px-1.5 py-0.5 font-mono text-[10px] text-tertiary">Stable</span>}
                     />
 
                     <StatCard
                         title="Flagged Offers"
-                        value="8"
+                        value={stats?.flagged || "0"}
                         icon="flag"
                         variant="error"
-                        badge={<span className="rounded bg-error/10 px-1.5 py-0.5 font-mono text-[10px] text-error">Requires Action</span>}
+                        badge={<span className="rounded bg-error/10 px-1.5 py-0.5 font-mono text-[10px] text-error">Stable</span>}
                     />
 
                     <StatCard
                         title="Average Salary"
-                        value="$142k"
+                        value={stats?.averageSalary || "N/A"}
                         icon="payments"
                         variant="secondary"
                         badge={<span className="rounded bg-surface-variant px-1.5 py-0.5 font-mono text-[10px] text-on-surface-variant">Global</span>}
@@ -74,159 +74,65 @@ export default function Jobs() {
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-outline-variant/30">
-                                {/* Row 1 */}
-                                <tr className="group transition-colors hover:bg-surface-variant/20">
-                                    <td className="px-6 py-6">
-                                        <div className="flex items-center gap-4">
-                                            <div className="flex h-10 w-10 items-center justify-center rounded-lg border border-outline-variant bg-surface-container">
-                                                <span className="material-symbols-outlined text-primary">bolt</span>
+                                {jobs.length === 0 ? (
+                                    <tr>
+                                        <td colSpan="5" className="px-6 py-8 text-center text-on-surface-variant">
+                                            No jobs found.
+                                        </td>
+                                    </tr>
+                                ) : jobs.map((job) => (
+                                    <tr key={job.id} className="group transition-colors hover:bg-surface-variant/20">
+                                        <td className="px-6 py-6">
+                                            <div className="flex items-center gap-4">
+                                                <div className="flex h-10 w-10 items-center justify-center rounded-lg border border-outline-variant bg-surface-container">
+                                                    <span className="material-symbols-outlined text-primary">bolt</span>
+                                                </div>
+                                                <div>
+                                                    <p className="text-base font-semibold text-on-surface">{job.company_name}</p>
+                                                    <p className="font-mono text-xs text-on-surface-variant">{job.website}</p>
+                                                </div>
                                             </div>
-                                            <div>
-                                                <p className="text-base font-semibold text-on-surface">TechFlow Systems</p>
-                                                <p className="font-mono text-xs text-on-surface-variant">techflow.io</p>
+                                        </td>
+                                        <td className="px-6 py-6">
+                                            <p className="text-base text-on-surface">{job.title}</p>
+                                            <p className="text-xs text-on-surface-variant">{job.location} · {job.type}</p>
+                                        </td>
+                                        <td className="px-6 py-6">
+                                            <span className="font-mono text-[13px] text-on-surface">{job.salary_range}</span>
+                                        </td>
+                                        <td className="px-6 py-6 text-center">
+                                            <span className="rounded-full border border-green-500/20 bg-green-500/10 px-2 py-1 text-[10px] font-bold uppercase tracking-widest text-green-400">{job.status}</span>
+                                        </td>
+                                        <td className="px-6 py-6 text-right">
+                                            <div className="flex justify-end gap-2">
+                                                <Link 
+                                                    href={`/jobs/${job.id}`} 
+                                                    className="flex h-8 w-8 items-center justify-center rounded-lg border border-outline-variant/30 bg-surface transition-all hover:text-primary"
+                                                    title="View Public Job Page"
+                                                >
+                                                    <span className="material-symbols-outlined text-[18px]">visibility</span>
+                                                </Link>
+                                                <button 
+                                                    onClick={() => {
+                                                        if(confirm('Are you sure you want to delete this job offer?')) {
+                                                            router.delete(`/admin/jobs/${job.id}`);
+                                                        }
+                                                    }}
+                                                    className="flex h-8 w-8 items-center justify-center rounded-lg border border-outline-variant/30 bg-surface transition-all hover:text-error"
+                                                    title="Delete Job"
+                                                >
+                                                    <span className="material-symbols-outlined text-[18px]">delete</span>
+                                                </button>
                                             </div>
-                                        </div>
-                                    </td>
-                                    <td className="px-6 py-6">
-                                        <p className="text-base text-on-surface">Senior Infrastructure Engineer</p>
-                                        <p className="text-xs text-on-surface-variant">Remote · Full-time</p>
-                                    </td>
-                                    <td className="px-6 py-6">
-                                        <span className="font-mono text-[13px] text-on-surface">$160k — $210k</span>
-                                    </td>
-                                    <td className="px-6 py-6 text-center">
-                                        <span className="rounded-full border border-green-500/20 bg-green-500/10 px-2 py-1 text-[10px] font-bold uppercase tracking-widest text-green-400">Active</span>
-                                    </td>
-                                    <td className="px-6 py-6 text-right">
-                                        <div className="flex justify-end gap-2">
-                                            <button className="flex h-8 w-8 items-center justify-center rounded-lg border border-outline-variant/30 bg-surface transition-all hover:text-primary">
-                                                <span className="material-symbols-outlined text-[18px]">visibility</span>
-                                            </button>
-                                            <button className="flex h-8 w-8 items-center justify-center rounded-lg border border-outline-variant/30 bg-surface transition-all hover:text-error">
-                                                <span className="material-symbols-outlined text-[18px]">delete</span>
-                                            </button>
-                                        </div>
-                                    </td>
-                                </tr>
-                                {/* Row 2 */}
-                                <tr className="group transition-colors hover:bg-surface-variant/20">
-                                    <td className="px-6 py-6">
-                                        <div className="flex items-center gap-4">
-                                            <div className="flex h-10 w-10 items-center justify-center rounded-lg border border-outline-variant bg-surface-container">
-                                                <span className="material-symbols-outlined text-secondary">database</span>
-                                            </div>
-                                            <div>
-                                                <p className="text-base font-semibold text-on-surface">QueryCore</p>
-                                                <p className="font-mono text-xs text-on-surface-variant">querycore.ai</p>
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td className="px-6 py-6">
-                                        <p className="text-base text-on-surface">Lead Data Scientist</p>
-                                        <p className="text-xs text-on-surface-variant">London, UK · Hybrid</p>
-                                    </td>
-                                    <td className="px-6 py-6">
-                                        <span className="font-mono text-[13px] text-on-surface">$130k — $175k</span>
-                                    </td>
-                                    <td className="px-6 py-6 text-center">
-                                        <span className="rounded-full border border-tertiary/20 bg-tertiary/10 px-2 py-1 text-[10px] font-bold uppercase tracking-widest text-tertiary">Pending</span>
-                                    </td>
-                                    <td className="px-6 py-6 text-right">
-                                        <div className="flex justify-end gap-2">
-                                            <button className="flex h-8 w-8 items-center justify-center rounded-lg border border-outline-variant/30 bg-surface transition-all hover:text-primary">
-                                                <span className="material-symbols-outlined text-[18px]">visibility</span>
-                                            </button>
-                                            <button className="flex h-8 w-8 items-center justify-center rounded-lg border border-outline-variant/30 bg-surface transition-all hover:text-error">
-                                                <span className="material-symbols-outlined text-[18px]">delete</span>
-                                            </button>
-                                        </div>
-                                    </td>
-                                </tr>
-                                {/* Row 3 */}
-                                <tr className="group transition-colors hover:bg-surface-variant/20">
-                                    <td className="px-6 py-6">
-                                        <div className="flex items-center gap-4">
-                                            <div className="flex h-10 w-10 items-center justify-center rounded-lg border border-outline-variant bg-surface-container">
-                                                <span className="material-symbols-outlined text-primary-container">layers</span>
-                                            </div>
-                                            <div>
-                                                <p className="text-base font-semibold text-on-surface">StackSmith</p>
-                                                <p className="font-mono text-xs text-on-surface-variant">stacksmith.com</p>
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td className="px-6 py-6">
-                                        <p className="text-base text-on-surface">Full Stack Developer</p>
-                                        <p className="text-xs text-on-surface-variant">Austin, TX · On-site</p>
-                                    </td>
-                                    <td className="px-6 py-6">
-                                        <span className="font-mono text-[13px] text-on-surface">$110k — $150k</span>
-                                    </td>
-                                    <td className="px-6 py-6 text-center">
-                                        <span className="rounded-full border border-green-500/20 bg-green-500/10 px-2 py-1 text-[10px] font-bold uppercase tracking-widest text-green-400">Active</span>
-                                    </td>
-                                    <td className="px-6 py-6 text-right">
-                                        <div className="flex justify-end gap-2">
-                                            <button className="flex h-8 w-8 items-center justify-center rounded-lg border border-outline-variant/30 bg-surface transition-all hover:text-primary">
-                                                <span className="material-symbols-outlined text-[18px]">visibility</span>
-                                            </button>
-                                            <button className="flex h-8 w-8 items-center justify-center rounded-lg border border-outline-variant/30 bg-surface transition-all hover:text-error">
-                                                <span className="material-symbols-outlined text-[18px]">delete</span>
-                                            </button>
-                                        </div>
-                                    </td>
-                                </tr>
-                                {/* Row 4 */}
-                                <tr className="group border-l-2 border-l-error transition-colors hover:bg-surface-variant/20">
-                                    <td className="px-6 py-6">
-                                        <div className="flex items-center gap-4">
-                                            <div className="flex h-10 w-10 items-center justify-center rounded-lg border border-outline-variant bg-surface-container">
-                                                <span className="material-symbols-outlined text-error">warning</span>
-                                            </div>
-                                            <div>
-                                                <p className="text-base font-semibold text-on-surface">CryptoNexus</p>
-                                                <p className="font-mono text-xs text-on-surface-variant">nexus.cx</p>
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td className="px-6 py-6">
-                                        <p className="text-base text-on-surface">Solidity Developer</p>
-                                        <p className="text-xs text-on-surface-variant">Global · Remote</p>
-                                    </td>
-                                    <td className="px-6 py-6">
-                                        <span className="font-mono text-[13px] text-on-surface">$180k — $250k</span>
-                                    </td>
-                                    <td className="px-6 py-6 text-center">
-                                        <span className="rounded-full border border-error/20 bg-error/10 px-2 py-1 text-[10px] font-bold uppercase tracking-widest text-error">Flagged</span>
-                                    </td>
-                                    <td className="px-6 py-6 text-right">
-                                        <div className="flex justify-end gap-2">
-                                            <button className="flex h-8 w-8 items-center justify-center rounded-lg border border-outline-variant/30 bg-surface transition-all hover:text-primary">
-                                                <span className="material-symbols-outlined text-[18px]">visibility</span>
-                                            </button>
-                                            <button className="flex h-8 w-8 items-center justify-center rounded-lg border border-error/30 bg-error/20 text-error transition-all hover:bg-error hover:text-white">
-                                                <span className="material-symbols-outlined text-[18px]">delete</span>
-                                            </button>
-                                        </div>
-                                    </td>
-                                </tr>
+                                        </td>
+                                    </tr>
+                                ))}
                             </tbody>
                         </table>
                     </div>
                     {/* Table Footer / Pagination */}
                     <div className="flex flex-col items-center justify-between gap-4 border-t border-outline-variant bg-surface-container-low/50 px-6 py-4 sm:flex-row">
-                        <span className="text-sm text-on-surface-variant">Showing 1 to 4 of 42 entries</span>
-                        <div className="flex items-center gap-1">
-                            <button className="flex h-8 w-8 cursor-not-allowed items-center justify-center rounded-lg border border-outline-variant/30 bg-surface opacity-50">
-                                <span className="material-symbols-outlined">chevron_left</span>
-                            </button>
-                            <button className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-blue-500 to-purple-600 text-xs font-bold text-white">1</button>
-                            <button className="flex h-8 w-8 items-center justify-center rounded-lg border border-outline-variant/30 bg-surface text-xs text-on-surface transition-all hover:bg-surface-variant/50">2</button>
-                            <button className="flex h-8 w-8 items-center justify-center rounded-lg border border-outline-variant/30 bg-surface text-xs text-on-surface transition-all hover:bg-surface-variant/50">3</button>
-                            <button className="flex h-8 w-8 items-center justify-center rounded-lg border border-outline-variant/30 bg-surface text-on-surface transition-all hover:bg-surface-variant/50">
-                                <span className="material-symbols-outlined">chevron_right</span>
-                            </button>
-                        </div>
+                        <span className="text-sm text-on-surface-variant">Showing jobs list</span>
                     </div>
                 </div>
 

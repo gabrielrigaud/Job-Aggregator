@@ -2,7 +2,8 @@ import React from 'react';
 import { Link, usePage } from '@inertiajs/react';
 
 export default function AdminSideNavBar() {
-    const { url } = usePage();
+    const { url, props } = usePage();
+    const user = props.auth?.user;
 
     const isOverview = url.startsWith('/admin/dashboard');
     const isUsers = url.startsWith('/admin/users');
@@ -75,13 +76,13 @@ export default function AdminSideNavBar() {
             <div className="border-t border-outline-variant pt-4">
                 <div className="flex items-center gap-3 px-2">
                     <img
-                        alt="Alex Rivera"
+                        alt={user?.name || 'Admin User'}
                         className="h-9 w-9 rounded-full border border-outline-variant object-cover"
-                        src="https://ui-avatars.com/api/?name=Alex+Rivera&background=random"
+                        src={user?.name ? `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name)}&background=random` : 'https://ui-avatars.com/api/?name=Admin&background=random'}
                     />
                     <div className="overflow-hidden">
-                        <p className="text-sm font-semibold text-on-surface">Alex Rivera</p>
-                        <p className="text-xs text-on-surface-variant">Super Admin</p>
+                        <p className="text-sm font-semibold text-on-surface truncate">{user?.name || 'Administrator'}</p>
+                        <p className="text-xs text-on-surface-variant">Admin</p>
                     </div>
                 </div>
             </div>
