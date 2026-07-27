@@ -41,23 +41,23 @@ class FetchIndeedJobs extends Command
             ['url' => 'https://fr.indeed.com', 'type' => 'Scraping']
         );
 
-        $scriptPath = base_path('scripts/indeed-scraper.js');
-
-        // Exécuter le script Node.js via Process
-        $process = new Process(['node', $scriptPath, $keyword, $location]);
-        $process->setTimeout(60); // Le scraping peut être long
-
+        // Appeler l'API Python FastAPI
         try {
-            $process->mustRun();
-        } catch (ProcessFailedException $exception) {
-            $this->error("Erreur lors de l'exécution du script Playwright:");
-            $this->error($exception->getMessage());
+            $response = \Illuminate\Support\Facades\Http::timeout(60)->get('http://127.0.0.1:8001/scrape', [
+                'keyword' => $keyword,
+                'location' => $location
+            ]);
+
+            if ($response->failed()) {
+                $this->error("Erreur lors de l'appel à l'API Python: " . $response->body());
+                return Command::FAILURE;
+            }
+
+            $jobs = $response->json();
+        } catch (\Exception $e) {
+            $this->error("Impossible de contacter l'API Python: " . $e->getMessage());
             return Command::FAILURE;
         }
-
-        $output = $process->getOutput();
-        
-        $jobs = json_decode($output, true);
 
         if (json_last_error() !== JSON_ERROR_NONE) {
             $this->error("Erreur de décodage JSON de la sortie de Playwright: " . json_last_error_msg());
