@@ -115,14 +115,14 @@ export default function Dashboard({ stats, logs = [], queue = { pending: 0, fail
                                                         {log.level === 'ERROR' ? 'error' : log.level === 'WARNING' ? 'warning' : 'info'}
                                                     </span>
                                                 </div>
-                                                <div className="flex-1 border-b border-outline-variant pb-3">
+                                                <div className="flex-1 min-w-0 border-b border-outline-variant pb-3">
                                                     <div className="mb-0.5 flex items-start justify-between">
                                                         <p className="text-sm font-semibold text-on-surface transition-colors group-hover:text-primary">
                                                             {log.level}
                                                         </p>
-                                                        <span className="font-mono text-[10px] text-on-surface-variant">{log.date}</span>
+                                                        <span className="font-mono text-[10px] text-on-surface-variant flex-shrink-0 ml-2">{log.date}</span>
                                                     </div>
-                                                    <p className="line-clamp-2 text-xs text-on-surface-variant" title={log.message}>{log.message}</p>
+                                                    <p className="line-clamp-2 break-all text-xs text-on-surface-variant" title={log.message}>{log.message}</p>
                                                 </div>
                                             </div>
                                         )) : (

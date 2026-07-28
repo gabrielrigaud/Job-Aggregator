@@ -26,7 +26,7 @@ export default function Register() {
                 <div className="absolute bottom-1/4 right-1/3 w-[400px] h-[400px] bg-secondary/15 rounded-full mix-blend-screen filter blur-[100px] opacity-60"></div>
             </div>
 
-            <main className="w-full max-w-md z-10">
+            <div className="w-full max-w-lg z-10">
                 {/* Brand Header */}
                 <div className="text-center mb-xl">
                     <Link href="/">
@@ -158,7 +158,7 @@ export default function Register() {
                         </button>
                     </form>
                 </div>
-            </main>
+            </div>
         </div>
     );
 }

@@ -1,24 +1,30 @@
 import React, { useState } from 'react';
-import { Head, router } from '@inertiajs/react';
+import { Head, router, usePage } from '@inertiajs/react';
 import AdminLayout from '@/Layouts/AdminLayout';
 import PageHeader from '@/Components/Admin/PageHeader';
 import StatCard from '@/Components/Admin/StatCard';
 
-export default function Users({ users = [] }) {
+export default function Users({ users = [], platformGrowth = [], roleDistribution = {}, stats = {} }) {
+    const { auth } = usePage().props;
     const [selectedAll, setSelectedAll] = useState(false);
     const [selectedUsers, setSelectedUsers] = useState({});
 
     const [usersList, setUsersList] = useState(users);
 
-    const toggleSelectAll = () => {
-        const nextState = !selectedAll;
-        setSelectedAll(nextState);
+    const handleSelectAll = (e) => {
+        const isChecked = e.target.checked;
+        setSelectedAll(isChecked);
+        
         const updated = {};
-        usersList.forEach((u) => {
-            updated[u.id] = nextState;
-        });
+        if (isChecked) {
+            users.forEach((user) => {
+                updated[user.id] = true;
+            });
+        }
         setSelectedUsers(updated);
     };
+
+    const maxCount = Math.max(...platformGrowth.map(d => d.count), 5); // Minimum denominator of 5 to avoid giant bars for small numbers
 
     const toggleSelectUser = (id) => {
         setSelectedUsers((prev) => ({
@@ -37,7 +43,11 @@ export default function Users({ users = [] }) {
         switch (status) {
             case 'Active':
                 return (
-                    <span className="rounded-full border border-green-500/20 bg-green-500/10 px-2.5 py-0.5 font-mono text-[11px] font-bold uppercase tracking-wider text-green-500">
+                    <span className="flex items-center gap-1.5 rounded-full border border-green-500/20 bg-green-500/10 px-2.5 py-0.5 font-mono text-[11px] font-bold uppercase tracking-wider text-green-500">
+                        <span className="relative flex h-1.5 w-1.5">
+                            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-green-400 opacity-75"></span>
+                            <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-green-500"></span>
+                        </span>
                         Active
                     </span>
                 );
@@ -83,15 +93,19 @@ export default function Users({ users = [] }) {
                 <div className="mb-6 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
                     <StatCard
                         title="Total Users"
-                        value="1,284"
+                        value={stats.totalUsers ?? '0'}
                         icon="group"
                         variant="primary"
-                        badge={<span className="rounded bg-green-500/10 px-1.5 py-0.5 font-mono text-[10px] text-green-600">+12.0%</span>}
+                        badge={
+                            <span className={`rounded px-1.5 py-0.5 font-mono text-[10px] ${stats.isGrowthPositive ? 'bg-green-500/10 text-green-600' : 'bg-red-500/10 text-red-600'}`}>
+                                {stats.growth ?? '0%'}
+                            </span>
+                        }
                     />
                     
                     <StatCard
                         title="Active Now"
-                        value="42"
+                        value={stats.activeNow ?? '0'}
                         icon="person"
                         variant="secondary"
                         badge={
@@ -107,15 +121,19 @@ export default function Users({ users = [] }) {
 
                     <StatCard
                         title="Pending Roles"
-                        value="18"
+                        value={stats.pendingRoles ?? '0'}
                         icon="pending_actions"
                         variant="tertiary"
-                        badge={<span className="rounded bg-error/10 px-1.5 py-0.5 font-mono text-[10px] text-error">Review</span>}
+                        badge={
+                            (stats.pendingRoles > 0) ? (
+                                <span className="rounded bg-error/10 px-1.5 py-0.5 font-mono text-[10px] text-error">Review</span>
+                            ) : null
+                        }
                     />
 
                     <StatCard
                         title="System Health"
-                        value="99.9%"
+                        value={stats.systemHealth ?? '99.9%'}
                         icon="health_and_safety"
                         variant="primary"
                         badge={<span className="rounded bg-surface-variant px-1.5 py-0.5 font-mono text-[10px] text-on-surface-variant">Optimal</span>}
@@ -130,7 +148,7 @@ export default function Users({ users = [] }) {
                             <label className="flex items-center gap-2 cursor-pointer">
                                 <input
                                     checked={selectedAll}
-                                    onChange={toggleSelectAll}
+                                    onChange={handleSelectAll}
                                     type="checkbox"
                                     className="h-4 w-4 rounded border-outline-variant text-primary focus:ring-primary"
                                 />
@@ -220,20 +238,16 @@ export default function Users({ users = [] }) {
                     </div>
 
                     {/* Pagination */}
-                    <div className="flex flex-wrap items-center justify-between border-t border-outline-variant bg-surface-container-low/20 p-4">
+                    <div className="flex items-center justify-between border-t border-outline-variant bg-surface-container-low/40 px-6 py-4">
                         <span className="text-xs font-semibold text-on-surface-variant">
-                            Showing 1 to {usersList.length} of 154 entries
+                            Showing 1 to {usersList.length} of {usersList.length} entries
                         </span>
                         <div className="flex items-center gap-1">
-                            <button className="flex h-8 w-8 items-center justify-center rounded border border-outline-variant text-on-surface-variant hover:bg-surface-variant/50">
+                            <button className="flex h-8 w-8 items-center justify-center rounded border border-outline-variant text-on-surface-variant hover:bg-surface-variant/50 disabled:opacity-50" disabled>
                                 <span className="material-symbols-outlined text-[18px]">chevron_left</span>
                             </button>
                             <button className="h-8 w-8 rounded bg-primary text-xs font-bold text-on-primary">1</button>
-                            <button className="h-8 w-8 rounded border border-outline-variant text-xs font-semibold text-on-surface-variant hover:bg-surface-variant/50">2</button>
-                            <button className="h-8 w-8 rounded border border-outline-variant text-xs font-semibold text-on-surface-variant hover:bg-surface-variant/50">3</button>
-                            <span className="px-2 text-xs text-on-surface-variant">...</span>
-                            <button className="h-8 w-8 rounded border border-outline-variant text-xs font-semibold text-on-surface-variant hover:bg-surface-variant/50">39</button>
-                            <button className="flex h-8 w-8 items-center justify-center rounded border border-outline-variant text-on-surface-variant hover:bg-surface-variant/50">
+                            <button className="flex h-8 w-8 items-center justify-center rounded border border-outline-variant text-on-surface-variant hover:bg-surface-variant/50 disabled:opacity-50" disabled>
                                 <span className="material-symbols-outlined text-[18px]">chevron_right</span>
                             </button>
                         </div>
@@ -244,15 +258,29 @@ export default function Users({ users = [] }) {
                 <div className="mt-6 flex flex-col gap-6 lg:flex-row">
                     {/* Platform Growth */}
                     <div className="flex w-full flex-col justify-between rounded-xl border border-outline-variant bg-surface p-6 shadow-sm lg:w-2/3">
-                        <h3 className="mb-4 text-xl font-bold text-on-surface">Platform Growth</h3>
-                        <div className="flex h-48 w-full items-end justify-between gap-3 rounded-lg bg-surface-container-low/40 p-4">
-                            <div className="h-[40%] w-full rounded-t bg-primary/30 transition-all hover:bg-primary"></div>
-                            <div className="h-[55%] w-full rounded-t bg-primary/30 transition-all hover:bg-primary"></div>
-                            <div className="h-[35%] w-full rounded-t bg-primary/30 transition-all hover:bg-primary"></div>
-                            <div className="h-[65%] w-full rounded-t bg-primary/30 transition-all hover:bg-primary"></div>
-                            <div className="h-[80%] w-full rounded-t bg-primary/30 transition-all hover:bg-primary"></div>
-                            <div className="h-[45%] w-full rounded-t bg-primary/30 transition-all hover:bg-primary"></div>
-                            <div className="h-[90%] w-full rounded-t bg-primary/30 transition-all hover:bg-primary"></div>
+                        <h3 className="mb-4 text-xl font-bold text-on-surface">Platform Growth (New Users)</h3>
+                        <div className="relative flex h-48 w-full flex-col justify-end gap-3 rounded-lg bg-surface-container-low/40 p-4">
+                            <div className="relative z-10 flex h-full items-end justify-between gap-3 px-2">
+                                {platformGrowth.map((day, idx) => {
+                                    const height = maxCount > 0 ? (day.count / maxCount) * 100 : 0;
+                                    return (
+                                        <div key={idx} className="group relative flex w-full flex-col items-center justify-end h-full">
+                                            <div 
+                                                className="w-full rounded-t bg-primary/40 transition-all hover:bg-primary/80" 
+                                                style={{ height: `${height}%`, minHeight: day.count > 0 ? '4px' : '0' }}
+                                            ></div>
+                                            <div className="absolute bottom-full mb-1 hidden rounded bg-surface-variant px-2 py-1 text-xs text-on-surface shadow-md group-hover:block whitespace-nowrap">
+                                                {day.count} signups
+                                            </div>
+                                        </div>
+                                    );
+                                })}
+                            </div>
+                            <div className="flex w-full justify-between px-2 text-[10px] font-medium text-on-surface-variant">
+                                {platformGrowth.map((day, idx) => (
+                                    <span key={idx} className="text-center w-full">{day.date}</span>
+                                ))}
+                            </div>
                         </div>
                     </div>
 
@@ -262,29 +290,29 @@ export default function Users({ users = [] }) {
                         <div className="space-y-4">
                             <div>
                                 <div className="mb-1.5 flex justify-between text-xs font-semibold">
-                                    <span className="text-on-surface-variant">Engineering</span>
-                                    <span className="font-mono text-primary">45%</span>
+                                    <span className="text-on-surface-variant">Candidates</span>
+                                    <span className="font-mono text-primary">{roleDistribution?.candidates ?? 0}%</span>
                                 </div>
                                 <div className="h-2 w-full overflow-hidden rounded-full bg-surface-container-highest">
-                                    <div className="h-full rounded-full bg-primary" style={{ width: '45%' }}></div>
+                                    <div className="h-full rounded-full bg-primary" style={{ width: `${roleDistribution?.candidates ?? 0}%` }}></div>
                                 </div>
                             </div>
                             <div>
                                 <div className="mb-1.5 flex justify-between text-xs font-semibold">
-                                    <span className="text-on-surface-variant">Marketing</span>
-                                    <span className="font-mono text-secondary">25%</span>
+                                    <span className="text-on-surface-variant">Recruiters</span>
+                                    <span className="font-mono text-secondary">{roleDistribution?.recruiters ?? 0}%</span>
                                 </div>
                                 <div className="h-2 w-full overflow-hidden rounded-full bg-surface-container-highest">
-                                    <div className="h-full rounded-full bg-secondary" style={{ width: '25%' }}></div>
+                                    <div className="h-full rounded-full bg-secondary" style={{ width: `${roleDistribution?.recruiters ?? 0}%` }}></div>
                                 </div>
                             </div>
                             <div>
                                 <div className="mb-1.5 flex justify-between text-xs font-semibold">
-                                    <span className="text-on-surface-variant">Management</span>
-                                    <span className="font-mono text-tertiary">30%</span>
+                                    <span className="text-on-surface-variant">Administrators</span>
+                                    <span className="font-mono text-tertiary">{roleDistribution?.admins ?? 0}%</span>
                                 </div>
                                 <div className="h-2 w-full overflow-hidden rounded-full bg-surface-container-highest">
-                                    <div className="h-full rounded-full bg-tertiary" style={{ width: '30%' }}></div>
+                                    <div className="h-full rounded-full bg-tertiary" style={{ width: `${roleDistribution?.admins ?? 0}%` }}></div>
                                 </div>
                             </div>
                         </div>

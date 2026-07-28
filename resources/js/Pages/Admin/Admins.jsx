@@ -1,14 +1,44 @@
 import React, { useState } from 'react';
-import { Head } from '@inertiajs/react';
+import { Head, router, usePage } from '@inertiajs/react';
 import AdminLayout from '@/Layouts/AdminLayout';
 import PageHeader from '@/Components/Admin/PageHeader';
 
 export default function Admins({ admins = [] }) {
+    const { auth } = usePage().props;
     const [openMenuId, setOpenMenuId] = useState(null);
 
     const toggleMenu = (id) => {
         setOpenMenuId(openMenuId === id ? null : id);
     };
+
+    const handleRevoke = (id) => {
+        if (confirm('Are you sure you want to revoke this admin? They will be demoted to a regular user.')) {
+            router.delete(route('admin.admins.revoke', id), {
+                onSuccess: () => setOpenMenuId(null),
+            });
+        }
+    };
+
+    const handleEditRole = (id) => {
+        // Since we only support 'user' and 'admin' for now, edit role demotes to user
+        // Or we can prompt them
+        if (confirm('Change role to standard User?')) {
+            router.patch(route('admin.admins.updateRole', id), { role: 'user' }, {
+                onSuccess: () => setOpenMenuId(null),
+            });
+        }
+    };
+
+    const handleAddExistingUser = () => {
+        const email = window.prompt('Enter the email address of the existing user to promote to Admin:');
+        if (email) {
+            router.post(route('admin.admins.addExisting'), { email }, {
+                preserveScroll: true,
+                onSuccess: () => setOpenMenuId(null),
+            });
+        }
+    };
+
     return (
         <AdminLayout>
             <Head title="JobMind Admin Console - Admin Management" />
@@ -31,7 +61,7 @@ export default function Admins({ admins = [] }) {
                             <form className="space-y-4">
                                 <div className="space-y-1">
                                     <label className="ml-1 block text-sm font-medium text-on-surface-variant">Email Address</label>
-                                    <input className="w-full rounded-lg border-outline-variant bg-surface glass-input p-4 text-on-surface transition-all placeholder:text-on-surface-variant/50 focus:outline-none focus:ring-2 focus:ring-primary" placeholder="colleague@jobmind.com" type="email" />
+                                    <input className="w-full rounded-lg border-outline-variant bg-surface glass-input p-4 text-on-surface transition-all placeholder:text-on-surface-variant placeholder:opacity-50 focus:outline-none focus:ring-2 focus:ring-primary" placeholder="colleague@jobmind.com" type="email" />
                                 </div>
                                 <div className="space-y-1">
                                     <label className="ml-1 block text-sm font-medium text-on-surface-variant">Permission Level</label>
@@ -72,6 +102,9 @@ export default function Admins({ admins = [] }) {
                             <div className="flex items-center justify-between border-b border-outline-variant/30 p-6">
                                 <h3 className="text-2xl font-bold text-on-surface">Team Directory</h3>
                                 <div className="flex gap-2">
+                                    <button onClick={handleAddExistingUser} className="rounded-lg p-2 text-on-surface-variant transition-colors hover:bg-surface-variant/50" title="Add existing user as Admin">
+                                        <span className="material-symbols-outlined">person_add</span>
+                                    </button>
                                     <button className="rounded-lg p-2 text-on-surface-variant transition-colors hover:bg-surface-variant/50">
                                         <span className="material-symbols-outlined">filter_list</span>
                                     </button>
@@ -95,7 +128,9 @@ export default function Admins({ admins = [] }) {
                                         />
                                         <div className="flex-1 relative">
                                             <div className="flex items-center justify-between">
-                                                <h4 className="text-base font-bold text-on-surface">{admin.name}</h4>
+                                                <h4 className="text-base font-bold text-on-surface">
+                                                    {admin.name} {auth.user.id === admin.id && <span className="text-xs font-normal text-primary ml-2 bg-primary/10 px-2 py-0.5 rounded-full">(You)</span>}
+                                                </h4>
                                                 <div className="relative">
                                                     <button 
                                                         onClick={() => toggleMenu(admin.id)}
@@ -107,23 +142,31 @@ export default function Admins({ admins = [] }) {
                                                     {openMenuId === admin.id && (
                                                         <>
                                                             <div className="fixed inset-0 z-40" onClick={() => setOpenMenuId(null)}></div>
-                                                            <div className="absolute right-0 top-full z-50 mt-1 w-40 overflow-hidden rounded-xl border border-outline-variant bg-surface shadow-xl">
-                                                                <button className="flex w-full items-center gap-2 px-4 py-2.5 text-sm font-medium text-on-surface transition-colors hover:bg-surface-variant/50">
-                                                                    <span className="material-symbols-outlined text-[18px]">edit</span>
-                                                                    Edit Role
-                                                                </button>
-                                                                <button className="flex w-full items-center gap-2 px-4 py-2.5 text-sm font-medium text-error transition-colors hover:bg-error/10">
-                                                                    <span className="material-symbols-outlined text-[18px]">person_remove</span>
-                                                                    Revoke
-                                                                </button>
+                                                            <div className="absolute right-0 top-full z-50 mt-1 w-48 overflow-hidden rounded-xl border border-outline-variant bg-surface shadow-xl">
+                                                                {auth.user.id === admin.id ? (
+                                                                    <div className="p-3 text-xs text-on-surface-variant text-center bg-surface-variant/30">
+                                                                        You cannot modify your own role.
+                                                                    </div>
+                                                                ) : (
+                                                                    <>
+                                                                        <button onClick={() => handleEditRole(admin.id)} className="flex w-full items-center gap-2 px-4 py-2.5 text-sm font-medium text-on-surface transition-colors hover:bg-surface-variant/50">
+                                                                            <span className="material-symbols-outlined text-[18px]">edit</span>
+                                                                            Edit Role
+                                                                        </button>
+                                                                        <button onClick={() => handleRevoke(admin.id)} className="flex w-full items-center gap-2 px-4 py-2.5 text-sm font-medium text-error transition-colors hover:bg-error/10">
+                                                                            <span className="material-symbols-outlined text-[18px]">person_remove</span>
+                                                                            Revoke
+                                                                        </button>
+                                                                    </>
+                                                                )}
                                                             </div>
                                                         </>
                                                     )}
                                                 </div>
                                             </div>
                                             <p className="text-sm font-medium text-primary">{admin.role}</p>
-                                            <p className="font-mono text-xs text-on-surface-variant">{admin.email}</p>
-                                            <p className="font-mono text-[10px] text-on-surface-variant/70 mt-1">Joined: {admin.joined}</p>
+                                            <p className="font-mono text-xs text-on-surface opacity-80">{admin.email}</p>
+                                            <p className="font-mono text-[10px] text-on-surface opacity-60 mt-1">Joined: {admin.joined}</p>
                                         </div>
                                     </div>
                                 ))}
