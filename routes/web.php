@@ -18,7 +18,7 @@ Route::get('/jobs/{id}', [JobController::class, 'show'])->name('jobs.show');
 Route::get('/saved', [JobController::class, 'saved'])->middleware('auth')->name('saved');
 
 Route::inertia('/insights', 'SalaryInsights')->name('insights');
-Route::inertia('/settings', 'Settings')->name('settings');
+Route::inertia('/settings', 'Settings')->middleware('auth')->name('settings');
 
 
 //route pour les utilisateurs authentifiés

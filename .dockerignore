@@ -29,3 +29,5 @@ phpunit.xml
 .eslintrc.json
 .editorconfig
 .npmrc
+# Symlink créé par storage:link - incompatible avec Docker build context
+public/storage

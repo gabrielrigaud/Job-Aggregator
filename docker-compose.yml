@@ -9,7 +9,6 @@ services:
     working_dir: /var/www/html
     ports:
       - "5173:5173"
-      - "5174:5174"
     volumes:
       - .:/var/www/html
       - /var/www/html/vendor
@@ -75,6 +74,7 @@ services:
       - .:/var/www/html
       - /var/www/html/vendor
       - /var/www/html/node_modules
+    mem_limit: 256m
     environment:
       - DB_HOST=db
       - DB_PORT=5432
