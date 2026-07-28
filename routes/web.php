@@ -43,6 +43,9 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::get('/admin/jobs', [AdminDashboardController::class, 'jobs'])->name('admin.jobs.preview');
     Route::delete('/admin/jobs/{job}', [AdminDashboardController::class, 'destroyJob'])->name('admin.jobs.destroy');
     Route::get('/admin/admins', [AdminDashboardController::class, 'admins'])->name('admin.admins.preview');
+    Route::post('/admin/admins/add-existing', [AdminDashboardController::class, 'addExistingUser'])->name('admin.admins.addExisting');
+    Route::patch('/admin/admins/{user}/role', [AdminDashboardController::class, 'updateRole'])->name('admin.admins.updateRole');
+    Route::delete('/admin/admins/{user}/revoke', [AdminDashboardController::class, 'revokeAdmin'])->name('admin.admins.revoke');
 
     //modif ou suppression d'un utilisateur
     Route::get('/admin/users/create', [AdminUserController::class, 'create'])->name('admin.users.create');
