@@ -7,109 +7,18 @@ use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
-Route::get('/', function (\Illuminate\Http\Request $request) {
-    $query = \App\Models\JobOffer::with(['company:id,name,logo_url,website_url', 'source:id,name'])
-        ->select('job_offers.id', 'company_id', 'source_internal_id', 'title', 'description', 'location', 'country', 'is_remote', 'contract_type', 'date_of_publi', 'salary_min', 'salary_max', 'salary_currency', 'salary_period', 'job_offers.created_at');
+Route::get('/', [JobController::class, 'discover'])->name('home');
 
-    $filters = $request->only(['search', 'location', 'contract_type', 'remote_only', 'salary_min', 'sort']);
-
-    if (!empty($filters['search'])) {
-        $query->where(function ($q) use ($filters) {
-            $q->where('title', 'ilike', '%' . $filters['search'] . '%')
-              ->orWhereHas('company', function ($q2) use ($filters) {
-                  $q2->where('name', 'ilike', '%' . $filters['search'] . '%');
-              });
-        });
-    }
-
-    if (!empty($filters['location'])) {
-        $query->where('location', 'ilike', '%' . $filters['location'] . '%');
-    }
-
-    if (!empty($filters['contract_type'])) {
-        $query->where('contract_type', $filters['contract_type']);
-    }
-
-    if (!empty($filters['remote_only']) && $filters['remote_only'] === 'true') {
-        $query->where('is_remote', true);
-    }
-
-    if (!empty($filters['salary_min'])) {
-        $query->where('salary_min', '>=', (int) $filters['salary_min']);
-    }
-
-    if (!empty($filters['sort']) && $filters['sort'] === 'relevance') {
-        if (!empty($filters['search'])) {
-            // Sort by whether title matches search term first, then by date
-            $query->orderByRaw("CASE WHEN title ILIKE ? THEN 1 ELSE 2 END", ['%' . $filters['search'] . '%'])
-                  ->orderBy('job_offers.created_at', 'desc')
-                  ->orderBy('job_offers.id', 'desc');
-        } else {
-            // "Relevance" without search -> Recommend highest salary jobs first (ignore NULLs)
-            $query->orderByRaw('salary_max DESC NULLS LAST')
-                  ->orderBy('job_offers.created_at', 'desc')
-                  ->orderBy('job_offers.id', 'desc');
-        }
-    } else {
-        $query->orderBy('job_offers.created_at', 'desc')
-              ->orderBy('job_offers.id', 'desc');
-    }
-
-    $jobs = $query->take(50)->get();
-
-    $savedJobIds = [];
-    if ($user = $request->user()) {
-        $savedJobIds = $user->savedJobs()->pluck('job_offers.id')->toArray();
-    }
-
-    return Inertia::render('Discover', [
-        'jobs' => $jobs,
-        'savedJobIds' => $savedJobIds,
-        'canLogin' => Route::has('login'),
-        'canRegister' => Route::has('register'),
-        'filters' => (object) $filters,
-    ]);
-});
-
-//Route::get('/jobs/{job}', function (\App\Models\JobOffer $job) {
-  //  $job->load(['company', 'source']);
-
-  //  return Inertia::render('JobDetail', [
-   //     'job' => $job,
-   // ]);
-//})->name('jobs.show');
-
-Route::get('/dashboard', function () {
-    return redirect('/');
-})->middleware(['auth', 'verified'])->name('dashboard');
+Route::redirect('/dashboard', '/')->middleware(['auth', 'verified'])->name('dashboard');
 
 //route public pour afficher les offres d'emploi et les détails d'une offre
 Route::get('/jobs', [JobController::class, 'index'])->name('jobs.index');
 Route::get('/jobs/{id}', [JobController::class, 'show'])->name('jobs.show');
 
-Route::get('/saved', function (\Illuminate\Http\Request $request) {
-    $user = $request->user();
-    $favorites = $user->savedJobs()->with(['company', 'source'])->get();
-    
-    // Fetch history (views) and map to the actual jobOffer relationship
-    $historyViews = $user->offerViews()->with(['jobOffer.company', 'jobOffer.source'])->latest('viewed_at')->get();
-    $history = $historyViews->map(function ($view) {
-        return $view->jobOffer;
-    })->filter();
+Route::get('/saved', [JobController::class, 'saved'])->middleware('auth')->name('saved');
 
-    return Inertia::render('Saved', [
-        'favorites' => $favorites,
-        'history' => $history
-    ]);
-})->middleware('auth')->name('saved');
-
-Route::get('/insights', function () {
-    return Inertia::render('SalaryInsights');
-})->name('insights');
-
-Route::get('/settings', function () {
-    return Inertia::render('Settings');
-})->name('settings');
+Route::inertia('/insights', 'SalaryInsights')->name('insights');
+Route::inertia('/settings', 'Settings')->name('settings');
 
 
 //route pour les utilisateurs authentifiés
