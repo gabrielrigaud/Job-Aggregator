@@ -24,8 +24,12 @@ class AppServiceProvider extends ServiceProvider
     {
         Vite::prefetch(concurrency: 3);
 
-        LogViewer::auth(function ($request) {
-            return $request->user() && $request->user()->hasRole('admin');
-        });
+        try {
+            LogViewer::auth(function ($request) {
+                return $request->user() && $request->user()->hasRole('admin');
+            });
+        } catch (\Throwable $e) {
+            // Silently ignore if LogViewer is not yet bound (e.g., during package discovery)
+        }
     }
 }
