@@ -20,6 +20,9 @@ export default function Settings() {
     const { data: profileData, setData: setProfileData, patch: patchProfile, errors: profileErrors, processing: profileProcessing, recentlySuccessful: profileSuccessful } = useForm({
         name: user.name || '',
         email: user.email || '',
+        bio: user.bio || '',
+        job_title: user.job_title || '',
+        linkedin_url: user.linkedin_url || '',
     });
 
     const submitProfile = (e) => {
@@ -159,6 +162,35 @@ export default function Settings() {
                                             className="bg-surface-container-highest/30 border border-white/10 text-on-surface rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary w-full transition-all" 
                                         />
                                         {profileErrors.email && <span className="text-error text-xs font-medium">{profileErrors.email}</span>}
+                                    </div>
+                                    <div className="flex flex-col gap-1">
+                                        <label className="text-xs font-medium text-on-surface-variant">Job Title</label>
+                                        <input 
+                                            type="text" 
+                                            value={profileData.job_title} 
+                                            onChange={e => setProfileData('job_title', e.target.value)} 
+                                            className="bg-surface-container-highest/30 border border-white/10 text-on-surface rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary w-full transition-all" 
+                                        />
+                                        {profileErrors.job_title && <span className="text-error text-xs font-medium">{profileErrors.job_title}</span>}
+                                    </div>
+                                    <div className="flex flex-col gap-1">
+                                        <label className="text-xs font-medium text-on-surface-variant">LinkedIn URL</label>
+                                        <input 
+                                            type="url" 
+                                            value={profileData.linkedin_url} 
+                                            onChange={e => setProfileData('linkedin_url', e.target.value)} 
+                                            className="bg-surface-container-highest/30 border border-white/10 text-on-surface rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary w-full transition-all" 
+                                        />
+                                        {profileErrors.linkedin_url && <span className="text-error text-xs font-medium">{profileErrors.linkedin_url}</span>}
+                                    </div>
+                                    <div className="flex flex-col gap-1">
+                                        <label className="text-xs font-medium text-on-surface-variant">Bio</label>
+                                        <textarea 
+                                            value={profileData.bio} 
+                                            onChange={e => setProfileData('bio', e.target.value)} 
+                                            className="bg-surface-container-highest/30 border border-white/10 text-on-surface rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary w-full transition-all min-h-[80px] resize-none" 
+                                        />
+                                        {profileErrors.bio && <span className="text-error text-xs font-medium">{profileErrors.bio}</span>}
                                     </div>
                                 </div>
                                 <div className="mt-6 pt-4 border-t border-white/10 flex justify-end">
