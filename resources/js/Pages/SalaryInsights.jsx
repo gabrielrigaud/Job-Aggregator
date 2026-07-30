@@ -53,7 +53,13 @@ export default function SalaryInsights() {
                         <div className="bg-surface-container/40 backdrop-blur-xl border border-white/10 rounded-xl shadow-lg p-5 flex-1">
                             <h3 className="text-xs font-semibold text-on-surface-variant uppercase tracking-wider mb-1">AI Predicted Demand</h3>
                             <div className="text-3xl font-bold text-secondary mb-2">High</div>
-                            <p className="text-xs text-on-surface-variant mt-2 border-t border-white/10 pt-2">Based on trending keywords in Rust and AI engineering.</p>
+                            <p className="text-xs text-on-surface-variant mt-2 border-t border-white/10 pt-2 mb-4">Based on trending keywords in Rust and AI engineering.</p>
+                            <h4 className="text-sm font-medium text-on-surface mb-3">Trending Skills</h4>
+                            <div className="flex flex-wrap gap-1">
+                                {['Rust', 'Go', 'Kubernetes', 'Next.js'].map(skill => (
+                                    <span key={skill} className="px-2 py-1 bg-surface-container-highest rounded font-mono text-xs text-on-surface hover:text-primary hover:border-primary border border-transparent cursor-pointer transition-colors">{skill}</span>
+                                ))}
+                            </div>
                         </div>
                     </div>
                     

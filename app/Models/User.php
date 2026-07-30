@@ -12,12 +12,26 @@ use Illuminate\Notifications\Notifiable;
 use Spatie\Permission\Traits\HasRoles;
 use Laravel\Sanctum\HasApiTokens;
 
-#[Fillable(['name', 'email', 'password'])]
+#[Fillable(['name', 'email', 'password', 'bio', 'job_title', 'linkedin_url'])]
 #[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable implements MustVerifyEmail
 {
     /** @use HasFactory<UserFactory> */
     use HasApiTokens, HasFactory, Notifiable, HasRoles;
+
+    protected $appends = ['profile_completion'];
+
+    public function getProfileCompletionAttribute(): int
+    {
+        $fields = ['name', 'email', 'bio', 'job_title', 'linkedin_url'];
+        $filled = 0;
+        foreach ($fields as $field) {
+            if (!empty($this->{$field})) {
+                $filled++;
+            }
+        }
+        return (int) round(($filled / count($fields)) * 100);
+    }
 
     /**
      * Get the attributes that should be cast.

@@ -4,7 +4,7 @@ import { Popover, PopoverButton, PopoverPanel } from '@headlessui/react';
 import JobDetailPanel from '../Components/JobDetailPanel';
 import MainLayout from '../Layouts/MainLayout';
 
-export default function Discover({ jobs = [], savedJobIds = [], filters = {} }) {
+export default function Discover({ auth, jobs = [], savedJobIds = [], filters = {} }) {
     const safeFilters = Array.isArray(filters) ? {} : (filters || {});
 
     const [selectedJob, setSelectedJob] = useState(null);
@@ -271,25 +271,55 @@ export default function Discover({ jobs = [], savedJobIds = [], filters = {} }) 
                             </div>
                         ) : (
                             <aside className="hidden xl:flex flex-col w-72 gap-6 sticky top-32 h-max">
-                                {/* Right Side Asymmetric Highlight */}
+                                {/* Profile Completion Widget */}
                                 <div className="glass-panel rounded-xl p-6 border-t-2 border-t-primary relative overflow-hidden">
                                     <div className="absolute inset-0 opacity-20 pointer-events-none" style={{ backgroundImage: "radial-gradient(circle at 50% -20%, #4648d4 0%, transparent 60%)" }}></div>
                                     <h4 className="text-lg font-semibold text-on-surface mb-2 relative z-10 flex items-center gap-2">
-                                        <span className="material-symbols-outlined text-primary">bolt</span> Fast Track
+                                        <span className="material-symbols-outlined text-primary">person_check</span> Profile Completion
                                     </h4>
-                                    <p className="text-sm text-on-surface-variant mb-4 relative z-10">Complete your technical profile to instantly skip initial HR screening rounds at top companies.</p>
-                                    <button className="w-full py-2 px-4 rounded-lg bg-surface-variant hover:bg-surface-container-highest border border-outline-variant text-on-surface text-sm font-medium transition-colors relative z-10">
-                                        Update Profile
-                                    </button>
+                                    
+                                    {!auth?.user ? (
+                                        <>
+                                            <p className="text-sm text-on-surface-variant mb-4 relative z-10">
+                                                Create an account to skip initial HR screening rounds at top companies.
+                                            </p>
+                                            <Link href={route('register')} className="w-full py-2 px-4 rounded-lg bg-primary hover:bg-primary/90 text-on-primary text-sm font-medium transition-colors relative z-10 flex items-center justify-center gap-2">
+                                                Sign Up <span className="material-symbols-outlined text-[18px]">person_add</span>
+                                            </Link>
+                                        </>
+                                    ) : auth.user.profile_completion < 100 ? (
+                                        <>
+                                            <p className="text-sm text-on-surface-variant mb-4 relative z-10">
+                                                Complete your profile to instantly skip initial HR screening rounds at top companies.
+                                            </p>
+                                            
+                                            <div className="mb-4 relative z-10">
+                                                <div className="flex justify-between items-center text-xs mb-1">
+                                                    <span className="text-on-surface-variant font-medium">Progress</span>
+                                                    <span className="text-primary font-bold">{auth.user.profile_completion}%</span>
+                                                </div>
+                                                <div className="w-full bg-surface-container-highest rounded-full h-2">
+                                                    <div className="bg-primary h-2 rounded-full transition-all duration-500 ease-out" style={{ width: `${auth.user.profile_completion}%` }}></div>
+                                                </div>
+                                            </div>
+                                            
+                                            <Link href={route('settings')} className="w-full py-2 px-4 rounded-lg bg-primary hover:bg-primary/90 text-on-primary text-sm font-medium transition-colors relative z-10 flex items-center justify-center gap-2">
+                                                Complete Profile <span className="material-symbols-outlined text-[18px]">arrow_forward</span>
+                                            </Link>
+                                        </>
+                                    ) : (
+                                        <>
+                                            <p className="text-sm text-on-surface-variant mb-4 relative z-10">
+                                                Your profile is fully optimized! You are now eligible for Fast Track applications.
+                                            </p>
+                                            <div className="flex items-center justify-center p-3 bg-surface-container rounded-lg border border-primary/20 relative z-10">
+                                                <span className="material-symbols-outlined text-primary mr-2">verified</span>
+                                                <span className="text-sm font-medium text-primary">Fast Track Enabled</span>
+                                            </div>
+                                        </>
+                                    )}
                                 </div>
-                                <div className="glass-panel rounded-xl p-4 border border-outline-variant">
-                                    <h4 className="text-sm font-medium text-on-surface mb-3">Trending Skills</h4>
-                                    <div className="flex flex-wrap gap-1">
-                                        {['Rust', 'Go', 'Kubernetes', 'Next.js'].map(skill => (
-                                            <span key={skill} className="px-2 py-1 bg-surface-container rounded font-mono text-xs text-on-surface-variant hover:text-primary hover:border-primary border border-transparent cursor-pointer transition-colors">{skill}</span>
-                                        ))}
-                                    </div>
-                                </div>
+
                             </aside>
                         )}
                     </section>
