@@ -151,14 +151,14 @@ export default function JobDetail({ job }) {
                         <div className="text-on-surface text-sm leading-relaxed">
                             <ReactMarkdown
                                 components={{
-                                    ul: ({node, ...props}) => <ul className="list-disc list-outside pl-5 space-y-2 my-3 text-on-surface/90 marker:text-primary" {...props} />,
-                                    ol: ({node, ...props}) => <ol className="list-decimal list-outside pl-5 space-y-2 my-3 text-on-surface/90 marker:text-primary font-medium" {...props} />,
-                                    li: ({node, ...props}) => <li className="pl-1 leading-relaxed text-on-surface/90" {...props} />,
+                                    ul: ({node, ...props}) => <ul className="list-disc list-outside pl-5 space-y-2 my-3 text-on-surface opacity-90 marker:text-primary" {...props} />,
+                                    ol: ({node, ...props}) => <ol className="list-decimal list-outside pl-5 space-y-2 my-3 text-on-surface opacity-90 marker:text-primary font-medium" {...props} />,
+                                    li: ({node, ...props}) => <li className="pl-1 leading-relaxed text-on-surface opacity-90" {...props} />,
                                     h1: ({node, ...props}) => <h1 className="text-base font-bold text-primary mt-6 mb-2 uppercase tracking-wide flex items-center gap-1.5" {...props} />,
                                     h2: ({node, ...props}) => <h2 className="text-sm font-bold text-primary mt-5 mb-2 uppercase tracking-wide flex items-center gap-1.5" {...props} />,
                                     h3: ({node, ...props}) => <h3 className="text-sm font-bold text-primary mt-5 mb-2 uppercase tracking-wide flex items-center gap-1.5" {...props} />,
                                     h4: ({node, ...props}) => <h4 className="text-xs font-bold text-primary mt-4 mb-1.5 uppercase tracking-wide" {...props} />,
-                                    p: ({node, ...props}) => <p className="mb-3 leading-relaxed text-on-surface/90" {...props} />,
+                                    p: ({node, ...props}) => <p className="mb-3 leading-relaxed text-on-surface opacity-90" {...props} />,
                                     strong: ({node, ...props}) => <strong className="font-semibold text-on-surface" {...props} />,
                                     pre: ({node, ...props}) => <div className="my-3 p-3 rounded-lg bg-surface-container/60 border border-outline-variant font-mono text-xs overflow-x-auto whitespace-pre-wrap" {...props} />,
                                     code: ({node, inline, ...props}) => inline ? <code className="px-1.5 py-0.5 rounded bg-surface-container font-mono text-xs" {...props} /> : <code className="font-mono text-xs whitespace-pre-wrap break-words" {...props} />,

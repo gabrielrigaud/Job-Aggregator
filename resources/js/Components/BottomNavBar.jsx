@@ -6,8 +6,9 @@ export default function BottomNavBar() {
     const user = props.auth?.user;
     
     const isActive = (path) => {
-        if (path === '/') return url === '/';
-        return url.startsWith(path);
+        const currentPath = url.split('?')[0];
+        if (path === '/') return currentPath === '/' || currentPath === '';
+        return currentPath.startsWith(path);
     };
 
     return (

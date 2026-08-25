@@ -9,6 +9,28 @@
     --font-sans: 'Geist Variable', sans-serif
   }
   :root {
+    --color-surface: 250 248 255;
+    --color-surface-container: 234 237 255;
+    --color-surface-container-low: 242 243 255;
+    --color-surface-container-lowest: 255 255 255;
+    --color-surface-container-high: 226 231 255;
+    --color-surface-container-highest: 218 226 253;
+    --color-surface-variant: 218 226 253;
+    --color-background: 250 248 255;
+    --color-on-surface: 19 27 46;
+    --color-on-surface-variant: 70 69 84;
+    --color-on-background: 19 27 46;
+    --color-outline: 118 117 134;
+    --color-outline-variant: 199 196 215;
+    --color-primary: 70 72 212;
+    --color-on-primary: 255 255 255;
+    --color-primary-container: 96 99 238;
+    --color-secondary: 107 56 212;
+    --color-secondary-container: 132 85 239;
+    --color-error: 186 26 26;
+    --color-error-container: 255 218 214;
+    --color-surface-tint: 73 75 214;
+
     --background: oklch(1 0 0);
     --foreground: oklch(0.145 0 0);
     --card: oklch(1 0 0);
@@ -40,9 +62,31 @@
     --sidebar-accent: oklch(0.97 0 0);
     --sidebar-accent-foreground: oklch(0.205 0 0);
     --sidebar-border: oklch(0.922 0 0);
-    --sidebar-ring: oklch(0.708 0 0)
+    --sidebar-ring: oklch(0.708 0 0);
   }
   .dark {
+    --color-surface: 16 19 26;
+    --color-surface-container: 27 30 42;
+    --color-surface-container-low: 22 25 35;
+    --color-surface-container-lowest: 16 19 26;
+    --color-surface-container-high: 36 40 56;
+    --color-surface-container-highest: 46 52 72;
+    --color-surface-variant: 36 40 56;
+    --color-background: 16 19 26;
+    --color-on-surface: 225 226 236;
+    --color-on-surface-variant: 160 166 184;
+    --color-on-background: 225 226 236;
+    --color-outline: 142 148 165;
+    --color-outline-variant: 43 48 64;
+    --color-primary: 173 198 255;
+    --color-on-primary: 20 0 108;
+    --color-primary-container: 70 72 212;
+    --color-secondary: 208 188 255;
+    --color-secondary-container: 107 56 212;
+    --color-error: 255 180 171;
+    --color-error-container: 147 0 10;
+    --color-surface-tint: 173 198 255;
+
     --background: oklch(0.145 0 0);
     --foreground: oklch(0.985 0 0);
     --card: oklch(0.205 0 0);
@@ -73,7 +117,7 @@
     --sidebar-accent: oklch(0.269 0 0);
     --sidebar-accent-foreground: oklch(0.985 0 0);
     --sidebar-border: oklch(1 0 0 / 10%);
-    --sidebar-ring: oklch(0.556 0 0)
+    --sidebar-ring: oklch(0.556 0 0);
   }
   * {
     @apply border-outline-variant;
@@ -118,87 +162,12 @@
 .dark ::-webkit-scrollbar-thumb { background: #464554; }
 .dark ::-webkit-scrollbar-thumb:hover { background: #767586; }
 
-/* Global Dark Mode Overrides */
-.dark body {
-    background-color: #10131a !important;
-    color: #e1e2ec !important;
+/* Global Dark Mode Smooth Transitions */
+html.dark {
+    color-scheme: dark;
 }
 
-.dark .bg-background {
-    background-color: #10131a !important;
-}
-
-.dark .text-on-surface {
-    color: #e1e2ec !important;
-}
-
-.dark .text-on-surface-variant {
-    color: #a0a6b8 !important;
-}
-
-.dark .text-outline {
-    color: #8e94a5 !important;
-}
-
-.dark .border-outline-variant,
-.dark .border-outline-variant\/20,
-.dark .border-outline-variant\/30,
-.dark .border-outline-variant\/50 {
-    border-color: #2b3040 !important;
-}
-
-.dark .bg-white {
-    background-color: #1b1e2a !important;
-    color: #e1e2ec !important;
-}
-
-/* Explicit Dark Mode Overrides for custom theme surface containers and opacity modifiers */
-.dark .bg-surface,
-.dark .bg-surface\/80,
-.dark .bg-surface\/90,
-.dark .bg-surface\/50 {
-    background-color: rgba(22, 25, 35, 0.9) !important;
-    color: #e1e2ec !important;
-}
-
-.dark .bg-surface-container,
-.dark .bg-surface-container\/80,
-.dark .bg-surface-container\/50,
-.dark .bg-surface-container\/40,
-.dark .bg-surface-container\/30,
-.dark .bg-surface-container-lowest,
-.dark .bg-surface-container-lowest\/30,
-.dark .bg-surface-container-low,
-.dark .bg-surface-container-low\/80,
-.dark .bg-surface-container-low\/50,
-.dark .bg-surface-container-low\/40,
-.dark .bg-surface-container-low\/20 {
-    background-color: #1b1e2a !important;
-    color: #e1e2ec !important;
-}
-
-.dark .bg-surface-container-high,
-.dark .bg-surface-container-high\/90,
-.dark .bg-surface-container-highest,
-.dark .bg-surface-container-highest\/30,
-.dark .bg-surface-container-highest\/60,
-.dark .bg-surface-container-highest\/90,
-.dark .bg-surface-variant,
-.dark .bg-surface-variant\/80,
-.dark .bg-surface-variant\/50,
-.dark .bg-surface-variant\/30,
-.dark .bg-surface-variant\/20 {
-    background-color: #242838 !important;
-    color: #e1e2ec !important;
-}
-
-.dark tr.hover\:bg-surface-variant\/20:hover,
-.dark div.hover\:bg-surface-variant\/20:hover,
-.dark button.hover\:bg-surface-variant\/50:hover {
-    background-color: #2e3448 !important;
-}
-
-.dark \.bg-\[\#2557a7\] {
+.dark .bg-\[\#2557a7\] {
     background-color: #3b82f6 !important;
 }
 

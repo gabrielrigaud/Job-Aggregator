@@ -102,25 +102,25 @@ export default function Settings() {
                 
                 <div className="flex flex-col lg:flex-row gap-6 items-start">
                     {/* Settings Navigation Menu (Desktop) */}
-                    <aside className="w-full lg:w-56 flex-shrink-0 bg-surface-container/40 backdrop-blur-xl border border-white/10 rounded-xl shadow-lg overflow-hidden">
+                    <aside className="w-full lg:w-56 flex-shrink-0 bg-surface-container/40 backdrop-blur-xl border border-outline-variant/60 rounded-xl shadow-2xs overflow-hidden">
                         <nav className="flex flex-row lg:flex-col overflow-x-auto p-1.5 gap-1">
                             <button 
                                 onClick={() => setActiveSection('profile')}
-                                className={`flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-left transition-colors whitespace-nowrap ${activeSection === 'profile' ? 'bg-white/10 text-primary font-semibold' : 'text-on-surface-variant hover:bg-white/5 hover:text-on-surface'}`}
+                                className={`flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-left transition-colors whitespace-nowrap ${activeSection === 'profile' ? 'bg-primary/10 text-primary font-bold border border-primary/20 shadow-sm' : 'text-on-surface-variant hover:bg-surface-variant/30 hover:text-on-surface border border-transparent'}`}
                             >
                                 <span className="material-symbols-outlined text-[18px]" style={{ fontVariationSettings: activeSection === 'profile' ? "'FILL' 1" : "'FILL' 0" }}>person</span>
                                 Profile Info
                             </button>
                             <button 
                                 onClick={() => setActiveSection('account')}
-                                className={`flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-left transition-colors whitespace-nowrap ${activeSection === 'account' ? 'bg-white/10 text-primary font-semibold' : 'text-on-surface-variant hover:bg-white/5 hover:text-on-surface'}`}
+                                className={`flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-left transition-colors whitespace-nowrap ${activeSection === 'account' ? 'bg-primary/10 text-primary font-bold border border-primary/20 shadow-sm' : 'text-on-surface-variant hover:bg-surface-variant/30 hover:text-on-surface border border-transparent'}`}
                             >
                                 <span className="material-symbols-outlined text-[18px]" style={{ fontVariationSettings: activeSection === 'account' ? "'FILL' 1" : "'FILL' 0" }}>lock</span>
                                 Account Security
                             </button>
                             <button 
                                 onClick={() => setActiveSection('notifications')}
-                                className={`flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-left transition-colors whitespace-nowrap ${activeSection === 'notifications' ? 'bg-white/10 text-primary font-semibold' : 'text-on-surface-variant hover:bg-white/5 hover:text-on-surface'}`}
+                                className={`flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-left transition-colors whitespace-nowrap ${activeSection === 'notifications' ? 'bg-primary/10 text-primary font-bold border border-primary/20 shadow-sm' : 'text-on-surface-variant hover:bg-surface-variant/30 hover:text-on-surface border border-transparent'}`}
                             >
                                 <span className="material-symbols-outlined text-[18px]" style={{ fontVariationSettings: activeSection === 'notifications' ? "'FILL' 1" : "'FILL' 0" }}>notifications</span>
                                 Notifications
@@ -132,7 +132,7 @@ export default function Settings() {
                     <div className="flex-1 flex flex-col gap-6 w-full max-w-2xl">
                         {/* Profile Section */}
                         {activeSection === 'profile' && (
-                            <form onSubmit={submitProfile} className="bg-surface-container/40 backdrop-blur-xl border border-white/10 rounded-xl shadow-lg p-5 md:p-6 animate-in fade-in duration-300">
+                            <form onSubmit={submitProfile} className="bg-surface-container/40 backdrop-blur-xl border border-outline-variant/60 rounded-xl shadow-2xs p-5 md:p-6 animate-in fade-in duration-300">
                                 <h3 className="text-lg font-semibold text-on-surface mb-1">Profile Information</h3>
                                 <p className="text-xs text-on-surface-variant mb-4">Update your account's profile name and email address.</p>
                                 
@@ -149,7 +149,7 @@ export default function Settings() {
                                             type="text" 
                                             value={profileData.name} 
                                             onChange={e => setProfileData('name', e.target.value)} 
-                                            className="bg-surface-container-highest/30 border border-white/10 text-on-surface rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary w-full transition-all" 
+                                            className="bg-surface-container-lowest/40 border border-outline-variant/50 text-on-surface rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary w-full transition-all" 
                                         />
                                         {profileErrors.name && <span className="text-error text-xs font-medium">{profileErrors.name}</span>}
                                     </div>
@@ -159,7 +159,7 @@ export default function Settings() {
                                             type="email" 
                                             value={profileData.email} 
                                             onChange={e => setProfileData('email', e.target.value)} 
-                                            className="bg-surface-container-highest/30 border border-white/10 text-on-surface rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary w-full transition-all" 
+                                            className="bg-surface-container-lowest/40 border border-outline-variant/50 text-on-surface rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary w-full transition-all" 
                                         />
                                         {profileErrors.email && <span className="text-error text-xs font-medium">{profileErrors.email}</span>}
                                     </div>
@@ -169,7 +169,7 @@ export default function Settings() {
                                             type="text" 
                                             value={profileData.job_title} 
                                             onChange={e => setProfileData('job_title', e.target.value)} 
-                                            className="bg-surface-container-highest/30 border border-white/10 text-on-surface rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary w-full transition-all" 
+                                            className="bg-surface-container-lowest/40 border border-outline-variant/50 text-on-surface rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary w-full transition-all" 
                                         />
                                         {profileErrors.job_title && <span className="text-error text-xs font-medium">{profileErrors.job_title}</span>}
                                     </div>
@@ -179,7 +179,7 @@ export default function Settings() {
                                             type="url" 
                                             value={profileData.linkedin_url} 
                                             onChange={e => setProfileData('linkedin_url', e.target.value)} 
-                                            className="bg-surface-container-highest/30 border border-white/10 text-on-surface rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary w-full transition-all" 
+                                            className="bg-surface-container-lowest/40 border border-outline-variant/50 text-on-surface rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary w-full transition-all" 
                                         />
                                         {profileErrors.linkedin_url && <span className="text-error text-xs font-medium">{profileErrors.linkedin_url}</span>}
                                     </div>
@@ -188,12 +188,12 @@ export default function Settings() {
                                         <textarea 
                                             value={profileData.bio} 
                                             onChange={e => setProfileData('bio', e.target.value)} 
-                                            className="bg-surface-container-highest/30 border border-white/10 text-on-surface rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary w-full transition-all min-h-[80px] resize-none" 
+                                            className="bg-surface-container-lowest/40 border border-outline-variant/50 text-on-surface rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary w-full transition-all min-h-[80px] resize-none" 
                                         />
                                         {profileErrors.bio && <span className="text-error text-xs font-medium">{profileErrors.bio}</span>}
                                     </div>
                                 </div>
-                                <div className="mt-6 pt-4 border-t border-white/10 flex justify-end">
+                                <div className="mt-6 pt-4 border-t border-outline-variant/50 flex justify-end">
                                     <button 
                                         disabled={profileProcessing}
                                         type="submit"
@@ -207,7 +207,7 @@ export default function Settings() {
 
                         {/* Account Section */}
                         {activeSection === 'account' && (
-                            <section className="bg-surface-container/40 backdrop-blur-xl border border-white/10 rounded-xl shadow-lg p-5 md:p-6 animate-in fade-in duration-300">
+                            <section className="bg-surface-container/40 backdrop-blur-xl border border-outline-variant/60 rounded-xl shadow-2xs p-5 md:p-6 animate-in fade-in duration-300">
                                 <form onSubmit={submitPassword}>
                                     <h3 className="text-lg font-semibold text-on-surface mb-1">Update Password</h3>
                                     <p className="text-xs text-on-surface-variant mb-4">Ensure your account is using a long, random password to stay secure.</p>
@@ -226,7 +226,7 @@ export default function Settings() {
                                                 value={passwordData.current_password}
                                                 onChange={e => setPasswordData('current_password', e.target.value)}
                                                 placeholder="••••••••" 
-                                                className="bg-surface-container-highest/30 border border-white/10 text-on-surface rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary w-full transition-all" 
+                                                className="bg-surface-container-lowest/40 border border-outline-variant/50 text-on-surface rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary w-full transition-all" 
                                             />
                                             {passwordErrors.current_password && <span className="text-error text-xs font-medium">{passwordErrors.current_password}</span>}
                                         </div>
@@ -237,7 +237,7 @@ export default function Settings() {
                                                 value={passwordData.password}
                                                 onChange={e => setPasswordData('password', e.target.value)}
                                                 placeholder="••••••••" 
-                                                className="bg-surface-container-highest/30 border border-white/10 text-on-surface rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary w-full transition-all" 
+                                                className="bg-surface-container-lowest/40 border border-outline-variant/50 text-on-surface rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary w-full transition-all" 
                                             />
                                             {passwordErrors.password && <span className="text-error text-xs font-medium">{passwordErrors.password}</span>}
                                         </div>
@@ -248,12 +248,12 @@ export default function Settings() {
                                                 value={passwordData.password_confirmation}
                                                 onChange={e => setPasswordData('password_confirmation', e.target.value)}
                                                 placeholder="••••••••" 
-                                                className="bg-surface-container-highest/30 border border-white/10 text-on-surface rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary w-full transition-all" 
+                                                className="bg-surface-container-lowest/40 border border-outline-variant/50 text-on-surface rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary w-full transition-all" 
                                             />
                                             {passwordErrors.password_confirmation && <span className="text-error text-xs font-medium">{passwordErrors.password_confirmation}</span>}
                                         </div>
                                     </div>
-                                    <div className="mt-6 pt-4 border-t border-white/10 flex justify-end">
+                                    <div className="mt-6 pt-4 border-t border-outline-variant/50 flex justify-end">
                                         <button 
                                             disabled={passwordProcessing}
                                             type="submit"
@@ -264,7 +264,7 @@ export default function Settings() {
                                     </div>
                                 </form>
 
-                                <div className="mt-8 pt-4 border-t border-white/10">
+                                <div className="mt-8 pt-4 border-t border-outline-variant/50">
                                     <h4 className="text-xs font-semibold text-error mb-2">Danger Zone</h4>
                                     <p className="text-xs text-on-surface-variant mb-4">Once your account is deleted, all of its resources and data will be permanently deleted. Before deleting your account, please download any data or information that you wish to retain.</p>
                                     <button 
@@ -295,7 +295,7 @@ export default function Settings() {
                                                 ref={passwordInput}
                                                 value={deleteData.password}
                                                 onChange={(e) => setDeleteData('password', e.target.value)}
-                                                className="mt-1 block w-full bg-surface-container/50 text-on-surface border-white/10 focus:border-error focus:ring-error"
+                                                className="mt-1 block w-full bg-surface-container/50 text-on-surface border-outline-variant/50 focus:border-error focus:ring-error"
                                                 isFocused
                                                 placeholder="Password"
                                             />
@@ -318,26 +318,26 @@ export default function Settings() {
 
                         {/* Notifications Section */}
                         {activeSection === 'notifications' && (
-                            <section className="bg-surface-container/40 backdrop-blur-xl border border-white/10 rounded-xl shadow-lg p-5 md:p-6 animate-in fade-in duration-300">
+                            <section className="bg-surface-container/40 backdrop-blur-xl border border-outline-variant/60 rounded-xl shadow-2xs p-5 md:p-6 animate-in fade-in duration-300">
                                 <h3 className="text-lg font-semibold text-on-surface mb-1">Notifications</h3>
                                 <p className="text-xs text-on-surface-variant mb-4">Control what emails and alerts you receive.</p>
                                 
                                 <div className="flex flex-col gap-4">
-                                    <div className="flex items-start justify-between gap-4 border-b border-white/5 pb-3">
+                                    <div className="flex items-start justify-between gap-4 border-b border-outline-variant/30 pb-3">
                                         <div>
                                             <h4 className="text-sm font-medium text-on-surface">Job Alerts</h4>
                                             <p className="text-xs text-on-surface-variant">Get notified when new jobs match your skills.</p>
                                         </div>
-                                        <div className="w-10 h-5 bg-primary rounded-full relative cursor-pointer border border-white/20 mt-1 flex-shrink-0">
+                                        <div className="w-10 h-5 bg-primary rounded-full relative cursor-pointer border border-primary/40 mt-1 flex-shrink-0">
                                             <div className="absolute right-0.5 top-0.5 w-4 h-4 bg-background rounded-full shadow"></div>
                                         </div>
                                     </div>
-                                    <div className="flex items-start justify-between gap-4 border-b border-white/5 pb-3">
+                                    <div className="flex items-start justify-between gap-4 border-b border-outline-variant/30 pb-3">
                                         <div>
                                             <h4 className="text-sm font-medium text-on-surface">Application Updates</h4>
                                             <p className="text-xs text-on-surface-variant">Receive emails about your application statuses.</p>
                                         </div>
-                                        <div className="w-10 h-5 bg-primary rounded-full relative cursor-pointer border border-white/20 mt-1 flex-shrink-0">
+                                        <div className="w-10 h-5 bg-primary rounded-full relative cursor-pointer border border-primary/40 mt-1 flex-shrink-0">
                                             <div className="absolute right-0.5 top-0.5 w-4 h-4 bg-background rounded-full shadow"></div>
                                         </div>
                                     </div>
@@ -346,7 +346,7 @@ export default function Settings() {
                                             <h4 className="text-sm font-medium text-on-surface">Marketing & News</h4>
                                             <p className="text-xs text-on-surface-variant">Receive product updates and newsletters.</p>
                                         </div>
-                                        <div className="w-10 h-5 bg-surface-container-highest rounded-full relative cursor-pointer border border-white/10 mt-1 flex-shrink-0">
+                                        <div className="w-10 h-5 bg-surface-container-highest rounded-full relative cursor-pointer border border-outline-variant/50 mt-1 flex-shrink-0">
                                             <div className="absolute left-0.5 top-0.5 w-4 h-4 bg-on-surface-variant rounded-full shadow"></div>
                                         </div>
                                     </div>
