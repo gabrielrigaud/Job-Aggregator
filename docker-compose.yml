@@ -98,6 +98,8 @@ services:
       - "${SCRAPER_PORT:-8000}:8000"
     volumes:
       - ./scraper_api:/app
+    environment:
+      - NVIDIA_API_KEY=${NVIDIA_API_KEY}
     networks:
       - jobmind
 

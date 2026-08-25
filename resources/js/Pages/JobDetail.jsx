@@ -30,6 +30,20 @@ export default function JobDetail({ job }) {
         else formattedSalary = `Up to ${max} ${curr}${suffix}`;
     }
 
+    const cleanDescription = (job.description || '')
+        // 1. Remove leading spaces/tabs (prevents Markdown from interpreting them as code blocks)
+        .replace(/^[ \t]{2,}/gm, '')
+        // 2. Normalize bullet points
+        .replace(/^[ \t]*[•·▪⁃►]\s*/gm, '- ')
+        // 3. Convert hashtags (e.g. #FinanceTransformative) into bold tags instead of H1 titles
+        .replace(/^#([a-zA-Z0-9_\u00C0-\u017F]+)/gm, '**#$1**')
+        // 4. Auto-detect list items ending with semicolon
+        .replace(/^[ \t]*([A-ZÀ-Ÿ].*;\s*)$/gm, '- $1')
+        // 5. Auto-promote ANY standalone line ending with a colon (:), e.g. "Votre profil :", "Vos missions :"
+        .replace(/^(?!#+)\s*([A-ZÀ-Ÿ0-9][^:\n]{1,60})\s*:\s*$/gm, '\n\n### $1\n')
+        // 6. Auto-promote common section titles without a colon
+        .replace(/^(?!#+)\s*(Description (?:de l['’]entreprise|du poste|de l['’]offre)|(?:Vos|Votre|Nos|Notre)?\s*(?:Missions?|Rôle|Profil(?: recherché)?|Compétences(?: requises)?|Prérequis|Stack technique|Technologies|Environnement(?: technique)?|Avantages|À propos|A propos|Ce que nous offrons)|Qui (?:êtes|etes)-vous(?:\s*\?)?|Pourquoi nous rejoindre(?:\s*\?)?)\s*$/gmi, '\n\n### $1\n');
+
     return (
         <div className="bg-background text-on-surface font-body-md antialiased min-h-screen flex flex-col">
             <Head title={`${job.title} - JobMind`} />
@@ -98,6 +112,32 @@ export default function JobDetail({ job }) {
                             {formattedSalary}
                         </span>
                     </div>
+
+                    {/* Action Bar */}
+                    <div className="flex items-center gap-3 mt-2 pt-3 border-t border-outline-variant/60">
+                        <a
+                            href={job.apply_url || job.source_external_id || (job.source?.url ? `${job.source.url}` : 'https://fr.indeed.com')}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="px-6 py-2.5 rounded-lg bg-[#2557a7] text-white hover:bg-[#1e4687] transition-colors text-sm font-semibold shadow-sm flex items-center gap-1.5"
+                        >
+                            Postuler sur {job.source?.name || 'Indeed'}
+                            <span className="material-symbols-outlined text-sm">open_in_new</span>
+                        </a>
+                        <button
+                            onClick={handleToggleSave}
+                            className={`w-10 h-10 rounded-lg flex items-center justify-center border transition-all ${
+                                isSaved 
+                                    ? 'bg-primary text-on-primary border-primary shadow-sm' 
+                                    : 'bg-surface-container hover:bg-surface-variant text-on-surface border-outline-variant'
+                            }`}
+                            title={isSaved ? "Saved" : "Save Job"}
+                        >
+                            <span className="material-symbols-outlined text-lg">
+                                {isSaved ? 'bookmark' : 'bookmark_border'}
+                            </span>
+                        </button>
+                    </div>
                 </div>
 
                 {/* Job Description Card */}
@@ -108,8 +148,24 @@ export default function JobDetail({ job }) {
                     </h2>
 
                     {job.description ? (
-                        <div className="prose dark:prose-invert max-w-none text-on-surface space-y-3 text-sm leading-relaxed marker:text-primary">
-                            <ReactMarkdown>{job.description}</ReactMarkdown>
+                        <div className="text-on-surface text-sm leading-relaxed">
+                            <ReactMarkdown
+                                components={{
+                                    ul: ({node, ...props}) => <ul className="list-disc list-outside pl-5 space-y-2 my-3 text-on-surface/90 marker:text-primary" {...props} />,
+                                    ol: ({node, ...props}) => <ol className="list-decimal list-outside pl-5 space-y-2 my-3 text-on-surface/90 marker:text-primary font-medium" {...props} />,
+                                    li: ({node, ...props}) => <li className="pl-1 leading-relaxed text-on-surface/90" {...props} />,
+                                    h1: ({node, ...props}) => <h1 className="text-base font-bold text-primary mt-6 mb-2 uppercase tracking-wide flex items-center gap-1.5" {...props} />,
+                                    h2: ({node, ...props}) => <h2 className="text-sm font-bold text-primary mt-5 mb-2 uppercase tracking-wide flex items-center gap-1.5" {...props} />,
+                                    h3: ({node, ...props}) => <h3 className="text-sm font-bold text-primary mt-5 mb-2 uppercase tracking-wide flex items-center gap-1.5" {...props} />,
+                                    h4: ({node, ...props}) => <h4 className="text-xs font-bold text-primary mt-4 mb-1.5 uppercase tracking-wide" {...props} />,
+                                    p: ({node, ...props}) => <p className="mb-3 leading-relaxed text-on-surface/90" {...props} />,
+                                    strong: ({node, ...props}) => <strong className="font-semibold text-on-surface" {...props} />,
+                                    pre: ({node, ...props}) => <div className="my-3 p-3 rounded-lg bg-surface-container/60 border border-outline-variant font-mono text-xs overflow-x-auto whitespace-pre-wrap" {...props} />,
+                                    code: ({node, inline, ...props}) => inline ? <code className="px-1.5 py-0.5 rounded bg-surface-container font-mono text-xs" {...props} /> : <code className="font-mono text-xs whitespace-pre-wrap break-words" {...props} />,
+                                }}
+                            >
+                                {cleanDescription}
+                            </ReactMarkdown>
                         </div>
                     ) : (
                         <p className="text-on-surface-variant italic">No full description provided for this job offer.</p>

@@ -19,8 +19,8 @@ class JobController extends Controller
      */
     public function discover(Request $request)
     {
-        $query = JobOffer::with(['company:id,name,logo_url,website_url', 'source:id,name'])
-            ->select('job_offers.id', 'company_id', 'source_internal_id', 'title', 'description', 'location', 'country', 'is_remote', 'contract_type', 'date_of_publi', 'salary_min', 'salary_max', 'salary_currency', 'salary_period', 'job_offers.created_at');
+        $query = JobOffer::with(['company:id,name,logo_url,website_url', 'source:id,name,url'])
+            ->select('job_offers.id', 'company_id', 'source_internal_id', 'source_external_id', 'title', 'description', 'location', 'country', 'is_remote', 'contract_type', 'date_of_publi', 'salary_min', 'salary_max', 'salary_currency', 'salary_period', 'job_offers.created_at');
 
         $filters = $request->only(['search', 'location', 'contract_type', 'remote_only', 'salary_min', 'sort']);
 

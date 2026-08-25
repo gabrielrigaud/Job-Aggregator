@@ -44,7 +44,7 @@ class FetchIndeedJobs extends Command
         // Appeler l'API Python FastAPI
         try {
             $scraperUrl = env('SCRAPER_URL', 'http://scraper:8000') . '/scrape';
-            $response = \Illuminate\Support\Facades\Http::timeout(60)->get($scraperUrl, [
+            $response = \Illuminate\Support\Facades\Http::timeout(180)->get($scraperUrl, [
                 'keyword' => $keyword,
                 'location' => $location
             ]);

@@ -25,7 +25,23 @@ class JobOffer extends Model
         'content_hash',
     ];
 
-    
+    protected $appends = ['apply_url'];
+
+    public function getApplyUrlAttribute(): string
+    {
+        if ($this->source_external_id && filter_var($this->source_external_id, FILTER_VALIDATE_URL)) {
+            return $this->source_external_id;
+        }
+
+        if ($this->source_external_id && str_contains($this->source_external_id, 'jk=')) {
+            return 'https://fr.indeed.com/viewjob?' . $this->source_external_id;
+        }
+
+        // Fallback: Recherche directe sur Indeed pour ce poste et entreprise
+        $query = urlencode($this->title . ' ' . ($this->company?->name ?? ''));
+        $loc = urlencode($this->location ?? '');
+        return "https://fr.indeed.com/jobs?q={$query}&l={$loc}";
+    }
 
     public function company() {
         return $this->belongsTo(Company::class);

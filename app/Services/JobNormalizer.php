@@ -43,67 +43,90 @@ class JobNormalizer
         $contract = $rawJob['contract'] ?? 'Non spécifié';
         $salaryRaw = $rawJob['salary'] ?? null;
 
-        // Détection intelligente du télétravail
-        $isRemote = false;
-        $remoteKeywords = ['télétravail', 'teletravail', 'hybride', 'remote', 'domicile'];
-        $textToSearch = strtolower($location . ' ' . $description);
-        foreach ($remoteKeywords as $kw) {
-            if (str_contains($textToSearch, $kw)) {
-                $isRemote = true;
-                break;
-            }
+        // Nettoyage de la localisation (suppression des préfixes de télétravail/tronqués comme "rtiel à ", "Télétravail partiel à ")
+        if (preg_match('/(?:télétravail|teletravail|hybride|remote|partiel|rtiel)[^àa]*[àa]\s*(.+)/iu', $location, $m)) {
+            $location = trim($m[1]);
+            $isRemote = true;
         }
-        
-        // Extraction du contrat depuis la description si non spécifié
-        if ($contract === 'Non spécifié') {
-            $contractKeywords = ['CDI', 'CDD', 'Stage', 'Alternance', 'Freelance', 'Indépendant'];
-            foreach ($contractKeywords as $kw) {
-                if (stripos($description, $kw) !== false) {
-                    $contract = $kw;
+        $location = trim(preg_replace('/^(?:télétravail\s*(?:partiel|total|hybride)?|partiel|rtiel|hybride|remote)\s*(?:à|in)?\s*/iu', '', $location));
+        if (empty($location)) {
+            $location = 'France';
+        }
+
+        // Détection du télétravail
+        $isRemote = $rawJob['is_remote'] ?? false;
+        if (!$isRemote) {
+            $remoteKeywords = ['télétravail', 'teletravail', 'hybride', 'remote', 'domicile'];
+            $textToSearch = strtolower($location . ' ' . ($rawJob['title'] ?? '') . ' ' . $description);
+            foreach ($remoteKeywords as $kw) {
+                if (str_contains($textToSearch, $kw)) {
+                    $isRemote = true;
                     break;
                 }
             }
         }
-
-        // Parsing du salaire
-        $salaryMin = null;
-        $salaryMax = null;
-        $salaryPeriod = 'yearly';
-
-        if (!$salaryRaw && preg_match('/(?:Rémunération|Salaire)\s*[:]?\s*(.*é)/iu', $description, $matches)) {
-             $salaryRaw = $matches[1];
+        
+        // Extraction du type de contrat
+        if ($contract === 'Non spécifié' || empty($contract)) {
+            $titleAndDesc = ($rawJob['title'] ?? '') . ' ' . $description;
+            $contractMap = [
+                'Alternance' => ['alternance', 'apprentissage', 'contrat pro'],
+                'Stage'      => ['stage', 'stagiaire', 'internship'],
+                'Freelance'  => ['freelance', 'indépendant', 'independant', 'prestation', 'tjm'],
+                'CDI'        => ['cdi', 'durée indéterminée', 'duree indeterminee'],
+                'CDD'        => ['cdd', 'durée déterminée', 'duree determinee'],
+            ];
+            foreach ($contractMap as $type => $keywords) {
+                foreach ($keywords as $kw) {
+                    if (stripos($titleAndDesc, $kw) !== false) {
+                        $contract = $type;
+                        break 2;
+                    }
+                }
+            }
         }
 
-        if ($salaryRaw) {
-            if (stripos($salaryRaw, 'mois') !== false) {
-                $salaryPeriod = 'monthly';
-            } elseif (stripos($salaryRaw, 'heure') !== false) {
-                $salaryPeriod = 'hourly';
+        // Parsing du salaire (priorité à l'IA si déjà structuré)
+        $salaryMin = $rawJob['salary_min'] ?? null;
+        $salaryMax = $rawJob['salary_max'] ?? null;
+        $salaryPeriod = $rawJob['salary_period'] ?? 'yearly';
+
+        if ($salaryMin === null && $salaryMax === null) {
+            if (!$salaryRaw && preg_match('/(?:Rémunération|Salaire)\s*[:]?\s*(.*é)/iu', $description, $matches)) {
+                 $salaryRaw = $matches[1];
             }
 
-            // Gérer les espaces insécables (\u{202F} ou \u{A0})
-            $cleanSalary = preg_replace('/[^\d,.]/', '', str_replace([' ', 'k', 'K', 'é', "\u{202F}", "\u{A0}"], ['', '000', '000', '', '', ''], $salaryRaw));
-            
-            // Chercher des nombres (ex: 48000)
-            if (preg_match_all('/(\d{2,3}(?:\s?\d{3})?|\d{2}\s?[kK])/', $salaryRaw, $matches)) {
-                $numbers = [];
-                foreach ($matches[1] as $match) {
-                    $num = (float) str_replace([' ', 'k', 'K', "\u{202F}", "\u{A0}"], ['', '000', '000', '', ''], $match);
-                    if ($num > 10) $numbers[] = $num;
+            if ($salaryRaw) {
+                if (stripos($salaryRaw, 'mois') !== false) {
+                    $salaryPeriod = 'monthly';
+                } elseif (stripos($salaryRaw, 'heure') !== false) {
+                    $salaryPeriod = 'hourly';
                 }
+
+                // Gérer les espaces insécables (\u{202F} ou \u{A0})
+                $cleanSalary = preg_replace('/[^\d,.]/', '', str_replace([' ', 'k', 'K', 'é', "\u{202F}", "\u{A0}"], ['', '000', '000', '', '', ''], $salaryRaw));
                 
-                if (count($numbers) == 1) {
-                    $salaryMin = $numbers[0];
-                    $salaryMax = $numbers[0];
-                } elseif (count($numbers) >= 2) {
-                    $salaryMin = min($numbers[0], $numbers[1]);
-                    $salaryMax = max($numbers[0], $numbers[1]);
+                // Chercher des nombres (ex: 48000)
+                if (preg_match_all('/(\d{2,3}(?:\s?\d{3})?|\d{2}\s?[kK])/', $salaryRaw, $matches)) {
+                    $numbers = [];
+                    foreach ($matches[1] as $match) {
+                        $num = (float) str_replace([' ', 'k', 'K', "\u{202F}", "\u{A0}"], ['', '000', '000', '', ''], $match);
+                        if ($num > 10) $numbers[] = $num;
+                    }
+                    
+                    if (count($numbers) == 1) {
+                        $salaryMin = $numbers[0];
+                        $salaryMax = $numbers[0];
+                    } elseif (count($numbers) >= 2) {
+                        $salaryMin = min($numbers[0], $numbers[1]);
+                        $salaryMax = max($numbers[0], $numbers[1]);
+                    }
                 }
             }
         }
 
         return [
-            'source_external_id' => null,
+            'source_external_id' => $rawJob['url'] ?? null,
             'title' => $rawJob['title'] ?? 'Titre inconnu',
             'description' => empty($description) ? 'Aucune description' : $description,
             'company_name' => $rawJob['company'] ?? 'Non spécifié',
@@ -117,7 +140,7 @@ class JobNormalizer
             'date_of_collect' => now(),
             'salary_min' => $salaryMin,
             'salary_max' => $salaryMax,
-            'salary_currency' => 'EUR',
+            'salary_currency' => $rawJob['salary_currency'] ?? 'EUR',
             'salary_period' => $salaryPeriod,
         ];
     }
