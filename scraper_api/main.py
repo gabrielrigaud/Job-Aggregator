@@ -7,6 +7,7 @@ from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException, Query
 from openai import OpenAI
 from playwright.async_api import async_playwright
+from pydantic import BaseModel
 
 load_dotenv()
 
@@ -18,8 +19,17 @@ NVIDIA_API_KEY = os.getenv("NVIDIA_API_KEY", "")
 openai_client = OpenAI(
     base_url="https://integrate.api.nvidia.com/v1",
     api_key=NVIDIA_API_KEY,
-    timeout=8.0
+    timeout=30.0
 ) if NVIDIA_API_KEY else None
+
+
+class CleanJobRequest(BaseModel):
+    title: str = ""
+    company: str = ""
+    location: str = ""
+    url: str = ""
+    description: str = ""
+    raw_full_text: str = ""
 
 
 def clean_single_job(raw_data: dict) -> dict:
@@ -57,13 +67,14 @@ Règles impératives d'extraction :
 5. "description": Reformate le texte en Markdown soigné :
    - Titres de section en '### ' (ex: ### Missions, ### Profil recherché, ### Avantages).
    - Toutes les listes en puces avec tirets ('- ').
+6. Traduction française obligatoire : Si le titre, la localisation ou la description est en anglais ou dans une autre langue étrangère, TRADUIS intégralement la description (et adapte le titre si pertinent, tout en conservant les termes techniques standards comme React, TypeScript, DevOps, Pre-Sales, etc.) en français naturel, fluide et professionnel. Ne résume pas excessivement : conserve toutes les informations importantes (missions, profil, rémunération, avantages).
 
 Données complètes de l'annonce :
-{raw_content[:4500]}
+{raw_content[:6000]}
 
 Réponds UNIQUEMENT avec un JSON valide sous ce format:
 {{
-  "title": "Titre du poste standardisé",
+  "title": "Titre du poste standardisé (en français si possible)",
   "company": "Nom de l'entreprise",
   "location": "Ville propre",
   "is_remote": true ou false,
@@ -74,21 +85,22 @@ Réponds UNIQUEMENT avec un JSON valide sous ce format:
   "salary_period": "yearly",
   "salary": "45k - 55k €" ou null,
   "skills": ["React", "TypeScript"],
-  "description": "Description en Markdown avec ### et - ..."
+  "description": "Description complète en français et en Markdown avec ### et - ..."
 }}"""
 
     try:
         response = openai_client.chat.completions.create(
-            model="meta/llama-3.3-70b-instruct",
+            model=os.getenv("NVIDIA_MODEL", "nvidia/nemotron-3.5-lightning-30b-a3b"),
             messages=[
                 {
                     "role": "system",
-                    "content": "Tu es un expert en traitement de données de recrutement. Réponds uniquement par un JSON valide sans balises autour."
+                    "content": "Tu es un expert en traitement de données de recrutement francophone. Réponds uniquement par un JSON valide sans balises autour."
                 },
                 {"role": "user", "content": prompt}
             ],
             temperature=0.1,
-            max_tokens=900
+            max_tokens=2200,
+            extra_body={"chat_template_kwargs": {"enable_thinking": False}},
         )
         content = response.choices[0].message.content.strip()
 
@@ -133,6 +145,15 @@ Réponds UNIQUEMENT avec un JSON valide sous ce format:
     final_contract = ai_cleaned.get("contract_type") or fallback_contract
     final_remote = ai_cleaned.get("is_remote", fallback_remote)
 
+    def _fmt_sal(val):
+        return f"{val // 1000}k" if val >= 1000 else str(val)
+
+    formatted_salary = None
+    if final_salary_min and final_salary_max and final_salary_min != final_salary_max:
+        formatted_salary = f"{_fmt_sal(final_salary_min)} - {_fmt_sal(final_salary_max)} €"
+    elif final_salary_min:
+        formatted_salary = f"{_fmt_sal(final_salary_min)} €"
+
     return {
         "title": ai_cleaned.get("title") or title,
         "company": ai_cleaned.get("company") or company,
@@ -140,7 +161,7 @@ Réponds UNIQUEMENT avec un JSON valide sous ce format:
         "url": raw_data.get("url", ""),
         "description": ai_cleaned.get("description") or base_description or "Aucune description",
         "contract": final_contract,
-        "salary": f"{final_salary_min // 1000}k - {final_salary_max // 1000}k €" if final_salary_min and final_salary_max else (f"{final_salary_min // 1000}k €" if final_salary_min else None),
+        "salary": formatted_salary,
         "salary_min": final_salary_min,
         "salary_max": final_salary_max,
         "salary_currency": ai_cleaned.get("salary_currency", "EUR"),
@@ -148,6 +169,20 @@ Réponds UNIQUEMENT avec un JSON valide sous ce format:
         "is_remote": final_remote,
         "skills": ai_cleaned.get("skills", []),
     }
+
+
+@app.post("/clean")
+def clean_job_endpoint(payload: CleanJobRequest):
+    """Nettoie, structure en Markdown et traduit en français une offre existante via l'IA."""
+    raw_data = payload.model_dump()
+    if not raw_data.get("raw_full_text"):
+        raw_data["raw_full_text"] = (
+            f"Titre: {raw_data.get('title', '')}\n"
+            f"Entreprise: {raw_data.get('company', '')}\n"
+            f"Localisation: {raw_data.get('location', '')}\n\n"
+            f"{raw_data.get('description', '')}"
+        )
+    return clean_single_job(raw_data)
 
 
 @app.get("/scrape")

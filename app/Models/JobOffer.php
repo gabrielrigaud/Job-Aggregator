@@ -34,30 +34,35 @@ class JobOffer extends Model
         }
 
         if ($this->source_external_id && str_contains($this->source_external_id, 'jk=')) {
-            return 'https://fr.indeed.com/viewjob?' . $this->source_external_id;
+            return 'https://fr.indeed.com/viewjob?'.$this->source_external_id;
         }
 
         // Fallback: Recherche directe sur Indeed pour ce poste et entreprise
-        $query = urlencode($this->title . ' ' . ($this->company?->name ?? ''));
+        $query = urlencode($this->title.' '.($this->company?->name ?? ''));
         $loc = urlencode($this->location ?? '');
+
         return "https://fr.indeed.com/jobs?q={$query}&l={$loc}";
     }
 
-    public function company() {
+    public function company()
+    {
         return $this->belongsTo(Company::class);
     }
 
-    public function source() {
-        return $this->belongsTo(Source::class, "source_internal_id");
+    public function source()
+    {
+        return $this->belongsTo(Source::class, 'source_internal_id');
     }
 
-    public function offerViews() {
+    public function offerViews()
+    {
         return $this->hasMany(OfferView::class);
     }
 
-    public function savedByUsers() {
+    public function savedByUsers()
+    {
         return $this->belongsToMany(User::class, 'offer_views')
-                    ->wherePivot('is_saved', true)
-                    ->withPivot('viewed_at', 'is_saved');
+            ->wherePivot('is_saved', true)
+            ->withPivot('viewed_at', 'is_saved');
     }
 }

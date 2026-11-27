@@ -2,32 +2,18 @@
 
 namespace App\Console\Commands;
 
-use Illuminate\Console\Command;
-use Symfony\Component\Process\Process;
-use Symfony\Component\Process\Exception\ProcessFailedException;
 use App\Models\Source;
-use App\Services\JobNormalizer;
 use App\Services\JobIngestor;
+use App\Services\JobNormalizer;
+use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Http;
 
 class FetchIndeedJobs extends Command
 {
-    /**
-     * The name and signature of the console command.
-     *
-     * @var string
-     */
     protected $signature = 'jobs:fetch-indeed {keyword=Développeur} {location=Paris}';
 
-    /**
-     * The console command description.
-     *
-     * @var string
-     */
-    protected $description = 'Scrape Indeed jobs using Playwright and ingest them';
+    protected $description = 'Scrape les offres Indeed via le service Python FastAPI et les ingère';
 
-    /**
-     * Execute the console command.
-     */
     public function handle(JobNormalizer $normalizer, JobIngestor $ingestor)
     {
         $keyword = $this->argument('keyword');
@@ -35,44 +21,40 @@ class FetchIndeedJobs extends Command
 
         $this->info("Démarrage du scraping Indeed pour '{$keyword}' à '{$location}'...");
 
-        // Obtenir ou créer la source
         $source = Source::firstOrCreate(
             ['name' => 'Indeed'],
             ['url' => 'https://fr.indeed.com', 'type' => 'Scraping']
         );
 
-        // Appeler l'API Python FastAPI
         try {
-            $scraperUrl = env('SCRAPER_URL', 'http://scraper:8000') . '/scrape';
-            $response = \Illuminate\Support\Facades\Http::timeout(180)->get($scraperUrl, [
+            $scraperUrl = rtrim(config('services.scraper.url'), '/').'/scrape';
+            $response = Http::timeout(180)->get($scraperUrl, [
                 'keyword' => $keyword,
-                'location' => $location
+                'location' => $location,
             ]);
 
             if ($response->failed()) {
-                $this->error("Erreur lors de l'appel à l'API Python: " . $response->body());
+                $this->error('Erreur du service scraper : '.$response->body());
+
                 return Command::FAILURE;
             }
 
             $jobs = $response->json();
         } catch (\Exception $e) {
-            $this->error("Impossible de contacter l'API Python: " . $e->getMessage());
+            $this->error('Impossible de contacter le scraper : '.$e->getMessage());
+
             return Command::FAILURE;
         }
 
-        if (json_last_error() !== JSON_ERROR_NONE) {
-            $this->error("Erreur de décodage JSON de la sortie de Playwright: " . json_last_error_msg());
-            $this->line("Sortie brute: " . $output);
-            return Command::FAILURE;
-        }
+        if (! is_array($jobs) || isset($jobs['error'])) {
+            $this->error('Réponse invalide du scraper : '.($jobs['error'] ?? 'Format inattendu'));
 
-        if (isset($jobs['error'])) {
-            $this->error("Erreur renvoyée par le script Node: " . $jobs['error']);
             return Command::FAILURE;
         }
 
         if (empty($jobs)) {
-            $this->info("Aucune offre trouvée ou page bloquée par un Captcha.");
+            $this->info('Aucune offre trouvée.');
+
             return Command::SUCCESS;
         }
 
@@ -81,18 +63,14 @@ class FetchIndeedJobs extends Command
 
         foreach ($jobs as $rawJob) {
             $normalizedJob = $normalizer->normalizeIndeed($rawJob);
-            $isInserted = $ingestor->ingest($normalizedJob, $source);
-
-            if ($isInserted) {
+            if ($ingestor->ingest($normalizedJob, $source)) {
                 $insertedCount++;
             } else {
                 $duplicatesCount++;
             }
         }
 
-        $this->info("Scraping Indeed terminé !");
-        $this->info("- {$insertedCount} nouvelles offres insérées.");
-        $this->info("- {$duplicatesCount} doublons ignorés.");
+        $this->info("Scraping terminé : {$insertedCount} insérées, {$duplicatesCount} doublons ignorés.");
 
         return Command::SUCCESS;
     }

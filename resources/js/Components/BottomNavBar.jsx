@@ -18,7 +18,7 @@ export default function BottomNavBar() {
                 href="/"
             >
                 <span className="material-symbols-outlined" style={{ fontVariationSettings: isActive('/') ? "'FILL' 1" : "'FILL' 0" }}>search</span>
-                <span className="font-medium text-[10px] uppercase tracking-wider">Search</span>
+                <span className="font-medium text-[10px] uppercase tracking-wider">Offres</span>
             </Link>
             {user && (
                 <Link 
@@ -26,7 +26,7 @@ export default function BottomNavBar() {
                     href="/saved"
                 >
                     <span className="material-symbols-outlined" style={{ fontVariationSettings: isActive('/saved') ? "'FILL' 1" : "'FILL' 0" }}>bookmark</span>
-                    <span className="font-medium text-[10px] uppercase tracking-wider">Saved</span>
+                    <span className="font-medium text-[10px] uppercase tracking-wider">Favoris</span>
                 </Link>
             )}
             <Link 
@@ -34,7 +34,7 @@ export default function BottomNavBar() {
                 href="/insights"
             >
                 <span className="material-symbols-outlined" style={{ fontVariationSettings: isActive('/insights') ? "'FILL' 1" : "'FILL' 0" }}>insights</span>
-                <span className="font-medium text-[10px] uppercase tracking-wider">Stats</span>
+                <span className="font-medium text-[10px] uppercase tracking-wider">Marché</span>
             </Link>
             {user ? (
                 <Link 
@@ -42,7 +42,7 @@ export default function BottomNavBar() {
                     href="/settings"
                 >
                     <span className="material-symbols-outlined" style={{ fontVariationSettings: isActive('/settings') ? "'FILL' 1" : "'FILL' 0" }}>person</span>
-                    <span className="font-medium text-[10px] uppercase tracking-wider">Profile</span>
+                    <span className="font-medium text-[10px] uppercase tracking-wider">Profil</span>
                 </Link>
             ) : (
                 <Link 
@@ -50,7 +50,7 @@ export default function BottomNavBar() {
                     href="/login"
                 >
                     <span className="material-symbols-outlined" style={{ fontVariationSettings: isActive('/login') ? "'FILL' 1" : "'FILL' 0" }}>login</span>
-                    <span className="font-medium text-[10px] uppercase tracking-wider">Login</span>
+                    <span className="font-medium text-[10px] uppercase tracking-wider">Connexion</span>
                 </Link>
             )}
         </nav>

@@ -22,7 +22,7 @@ export default function SideNavBar() {
                     href="/"
                 >
                     <span className={`material-symbols-outlined text-[20px] ${isActive('/') ? 'text-primary' : 'text-outline'}`}>search</span>
-                    Home
+                    Offres
                 </Link>
                 {user && (
                     <Link 
@@ -30,7 +30,7 @@ export default function SideNavBar() {
                         href="/saved"
                     >
                         <span className={`material-symbols-outlined text-[20px] ${isActive('/saved') ? 'text-primary' : 'text-outline'}`}>bookmark</span>
-                        Saved
+                        Favoris
                     </Link>
                 )}
                 <Link 
@@ -38,16 +38,16 @@ export default function SideNavBar() {
                     href="/insights"
                 >
                     <span className={`material-symbols-outlined text-[20px] ${isActive('/insights') ? 'text-primary' : 'text-outline'}`}>query_stats</span>
-                    Salary Insights
+                    Marché & Salaires
                 </Link>
 
                 {user?.is_admin && (
                     <Link 
-                        className={`group flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${isActive('/admin') ? 'bg-primary/10 text-primary' : 'text-on-surface-variant hover:bg-surface-variant/50 hover:text-on-surface'}`} 
-                        href="/admin/users"
+                        className={`group flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${isActive('/panel') ? 'bg-primary/10 text-primary' : 'text-on-surface-variant hover:bg-surface-variant/50 hover:text-on-surface'}`} 
+                        href="/panel/dashboard"
                     >
-                        <span className={`material-symbols-outlined text-[20px] ${isActive('/admin') ? 'text-primary' : 'text-outline'}`}>admin_panel_settings</span>
-                        Admin Panel
+                        <span className={`material-symbols-outlined text-[20px] ${isActive('/panel') ? 'text-primary' : 'text-outline'}`}>admin_panel_settings</span>
+                        Administration
                     </Link>
                 )}
             </div>

@@ -63,10 +63,11 @@ export default {
                 "on-tertiary": "#ffffff",
             },
             "borderRadius": {
-                "DEFAULT": "0.125rem",
-                "lg": "0.25rem",
-                "xl": "0.5rem",
-                "full": "0.75rem"
+                "DEFAULT": "0.25rem",
+                "lg": "0.5rem",
+                "xl": "0.75rem",
+                "2xl": "1rem",
+                "full": "9999px"
             },
             "spacing": {
                 "gutter": "24px",
@@ -92,7 +93,7 @@ export default {
                 "label-md": ["JetBrains Mono"],
                 "display-lg": ["Hanken Grotesk", "sans-serif"],
                 "code-sm": ["JetBrains Mono", "monospace"],
-                "sans": ['Figtree', ...defaultTheme.fontFamily.sans],
+                "sans": ['Inter', ...defaultTheme.fontFamily.sans],
             },
             "fontSize": {
                 "headline-lg-mobile": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],

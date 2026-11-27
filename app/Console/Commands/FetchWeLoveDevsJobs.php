@@ -2,41 +2,30 @@
 
 namespace App\Console\Commands;
 
+use App\Models\Source;
+use App\Services\JobAiEnricher;
+use App\Services\JobIngestor;
+use App\Services\JobNormalizer;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Http;
-use App\Models\Source;
-use App\Services\JobNormalizer;
-use App\Services\JobIngestor;
 
 class FetchWeLoveDevsJobs extends Command
 {
-    /**
-     * The name and signature of the console command.
-     *
-     * @var string
-     */
     protected $signature = 'jobs:fetch-welovedevs {--pages=1 : Nombre de pages à récupérer}';
 
-    /**
-     * The console command description.
-     *
-     * @var string
-     */
     protected $description = 'Récupère les offres d\'emploi depuis l\'API WeLoveDevs et les normalise';
 
-    /**
-     * Execute the console command.
-     */
-    public function handle(JobNormalizer $normalizer, JobIngestor $ingestor)
+    public function handle(JobNormalizer $normalizer, JobIngestor $ingestor, JobAiEnricher $aiEnricher)
     {
-        $apiKey = env('WELOVEDEVS_API_KEY');
+        $apiKey = config('services.welovedevs.key');
+        $apiUrl = config('services.welovedevs.url');
 
-        if (!$apiKey) {
-            $this->error('La clé API WeLoveDevs est manquante dans le fichier .env (WELOVEDEVS_API_KEY).');
+        if (! $apiKey) {
+            $this->error('Clé API WeLoveDevs manquante (WELOVEDEVS_API_KEY).');
+
             return Command::FAILURE;
         }
 
-        // Récupérer ou créer la source
         $source = Source::firstOrCreate(
             ['name' => 'WeLoveDevs'],
             ['url' => 'https://welovedevs.com', 'type' => 'API']
@@ -48,55 +37,49 @@ class FetchWeLoveDevsJobs extends Command
         $duplicatesCount = 0;
 
         for ($page = 0; $page < $pagesToFetch; $page++) {
-            $this->info("Récupération de la page {$page} (limite : 1 req/sec)...");
+            $this->info("Récupération de la page {$page} (1 req/sec)...");
 
-            $response = Http::withoutVerifying()->withHeaders([
+            $response = Http::withHeaders([
                 'X-API-Key' => $apiKey,
-            ])->get("https://epi-api.welovedevs.com/v1", [
+            ])->timeout(15)->get($apiUrl, [
                 'page' => $page,
                 'size' => $size,
             ]);
 
             if ($response->status() === 429) {
-                $this->error("Rate limit atteint (429). Arrêt de la collecte.");
+                $this->error('Rate limit atteint (429). Arrêt de la collecte.');
                 break;
             }
 
-            if (!$response->successful()) {
-                $this->error("Erreur de l'API (Status: {$response->status()})");
+            if (! $response->successful()) {
+                $this->error("Erreur API WeLoveDevs (Status: {$response->status()})");
                 break;
             }
 
             $data = $response->json();
-
-            if (!isset($data['values']) || empty($data['values'])) {
-                $this->info("Aucune offre trouvée sur la page {$page}. Fin.");
+            if (empty($data['values'])) {
+                $this->info("Aucune offre sur la page {$page}. Fin.");
                 break;
             }
 
             foreach ($data['values'] as $rawJob) {
-                // 1. Normaliser
                 $normalizedJob = $normalizer->normalizeWeLoveDevs($rawJob);
-
-                // 2. Ingérer (Dédoublonner & Stocker)
-                $isInserted = $ingestor->ingest($normalizedJob, $source);
-
-                if ($isInserted) {
+                if ($aiEnricher->needsFrenchTranslation($normalizedJob['description'] ?? '')) {
+                    $normalizedJob = $aiEnricher->enrichAndTranslate($normalizedJob);
+                }
+                if ($ingestor->ingest($normalizedJob, $source)) {
                     $insertedCount++;
                 } else {
                     $duplicatesCount++;
                 }
             }
 
-            // Respecter la limite de 1 requête par seconde
             if ($page < $pagesToFetch - 1) {
                 sleep(1);
             }
         }
 
-        $this->info("Collecte WeLoveDevs terminée !");
-        $this->info("- {$insertedCount} nouvelles offres insérées.");
-        $this->info("- {$duplicatesCount} doublons ignorés.");
+        $this->info("Collecte terminée : {$insertedCount} insérées, {$duplicatesCount} doublons ignorés.");
 
         return Command::SUCCESS;
     }

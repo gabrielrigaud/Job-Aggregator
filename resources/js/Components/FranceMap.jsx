@@ -173,8 +173,10 @@ export default function FranceMap({ locations = [] }) {
                 realMatches += Number(loc.count || 1);
             }
         });
-        return realMatches > 0 ? realMatches : region.defaultCount;
+        return realMatches;
     };
+
+    const maxRegionCount = Math.max(1, ...REGIONS_DATA.map(getRegionCount));
 
     return (
         <div className="relative w-full h-full flex items-center justify-center select-none">
@@ -193,7 +195,9 @@ export default function FranceMap({ locations = [] }) {
                 {REGIONS_DATA.map((region) => {
                     const isHovered = hoveredRegion?.id === region.id;
                     const count = getRegionCount(region);
-                    const opacity = Math.min(0.9, 0.25 + (count / 60) * 0.55);
+                    const opacity = count === 0
+                        ? 0.16
+                        : Math.min(0.88, 0.30 + (count / maxRegionCount) * 0.58);
 
                     return (
                         <path
@@ -202,10 +206,10 @@ export default function FranceMap({ locations = [] }) {
                             d={region.d}
                             onMouseEnter={() => setHoveredRegion({ ...region, count })}
                             onMouseLeave={() => setHoveredRegion(null)}
-                            className="transition-all duration-200 cursor-pointer"
-                            fill={isHovered ? "url(#grad-active)" : `rgba(70, 72, 212, ${opacity})`}
-                            stroke={isHovered ? "#ffffff" : "rgba(255, 255, 255, 0.25)"}
-                            strokeWidth={isHovered ? "1.8" : "0.75"}
+                            className="transition-all duration-200 cursor-pointer stroke-primary/35 dark:stroke-white/25"
+                            fill={isHovered ? "url(#grad-active)" : `rgba(99, 102, 241, ${opacity.toFixed(2)})`}
+                            stroke={isHovered ? "#ffffff" : undefined}
+                            strokeWidth={isHovered ? "1.8" : "0.9"}
                         />
                     );
                 })}

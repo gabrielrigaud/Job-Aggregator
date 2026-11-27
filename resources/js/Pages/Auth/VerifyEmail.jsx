@@ -1,4 +1,3 @@
-import PrimaryButton from '@/Components/PrimaryButton';
 import GuestLayout from '@/Layouts/GuestLayout';
 import { Head, Link, useForm } from '@inertiajs/react';
 
@@ -7,43 +6,40 @@ export default function VerifyEmail({ status }) {
 
     const submit = (e) => {
         e.preventDefault();
-
         post(route('verification.send'));
     };
 
     return (
-        <GuestLayout>
-            <Head title="Email Verification" />
+        <GuestLayout subtitle="Vérification de votre adresse e-mail.">
+            <Head title="JobMind - Vérification e-mail" />
 
-            <div className="mb-4 text-sm text-gray-600 dark:text-gray-400">
-                Thanks for signing up! Before getting started, could you verify
-                your email address by clicking on the link we just emailed to
-                you? If you didn't receive the email, we will gladly send you
-                another.
-            </div>
+            <p className="mb-md text-sm text-on-surface-variant leading-relaxed">
+                Merci pour votre inscription ! Avant de commencer, veuillez vérifier votre adresse e-mail en cliquant sur le lien que nous venons de vous envoyer. Si vous n’avez rien reçu, nous pouvons vous en renvoyer un nouveau.
+            </p>
 
             {status === 'verification-link-sent' && (
-                <div className="mb-4 text-sm font-medium text-green-600 dark:text-green-400">
-                    A new verification link has been sent to the email address
-                    you provided during registration.
+                <div className="mb-md p-sm bg-emerald-500/10 border border-emerald-500/30 rounded-lg text-emerald-700 dark:text-emerald-300 text-sm font-medium">
+                    Un nouveau lien de vérification vient d’être envoyé à votre adresse e-mail.
                 </div>
             )}
 
-            <form onSubmit={submit}>
-                <div className="mt-4 flex items-center justify-between">
-                    <PrimaryButton disabled={processing}>
-                        Resend Verification Email
-                    </PrimaryButton>
+            <form onSubmit={submit} className="flex flex-col sm:flex-row items-center justify-between gap-sm mt-lg">
+                <button
+                    type="submit"
+                    disabled={processing}
+                    className="w-full sm:w-auto px-5 py-2.5 rounded-lg bg-primary hover:bg-primary/90 text-on-primary text-sm font-semibold transition-colors disabled:opacity-50"
+                >
+                    {processing ? 'Envoi...' : 'Renvoyer l’e-mail de vérification'}
+                </button>
 
-                    <Link
-                        href={route('logout')}
-                        method="post"
-                        as="button"
-                        className="rounded-md text-sm text-gray-600 underline hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 dark:text-gray-400 dark:hover:text-gray-100 dark:focus:ring-offset-gray-800"
-                    >
-                        Log Out
-                    </Link>
-                </div>
+                <Link
+                    href={route('logout')}
+                    method="post"
+                    as="button"
+                    className="text-sm text-on-surface-variant hover:text-on-surface underline transition-colors"
+                >
+                    Se déconnecter
+                </Link>
             </form>
         </GuestLayout>
     );

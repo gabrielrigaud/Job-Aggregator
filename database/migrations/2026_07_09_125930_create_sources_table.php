@@ -12,12 +12,12 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('sources', function (Blueprint $table) {
-    $table->id();
-    $table->string('name')->unique();
-    $table->string('url')->nullable();
-    $table->string('type')->default('API');
-    $table->timestamps();
-});
+            $table->id();
+            $table->string('name')->unique();
+            $table->string('url')->nullable();
+            $table->string('type')->default('API');
+            $table->timestamps();
+        });
     }
 
     /**

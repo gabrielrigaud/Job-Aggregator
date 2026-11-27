@@ -15,9 +15,10 @@ class AdminAccessMiddleware
      */
     public function handle(Request $request, Closure $next): Response
     {
-        if (!$request->user() || !$request->user()->hasRole('admin')) { //verif que si l'utilisateur est connecté et a le rôle d'administrateur
+        if (! $request->user() || ! $request->user()->hasRole('admin')) { // verif que si l'utilisateur est connecté et a le rôle d'administrateur
             return response()->json(['message' => 'Unauthorized'], 403);
         }
+
         return $next($request);
     }
 }

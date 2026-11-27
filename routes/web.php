@@ -1,62 +1,46 @@
 <?php
 
-use App\Http\Controllers\ProfileController;
-use App\Http\Controllers\JobController;
+use App\Http\Controllers\AdminDashboardController;
 use App\Http\Controllers\AdminUserController;
-use Illuminate\Foundation\Application;
+use App\Http\Controllers\JobController;
+use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
-use Inertia\Inertia;
 
 Route::get('/', [JobController::class, 'discover'])->name('home');
-
 Route::redirect('/dashboard', '/')->middleware(['auth', 'verified'])->name('dashboard');
 
-//route public pour afficher les offres d'emploi et les détails d'une offre
-Route::get('/jobs', [JobController::class, 'index'])->name('jobs.index');
 Route::get('/jobs/{id}', [JobController::class, 'show'])->name('jobs.show');
-
-Route::get('/saved', [JobController::class, 'saved'])->middleware('auth')->name('saved');
-
 Route::get('/insights', [JobController::class, 'insights'])->name('insights');
-Route::inertia('/settings', 'Settings')->middleware('auth')->name('settings');
 
-
-//route pour les utilisateurs authentifiés
 Route::middleware('auth')->group(function () {
+    Route::get('/saved', [JobController::class, 'saved'])->name('saved');
+    Route::inertia('/settings', 'Settings')->name('settings');
+
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
-    
+
     Route::post('/jobs/{job}/toggle-save', [JobController::class, 'toggleSave'])->name('jobs.toggle-save');
     Route::post('/jobs/{job}/view', [JobController::class, 'logView'])->name('jobs.log-view');
 });
 
-use App\Http\Controllers\AdminDashboardController;
+Route::middleware(['auth', 'role:admin'])->prefix('panel')->name('admin.')->group(function () {
+    Route::redirect('/', '/panel/dashboard');
+    Route::get('/dashboard', [AdminDashboardController::class, 'dashboard'])->name('dashboard');
+    Route::get('/users', [AdminDashboardController::class, 'users'])->name('users.preview');
+    Route::get('/jobs', [AdminDashboardController::class, 'jobs'])->name('jobs.preview');
+    Route::get('/admins', [AdminDashboardController::class, 'admins'])->name('admins.preview');
 
-// Admin routes
-Route::middleware(['auth', 'role:admin'])->group(function () {
-    
-    // Dashboard & Views
-    Route::get('/admin/dashboard', [AdminDashboardController::class, 'dashboard'])->name('admin.dashboard');
-    Route::get('/admin/users', [AdminDashboardController::class, 'users'])->name('admin.users.preview');
-    Route::delete('/admin/users/{user}', [AdminDashboardController::class, 'destroyUser'])->name('admin.users.destroy');
-    Route::get('/admin/jobs', [AdminDashboardController::class, 'jobs'])->name('admin.jobs.preview');
-    Route::delete('/admin/jobs/{job}', [AdminDashboardController::class, 'destroyJob'])->name('admin.jobs.destroy');
-    Route::get('/admin/admins', [AdminDashboardController::class, 'admins'])->name('admin.admins.preview');
-    Route::post('/admin/admins/add-existing', [AdminDashboardController::class, 'addExistingUser'])->name('admin.admins.addExisting');
-    Route::patch('/admin/admins/{user}/role', [AdminDashboardController::class, 'updateRole'])->name('admin.admins.updateRole');
-    Route::delete('/admin/admins/{user}/revoke', [AdminDashboardController::class, 'revokeAdmin'])->name('admin.admins.revoke');
+    Route::delete('/users/{user}', [AdminDashboardController::class, 'destroyUser'])->name('users.destroy');
+    Route::delete('/jobs/{job}', [AdminDashboardController::class, 'destroyJob'])->name('jobs.destroy');
 
-    //modif ou suppression d'un utilisateur
-    Route::get('/admin/users/create', [AdminUserController::class, 'create'])->name('admin.users.create');
-    Route::post('/admin/users', [AdminUserController::class, 'store'])->name('admin.users.store');
+    Route::post('/users', [AdminUserController::class, 'store'])->name('users.store');
+    Route::put('/users/{id}', [AdminUserController::class, 'update'])->name('users.update');
+    Route::patch('/users/{id}/changeRole', [AdminUserController::class, 'changeRole'])->name('users.changeRole');
 
-
-    Route::put('/admin/users/{id}', [AdminUserController::class, 'update'])->name('admin.users.update');
-    Route::delete('/admin/users/{id}', [AdminUserController::class, 'destroy'])->name('admin.users.destroy');  
-    Route::patch('/admin/users/{id}/changeRole', [AdminUserController::class, 'changeRole'])->name('admin.users.changeRole');
-    //suppression d'une offre d'emploi
-    Route::delete('/admin/jobs/{id}', [JobController::class, 'destroy'])->name('admin.jobs.destroy');
+    Route::post('/admins/add-existing', [AdminDashboardController::class, 'addExistingUser'])->name('admins.addExisting');
+    Route::patch('/admins/{user}/role', [AdminDashboardController::class, 'updateRole'])->name('admins.updateRole');
+    Route::delete('/admins/{user}/revoke', [AdminDashboardController::class, 'revokeAdmin'])->name('admins.revoke');
 });
 
 require __DIR__.'/auth.php';

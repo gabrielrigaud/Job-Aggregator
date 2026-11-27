@@ -1,218 +1,217 @@
-import React from 'react';
-import { Head } from '@inertiajs/react';
+import React, { useState } from 'react';
+import { Head, Link } from '@inertiajs/react';
 import AdminLayout from '@/Layouts/AdminLayout';
 import PageHeader from '@/Components/Admin/PageHeader';
 import StatCard from '@/Components/Admin/StatCard';
 
 export default function Dashboard({ stats, logs = [], queue = { pending: 0, failed: 0, status: 'Idle', progress: 100 }, adminsPulse = [], trendingJobs = [] }) {
+    const [logsExpanded, setLogsExpanded] = useState(false);
+    const [logsPerPage, setLogsPerPage] = useState(15);
+    const [logsPage, setLogsPage] = useState(1);
+
+    const totalPages = Math.max(1, Math.ceil(logs.length / logsPerPage));
+    const currentPage = Math.min(logsPage, totalPages);
+    const visibleLogs = logsExpanded
+        ? logs.slice((currentPage - 1) * logsPerPage, currentPage * logsPerPage)
+        : logs.slice(0, 4);
+
+    const handlePerPageChange = (value) => {
+        setLogsPerPage(value);
+        setLogsPage(1);
+    };
+
     return (
         <AdminLayout>
-            <Head title="Admin Console - Overview" />
+            <Head title="Administration - Vue d'ensemble" />
 
-            <div className="mx-auto max-w-7xl">
-                        {/* Header Section */}
-                        <PageHeader 
-                            title="System Overview" 
-                            description="Real-time platform performance and core metrics."
-                        >
-                            <button className="flex items-center gap-2 rounded-md border border-outline-variant bg-surface px-4 py-2 text-sm font-medium text-on-surface transition-all hover:bg-surface-variant">
-                                <span className="material-symbols-outlined text-[18px]">calendar_today</span>
-                                Last 24 Hours
-                            </button>
-                            <button className="flex items-center gap-2 rounded-md bg-primary px-4 py-2 text-sm font-semibold text-on-primary shadow-sm transition-all hover:brightness-110 active:scale-95">
-                                <span className="material-symbols-outlined text-[18px]" style={{ fontVariationSettings: "'FILL' 1" }}>download</span>
-                                Export Report
-                            </button>
-                        </PageHeader>
+            <div className="w-full space-y-5">
+                <PageHeader
+                    title="Vue d'ensemble"
+                    description="Indicateurs clés de la plateforme, offres populaires et journaux système."
+                />
 
-                        {/* Bento Grid Stats */}
-                        <div className="mb-6 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
-                            <StatCard
-                                title="Total Users"
-                                value={stats?.totalUsers || "0"}
-                                icon="group"
-                                variant="primary"
-                                badge={<span className="rounded bg-green-500/10 px-1.5 py-0.5 font-mono text-[10px] text-green-600">Live</span>}
-                            />
-                            <StatCard
-                                title="Active Jobs"
-                                value={stats?.activeJobs || "0"}
-                                icon="work"
-                                variant="tertiary"
-                                badge={<span className="rounded bg-green-500/10 px-1.5 py-0.5 font-mono text-[10px] text-green-600">Live</span>}
-                            />
-                            <StatCard
-                                title="Pending Reports"
-                                value={stats?.pendingReports || "0"}
-                                icon="report"
-                                variant="error"
-                                badge={<span className="rounded bg-surface-variant px-1.5 py-0.5 font-mono text-[10px] text-on-surface-variant">Stable</span>}
-                            />
-                            <StatCard
-                                title="Active Admins"
-                                value={stats?.activeAdmins || "0"}
-                                icon="shield_person"
-                                variant="secondary"
-                                badge={<span className="rounded bg-surface-variant px-1.5 py-0.5 font-mono text-[10px] text-on-surface-variant">Live</span>}
-                            />
+                {/* KPIs */}
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
+                    <StatCard
+                        title="Utilisateurs inscrits"
+                        value={stats?.totalUsers || '0'}
+                        icon="group"
+                        variant="primary"
+                    />
+                    <StatCard
+                        title="Offres actives"
+                        value={stats?.activeJobs || '0'}
+                        icon="work"
+                        variant="tertiary"
+                    />
+                    <StatCard
+                        title="Administrateurs"
+                        value={stats?.activeAdmins || '0'}
+                        icon="shield_person"
+                        variant="secondary"
+                    />
+                    <StatCard
+                        title="Tâches en échec"
+                        value={String(stats?.failedJobs ?? 0)}
+                        icon="error_outline"
+                        variant="error"
+                    />
+                </div>
+
+                <div className="grid grid-cols-1 gap-6 lg:grid-cols-12">
+                    {/* Offres les plus consultées */}
+                    <div className="glass-panel rounded-xl p-5 shadow-2xs lg:col-span-7 flex flex-col">
+                        <div className="mb-4 flex items-center justify-between">
+                            <h3 className="text-base font-bold text-on-surface">Offres les plus consultées</h3>
+                            <Link className="text-xs font-semibold text-primary hover:underline" href={route('admin.jobs.preview')}>
+                                Gérer les offres
+                            </Link>
                         </div>
 
-                        {/* Main Charts & Activity */}
-                        <div className="flex flex-col gap-6 lg:flex-row">
-                            {/* Health Chart */}
-                            <div className="flex w-full flex-col rounded-xl border border-outline-variant bg-surface p-6 shadow-sm lg:w-2/3">
-                                <div className="mb-6 flex flex-wrap items-center justify-between gap-2">
-                                    <div>
-                                        <h3 className="text-xl font-bold text-on-surface">Platform Health</h3>
-                                        <p className="mt-0.5 text-sm text-on-surface-variant">Resource allocation & uptime metrics</p>
+                        <div className="space-y-2.5 flex-1">
+                            {trendingJobs.length > 0 ? trendingJobs.map((job) => (
+                                <Link
+                                    key={job.id}
+                                    href={`/?job=${job.id}`}
+                                    className="flex items-center justify-between rounded-lg border border-outline-variant/50 bg-surface-container-low/50 p-3 transition-colors hover:border-primary/40"
+                                >
+                                    <div className="min-w-0 pr-3">
+                                        <p className="truncate text-sm font-semibold text-on-surface">{job.title}</p>
+                                        <p className="truncate text-xs text-on-surface-variant">{job.company} • {job.location}</p>
                                     </div>
-                                    <div className="flex items-center gap-4">
-                                        <div className="flex items-center gap-1.5">
-                                            <span className="h-2 w-2 rounded-full bg-[#4f46e5]"></span>
-                                            <span className="text-xs font-medium text-on-surface-variant">API Latency</span>
-                                        </div>
-                                        <div className="flex items-center gap-1.5">
-                                            <span className="h-2 w-2 rounded-full bg-[#9333ea]"></span>
-                                            <span className="text-xs font-medium text-on-surface-variant">Error Rate</span>
-                                        </div>
-                                    </div>
-                                </div>
-                                {/* Mock Chart Container */}
-                                <div className="relative flex min-h-[220px] flex-1 flex-col justify-end pt-4">
-                                    {/* Chart Lines Simulation */}
-                                    <div className="pointer-events-none absolute inset-0 mb-6 flex flex-col justify-between opacity-15">
-                                        <div className="w-full border-t border-on-surface-variant"></div>
-                                        <div className="w-full border-t border-on-surface-variant"></div>
-                                        <div className="w-full border-t border-on-surface-variant"></div>
-                                    </div>
-                                    {/* X-Axis Labels */}
-                                    <div className="flex w-full justify-between px-2 text-[10px] font-bold text-on-surface-variant">
-                                        <span>00:00</span>
-                                        <span>04:00</span>
-                                        <span>08:00</span>
-                                        <span>12:00</span>
-                                        <span>16:00</span>
-                                        <span>20:00</span>
-                                    </div>
-                                </div>
-                            </div>
+                                    <span className="shrink-0 rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-semibold text-primary">
+                                        {job.views} {job.views > 1 ? 'vues' : 'vue'}
+                                    </span>
+                                </Link>
+                            )) : (
+                                <p className="py-8 text-center text-xs text-on-surface-variant">Aucune offre consultée pour le moment.</p>
+                            )}
+                        </div>
+                    </div>
 
-                            {/* System Logs */}
-                            <div className="flex w-full flex-col justify-between rounded-xl border border-outline-variant bg-surface p-6 shadow-sm lg:w-1/3">
-                                <div>
-                                    <div className="mb-6 flex items-center justify-between">
-                                        <h3 className="text-xl font-bold text-on-surface">System Logs</h3>
+                    {/* Équipe Admin & File d'attente */}
+                    <div className="space-y-5 lg:col-span-5">
+                        <div className="glass-panel rounded-xl p-5 shadow-2xs">
+                            <div className="mb-3 flex items-center justify-between">
+                                <h3 className="text-base font-bold text-on-surface">Équipe d'administration</h3>
+                                <Link className="text-xs font-semibold text-primary hover:underline" href={route('admin.admins.preview')}>
+                                    Gérer
+                                </Link>
+                            </div>
+                            <div className="flex flex-wrap gap-2">
+                                {adminsPulse.map((admin, idx) => (
+                                    <div key={idx} className="flex items-center gap-2 rounded-lg border border-outline-variant/50 bg-surface-container-low/50 px-3 py-1.5">
+                                        <div className="flex h-7 w-7 items-center justify-center rounded-md bg-primary/10 text-xs font-bold text-primary">
+                                            {admin.initials}
+                                        </div>
+                                        <span className="text-xs font-semibold text-on-surface">{admin.name}</span>
                                     </div>
-                                    <div className="flex flex-col gap-4">
-                                        {logs.length > 0 ? logs.map((log, index) => (
-                                            <div key={index} className="group flex gap-4">
-                                                <div className={`flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full ${
-                                                    log.level === 'ERROR' ? 'bg-red-500/15 text-red-600 dark:bg-red-500/20 dark:text-red-400' :
-                                                    log.level === 'WARNING' ? 'bg-amber-500/15 text-amber-600 dark:bg-amber-500/20 dark:text-amber-400' :
-                                                    'bg-indigo-500/15 text-indigo-600 dark:bg-indigo-500/20 dark:text-indigo-400'
-                                                }`}>
-                                                    <span className="material-symbols-outlined text-[18px]">
-                                                        {log.level === 'ERROR' ? 'error' : log.level === 'WARNING' ? 'warning' : 'info'}
-                                                    </span>
-                                                </div>
-                                                <div className="flex-1 min-w-0 border-b border-outline-variant pb-3">
-                                                    <div className="mb-0.5 flex items-start justify-between">
-                                                        <p className="text-sm font-semibold text-on-surface transition-colors group-hover:text-primary">
-                                                            {log.level}
-                                                        </p>
-                                                        <span className="font-mono text-[10px] text-on-surface-variant flex-shrink-0 ml-2">{log.date}</span>
-                                                    </div>
-                                                    <p className="line-clamp-2 break-all text-xs text-on-surface-variant" title={log.message}>{log.message}</p>
-                                                </div>
-                                            </div>
-                                        )) : (
-                                            <p className="text-sm text-on-surface-variant text-center py-4">No recent system logs.</p>
-                                        )}
-                                    </div>
-                                </div>
-                                <a href="/log-viewer" target="_blank" className="mt-6 block w-full rounded-lg bg-surface-container-high py-2.5 text-center text-sm font-medium text-on-surface transition-colors hover:bg-surface-variant hover:text-primary">
-                                    View Full System Logs
-                                </a>
+                                ))}
                             </div>
                         </div>
 
-                        {/* Secondary Grid - Top Performers & Queue */}
-                        <div className="mt-6 flex flex-col gap-6 lg:flex-row">
-                            {/* Active Postings List */}
-                            <div className="flex w-full flex-col justify-between rounded-xl border border-outline-variant bg-surface p-6 shadow-sm lg:w-1/2">
-                                <div>
-                                    <div className="mb-6 flex items-center justify-between">
-                                        <h3 className="text-xl font-bold text-on-surface">Trending Jobs</h3>
-                                        <a className="text-sm font-semibold text-primary dark:text-indigo-300 hover:underline" href={route('admin.jobs.preview')}>Manage All</a>
-                                    </div>
-                                    <div className="flex flex-col gap-3">
-                                        {trendingJobs.length > 0 ? trendingJobs.map((job, index) => (
-                                            <div key={job.id} className="flex cursor-pointer items-center justify-between rounded-xl border border-outline-variant/50 bg-surface-container-low/50 p-4 transition-all hover:border-primary" onClick={() => window.location.href = job.url}>
-                                                <div className="flex items-center gap-4">
-                                                    <div className="flex h-12 w-12 items-center justify-center rounded-lg border border-outline-variant/40 bg-white p-1 shadow-sm">
-                                                        <span className="material-symbols-outlined text-primary dark:text-indigo-300">
-                                                            {index === 0 ? 'corporate_fare' : 'account_balance'}
-                                                        </span>
-                                                    </div>
-                                                    <div>
-                                                        <p className="text-sm font-semibold text-on-surface">{job.title}</p>
-                                                        <p className="mt-0.5 text-xs text-on-surface-variant">{job.company} • {job.location}</p>
-                                                    </div>
-                                                </div>
-                                                <div className="text-right">
-                                                    <p className="font-mono text-base font-bold text-on-surface">{job.views}</p>
-                                                    <p className="text-[10px] font-bold uppercase tracking-wider text-on-surface-variant">Views</p>
-                                                </div>
-                                            </div>
-                                        )) : (
-                                            <p className="text-sm text-on-surface-variant">No jobs found yet.</p>
-                                        )}
-                                    </div>
-                                </div>
+                        <div className="glass-panel rounded-xl p-5 shadow-2xs">
+                            <h3 className="mb-3 text-base font-bold text-on-surface">File de tâches (Queue)</h3>
+                            <div className="flex items-center justify-between text-xs mb-2">
+                                <span className="font-medium text-on-surface-variant">
+                                    Statut : <strong className="text-on-surface">{queue.pending > 0 ? 'En cours' : 'Inactive'}</strong>
+                                </span>
+                                <span className="text-on-surface-variant">
+                                    {queue.pending} en attente / {queue.failed} en échec
+                                </span>
                             </div>
-
-                            {/* Admin Team Performance */}
-                            <div className="flex w-full flex-col justify-between rounded-xl border border-outline-variant bg-surface p-6 shadow-sm lg:w-1/2">
-                                <div>
-                                    <div className="mb-5 flex items-center justify-between">
-                                        <h3 className="text-xl font-bold text-on-surface">Admin Pulse</h3>
-                                        <span className="rounded-full bg-green-500/10 px-3 py-1 text-xs font-semibold text-green-600">Live Now</span>
-                                    </div>
-                                    <div className="flex flex-row gap-3">
-                                        {adminsPulse.map((admin, idx) => (
-                                            <div key={idx} className="flex flex-1 flex-col items-center justify-center rounded-xl border border-outline-variant/50 bg-surface-container-low/50 p-4">
-                                                <img
-                                                    alt={admin.name}
-                                                    className="mb-2.5 h-12 w-12 rounded-full border-2 border-primary object-cover shadow-sm"
-                                                    src={admin.avatar}
-                                                />
-                                                <p className="text-center text-xs font-semibold text-on-surface">{admin.name}</p>
-                                                <p className="mt-1 font-mono text-[10px] text-on-surface-variant">Admin</p>
-                                            </div>
-                                        ))}
-                                        <div className="flex flex-1 flex-col items-center justify-center rounded-xl border border-outline-variant/50 bg-surface-container-low/50 p-4">
-                                            <div className="mb-2.5 flex h-12 w-12 items-center justify-center rounded-full border-2 border-dashed border-outline-variant bg-surface-variant/40">
-                                                <span className="material-symbols-outlined text-[22px] text-on-surface-variant">add</span>
-                                            </div>
-                                            <p className="text-center text-xs font-semibold text-on-surface">Invite</p>
-                                            <p className="mt-1 font-mono text-[10px] text-on-surface-variant">New Seat</p>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div className="mt-5 rounded-xl border border-outline-variant/60 bg-surface-container-low/60 dark:bg-surface-container-highest/30 p-4">
-                                    <div className="mb-2 flex items-center justify-between">
-                                        <span className="text-xs font-semibold text-on-surface">Background Queue: {queue.status}</span>
-                                        <span className="font-mono text-xs font-bold text-primary dark:text-indigo-300">
-                                            {queue.pending} Pending / {queue.failed} Failed
-                                        </span>
-                                    </div>
-                                    <div className="h-2 w-full overflow-hidden rounded-full bg-surface-container-highest dark:bg-surface-variant/50">
-                                        <div className={`h-full rounded-full bg-primary dark:bg-indigo-500 transition-all duration-500`} style={{ width: `${queue.progress}%` }}></div>
-                                    </div>
-                                </div>
+                            <div className="h-2 w-full overflow-hidden rounded-full bg-surface-container">
+                                <div className="h-full rounded-full bg-primary transition-all" style={{ width: `${queue.progress}%` }}></div>
                             </div>
                         </div>
                     </div>
+                </div>
+
+                {/* Logs système */}
+                <div className="glass-panel rounded-xl p-5 shadow-2xs">
+                    <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
+                        <button
+                            type="button"
+                            onClick={() => setLogsExpanded((prev) => !prev)}
+                            className="flex items-center gap-1.5 text-left group outline-none"
+                            aria-expanded={logsExpanded}
+                        >
+                            <h3 className="text-base font-bold text-on-surface group-hover:text-primary transition-colors">
+                                Logs système récents
+                            </h3>
+                            <span className="text-xs text-on-surface-variant font-normal">({logs.length})</span>
+                            <span aria-hidden="true" className="material-symbols-outlined text-[20px] text-on-surface-variant group-hover:text-primary transition-transform">
+                                {logsExpanded ? 'expand_less' : 'expand_more'}
+                            </span>
+                        </button>
+
+                        {logsExpanded && logs.length > 0 && (
+                            <div className="flex items-center gap-3 text-xs">
+                                <div className="flex items-center gap-1 rounded-lg border border-outline-variant/60 bg-surface-container-low p-0.5">
+                                    {[15, 30].map((size) => (
+                                        <button
+                                            key={size}
+                                            type="button"
+                                            onClick={() => handlePerPageChange(size)}
+                                            className={`px-2 py-0.5 rounded-md font-semibold transition-colors ${
+                                                logsPerPage === size
+                                                    ? 'bg-primary text-on-primary'
+                                                    : 'text-on-surface-variant hover:text-on-surface'
+                                            }`}
+                                        >
+                                            {size}
+                                        </button>
+                                    ))}
+                                </div>
+
+                                <div className="flex items-center gap-1.5">
+                                    <button
+                                        type="button"
+                                        onClick={() => setLogsPage((p) => Math.max(1, p - 1))}
+                                        disabled={currentPage <= 1}
+                                        aria-label="Page précédente des logs"
+                                        className="flex h-7 w-7 items-center justify-center rounded-lg border border-outline-variant/60 text-on-surface-variant hover:border-primary/50 hover:text-primary disabled:opacity-40 disabled:pointer-events-none transition-colors"
+                                    >
+                                        <span aria-hidden="true" className="material-symbols-outlined text-[18px]">chevron_left</span>
+                                    </button>
+                                    <span className="text-xs font-medium text-on-surface-variant min-w-[54px] text-center">
+                                        {currentPage} / {totalPages}
+                                    </span>
+                                    <button
+                                        type="button"
+                                        onClick={() => setLogsPage((p) => Math.min(totalPages, p + 1))}
+                                        disabled={currentPage >= totalPages}
+                                        aria-label="Page suivante des logs"
+                                        className="flex h-7 w-7 items-center justify-center rounded-lg border border-outline-variant/60 text-on-surface-variant hover:border-primary/50 hover:text-primary disabled:opacity-40 disabled:pointer-events-none transition-colors"
+                                    >
+                                        <span aria-hidden="true" className="material-symbols-outlined text-[18px]">chevron_right</span>
+                                    </button>
+                                </div>
+                            </div>
+                        )}
+                    </div>
+
+                    <div className="space-y-2">
+                        {visibleLogs.length > 0 ? visibleLogs.map((log, idx) => (
+                            <div key={idx} className="flex items-start justify-between gap-4 rounded-lg border border-outline-variant/40 bg-surface-container-low/40 p-2.5 text-xs">
+                                <div className="flex items-start gap-2.5 min-w-0">
+                                    <span className={`shrink-0 rounded px-1.5 py-0.5 text-[10px] font-bold uppercase ${
+                                        log.level === 'ERROR'
+                                            ? 'bg-error/10 text-error'
+                                            : 'bg-primary/10 text-primary'
+                                    }`}>
+                                        {log.level}
+                                    </span>
+                                    <span className="truncate text-on-surface">{log.message}</span>
+                                </div>
+                                <span className="shrink-0 text-on-surface-variant">{log.date}</span>
+                            </div>
+                        )) : (
+                            <p className="py-4 text-center text-xs text-on-surface-variant">Aucun log système récent.</p>
+                        )}
+                    </div>
+                </div>
+            </div>
         </AdminLayout>
     );
 }

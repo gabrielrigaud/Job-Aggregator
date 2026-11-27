@@ -12,11 +12,11 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('offer_views', function (Blueprint $table) {
-    $table->id();
-    $table->foreignId('job_offer_id')->constrained('job_offers')->onDelete('cascade');
-    $table->foreignId('user_id')->constrained('users')->onDelete('cascade'); // Utilise la table users par défaut de Laravel
-    $table->timestamp('viewed_at')->useCurrent();
-});
+            $table->id();
+            $table->foreignId('job_offer_id')->constrained('job_offers')->onDelete('cascade');
+            $table->foreignId('user_id')->constrained('users')->onDelete('cascade'); // Utilise la table users par défaut de Laravel
+            $table->timestamp('viewed_at')->useCurrent();
+        });
     }
 
     /**

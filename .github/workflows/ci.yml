@@ -1,0 +1,36 @@
+name: CI Pipeline
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  quality-and-tests:
+    runs-on: self-hosted
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup environment file
+        run: |
+          if [ ! -f .env ]; then cp .env.example .env; fi
+
+      - name: Install PHP dependencies
+        run: composer install --no-interaction --prefer-dist --optimize-autoloader
+
+      - name: Generate application key
+        run: php artisan key:generate --force
+
+      - name: Lint PHP (Laravel Pint)
+        run: ./vendor/bin/pint --test
+
+      - name: Run automated tests (Pest)
+        run: ./vendor/bin/pest
+
+      - name: Install Node dependencies & Build frontend
+        run: |
+          npm ci --legacy-peer-deps
+          npm run build

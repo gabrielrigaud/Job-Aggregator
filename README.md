@@ -1,58 +1,63 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# JobMind — Agrégateur d'offres d'emploi Tech
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+JobMind est une plateforme d'agrégation d'offres d'emploi et de stages qui collecte des annonces depuis plusieurs sources (API **WeLoveDevs**, **Arbeitnow**, **Remotive** et scraping **Indeed**), les normalise vers un schéma pivot unifié en PostgreSQL, enrichit les logos et traductions françaises, et propose des outils de recherche, d'analyse salariale et de scoring de pertinence.
 
-## About Laravel
+## Architecture
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+- **Backend** : Laravel (PHP 8.4+), Sanctum (API REST), Spatie Permission (`user` / `admin`)
+- **Base de données** : PostgreSQL 16 (persistance via volume Docker `pgdata`)
+- **Frontend** : React 18, Inertia.js, Tailwind CSS, Vite
+- **Scraper** : Microservice Python FastAPI + Playwright (`scraper_api/`)
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
-
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
-
-## Learning Laravel
-
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
-
-In addition, [Laracasts](https://laracasts.com) contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
-
-You can also watch bite-sized lessons with real-world projects on [Laravel Learn](https://laravel.com/learn), where you will be guided through building a Laravel application from scratch while learning PHP fundamentals.
-
-## Agentic Development
-
-Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
+## Démarrage rapide (Docker Compose)
 
 ```bash
-composer require laravel/boost --dev
-
-php artisan boost:install
+cp .env.docker .env
+# Renseigner WELOVEDEVS_API_KEY dans .env
+docker compose up -d --build
 ```
 
-Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
+L'application est accessible sur `http://localhost` (Nginx) et le scraper sur `http://localhost:8000`.
 
-## Contributing
+## Démarrage en local
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+```bash
+composer install
+npm install --legacy-peer-deps && npm run build
+cp .env.example .env
+php artisan key:generate
+php artisan migrate
+php artisan serve --host=127.0.0.1 --port=8000
+```
 
-## Code of Conduct
+Pour le microservice scraper :
+```bash
+python -m venv scraper_api/.venv
+scraper_api/.venv/Scripts/pip install -r scraper_api/requirements.txt
+scraper_api/.venv/Scripts/python -m uvicorn main:app --app-dir scraper_api --host 127.0.0.1 --port 8001
+```
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+## Collecte manuelle & enrichissement des données
 
-## Security Vulnerabilities
+```bash
+php artisan jobs:fetch-welovedevs --pages=3
+php artisan jobs:fetch-indeed "Développeur" "Paris"
+php artisan jobs:fetch-arbeitnow --pages=2 --limit=20
+php artisan jobs:fetch-remotive --limit=20
+php artisan jobs:enrich-logos
+php artisan jobs:translate-enrich
+```
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+## Tests et qualité
 
-## License
+```bash
+./vendor/bin/pint --test
+./vendor/bin/pest
+npm run build
+```
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+## Documentation
+
+- [Décisions d'architecture & Sécurité (ADR)](docs/ADR.md)
+- [Schéma Base de Données & API REST](docs/DATABASE_AND_API.md)
+- [Produit, Gestion de Projet & Audit Accessibilité WCAG 2.1 AA](docs/PRODUCT_AND_PROJECT.md)

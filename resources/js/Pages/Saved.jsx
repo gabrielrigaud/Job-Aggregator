@@ -2,50 +2,12 @@ import React, { useState } from 'react';
 import { Head, Link, router } from '@inertiajs/react';
 import MainLayout from '../Layouts/MainLayout';
 import JobDetailPanel from '../Components/JobDetailPanel';
+import { formatSalary, formatRelativeDate, formatContractType } from '../utils/jobFormatters';
 
 export default function Saved({ favorites = [], history = [] }) {
     const [activeTab, setActiveTab] = useState('favorites');
     const [searchQuery, setSearchQuery] = useState('');
     const [selectedJob, setSelectedJob] = useState(null);
-
-    const formatSalary = (job) => {
-        if (!job.salary_min && !job.salary_max) {
-            return { text: 'Salaire non communiqué', isDisclosed: false };
-        }
-        const isFreelance = job.contract_type && job.contract_type.toLowerCase() === 'freelance';
-        const formatNum = (num) => {
-            if (!num) return null;
-            const n = Number(num);
-            if (n < 200) return `${n}k`;
-            if (n >= 1000) return `${Math.round(n / 1000)}k`;
-            return `${n}`;
-        };
-        const min = formatNum(job.salary_min);
-        const max = formatNum(job.salary_max);
-        const curr = job.salary_currency === 'USD' ? '$' : '€';
-        const suffix = isFreelance ? ' / j' : ' / an';
-        
-        if (min && max) return { text: `${min} - ${max} ${curr}${suffix}`, isDisclosed: true };
-        if (min) return { text: `Dès ${min} ${curr}${suffix}`, isDisclosed: true };
-        return { text: `Jusqu'à ${max} ${curr}${suffix}`, isDisclosed: true };
-    };
-
-    const formatRelativeDate = (dateString) => {
-        if (!dateString) return 'Récemment';
-        const date = new Date(dateString);
-        const now = new Date();
-        const diffInSeconds = Math.floor((now - date) / 1000);
-        
-        if (diffInSeconds < 60) return "À l'instant";
-        const diffInMinutes = Math.floor(diffInSeconds / 60);
-        if (diffInMinutes < 60) return `Il y a ${diffInMinutes} min`;
-        const diffInHours = Math.floor(diffInMinutes / 60);
-        if (diffInHours < 24) return `Il y a ${diffInHours}h`;
-        const diffInDays = Math.floor(diffInHours / 24);
-        if (diffInDays === 1) return 'Hier';
-        if (diffInDays < 7) return `Il y a ${diffInDays}j`;
-        return date.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' });
-    };
 
     const filteredFavorites = favorites.filter(job => {
         if (!searchQuery) return true;
@@ -85,104 +47,78 @@ export default function Saved({ favorites = [], history = [] }) {
             
             <div className="pt-16 pb-8 px-4 md:px-8 max-w-[1560px] mx-auto w-full flex flex-col gap-4 min-h-[calc(100vh-4rem)]">
                 
-                {/* Header Banner */}
-                <header className="flex flex-col md:flex-row md:items-center justify-between gap-4 py-2 border-b border-outline-variant/60 flex-shrink-0">
-                    <div>
-                        <h2 className="text-xl md:text-2xl font-bold text-on-surface tracking-tight">
-                            Mes Offres & Historique
-                        </h2>
-                        <p className="text-xs md:text-sm text-on-surface-variant mt-0.5">
-                            Gérez vos opportunités favorites et retrouvez vos offres consultées récemment.
-                        </p>
-                    </div>
-
-                    <div className="flex items-center gap-2">
-                        <Link 
-                            href="/"
-                            className="px-3.5 py-2 bg-primary text-on-primary rounded-lg text-xs font-semibold hover:bg-primary/90 transition-all flex items-center gap-1.5 shadow-xs"
-                        >
-                            <span className="material-symbols-outlined text-sm">search</span>
-                            Découvrir de nouvelles offres
-                        </Link>
-                    </div>
-                </header>
-
-                {/* Sub-bar: Tabs & Filter Search */}
-                <div className="flex flex-wrap items-center justify-between gap-3 flex-shrink-0">
-                    
-                    {/* Navigation Tabs */}
-                    <div className="flex items-center gap-1 bg-surface-container/70 p-1 rounded-xl border border-outline-variant/60">
-                        <button 
-                            onClick={() => {
-                                setActiveTab('favorites');
-                            }}
-                            className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all flex items-center gap-2 ${
-                                activeTab === 'favorites' 
-                                    ? 'bg-primary text-on-primary shadow-xs' 
-                                    : 'text-on-surface-variant hover:text-on-surface hover:bg-surface-variant/50'
+                {/* Header */}
+                <header className="flex flex-wrap items-end justify-between gap-4 border-b border-outline-variant/60 flex-shrink-0">
+                    <nav aria-label="Onglets sauvegardés" className="flex items-center gap-6">
+                        <button
+                            type="button"
+                            onClick={() => setActiveTab('favorites')}
+                            className={`pb-3 text-sm font-semibold transition-colors border-b-2 flex items-center gap-2 ${
+                                activeTab === 'favorites'
+                                    ? 'border-primary text-primary'
+                                    : 'border-transparent text-on-surface-variant hover:text-on-surface'
                             }`}
                         >
-                            <span className="material-symbols-outlined text-base">bookmark</span>
                             <span>Favoris</span>
-                            <span className={`px-1.5 py-0.2 rounded-full text-[10px] font-bold ${
-                                activeTab === 'favorites' 
-                                    ? 'bg-white/20 text-white' 
-                                    : 'bg-surface-container-highest text-on-surface-variant'
+                            <span className={`px-1.5 py-0.5 rounded-full text-[11px] font-semibold ${
+                                activeTab === 'favorites'
+                                    ? 'bg-primary/10 text-primary'
+                                    : 'bg-surface-container text-on-surface-variant'
                             }`}>
                                 {favorites.length}
                             </span>
                         </button>
 
-                        <button 
-                            onClick={() => {
-                                setActiveTab('history');
-                            }}
-                            className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all flex items-center gap-2 ${
-                                activeTab === 'history' 
-                                    ? 'bg-primary text-on-primary shadow-xs' 
-                                    : 'text-on-surface-variant hover:text-on-surface hover:bg-surface-variant/50'
+                        <button
+                            type="button"
+                            onClick={() => setActiveTab('history')}
+                            className={`pb-3 text-sm font-semibold transition-colors border-b-2 flex items-center gap-2 ${
+                                activeTab === 'history'
+                                    ? 'border-primary text-primary'
+                                    : 'border-transparent text-on-surface-variant hover:text-on-surface'
                             }`}
                         >
-                            <span className="material-symbols-outlined text-base">history</span>
                             <span>Consultées récemment</span>
-                            <span className={`px-1.5 py-0.2 rounded-full text-[10px] font-bold ${
-                                activeTab === 'history' 
-                                    ? 'bg-white/20 text-white' 
-                                    : 'bg-surface-container-highest text-on-surface-variant'
+                            <span className={`px-1.5 py-0.5 rounded-full text-[11px] font-semibold ${
+                                activeTab === 'history'
+                                    ? 'bg-primary/10 text-primary'
+                                    : 'bg-surface-container text-on-surface-variant'
                             }`}>
                                 {history.length}
                             </span>
                         </button>
-                    </div>
+                    </nav>
 
-                    {/* Filter Input */}
                     {(favorites.length > 0 || history.length > 0) && (
-                        <div className="flex items-center rounded-lg bg-surface-container-low/90 px-3 py-1.5 min-w-[220px] border border-outline-variant/60 focus-within:border-primary/80 focus-within:ring-1 focus-within:ring-primary/20 shadow-2xs">
-                            <span className="material-symbols-outlined text-outline text-base mr-2">filter_list</span>
-                            <input 
+                        <div className="flex items-center rounded-lg bg-surface-container-low/90 px-3 py-1.5 mb-2 min-w-[220px] border border-outline-variant/60 focus-within:border-primary/80 focus-within:ring-1 focus-within:ring-primary/20 shadow-2xs">
+                            <span aria-hidden="true" className="material-symbols-outlined text-outline text-base mr-2">search</span>
+                            <input
+                                aria-label="Filtrer dans la liste"
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
-                                className="w-full bg-transparent border-none text-on-surface placeholder:text-outline focus:ring-0 text-xs py-0.5 outline-none font-medium" 
-                                placeholder="Filtrer dans la liste..." 
-                                type="text" 
+                                className="w-full bg-transparent border-none text-on-surface placeholder:text-outline focus:ring-0 text-xs py-0.5 outline-none font-medium"
+                                placeholder="Filtrer dans la liste..."
+                                type="text"
                             />
                             {searchQuery && (
-                                <button 
+                                <button
+                                    type="button"
                                     onClick={() => setSearchQuery('')}
+                                    aria-label="Effacer le filtre"
                                     className="text-outline hover:text-on-surface p-0.5"
                                 >
-                                    <span className="material-symbols-outlined text-xs">close</span>
+                                    <span aria-hidden="true" className="material-symbols-outlined text-xs">close</span>
                                 </button>
                             )}
                         </div>
                     )}
-                </div>
+                </header>
 
                 {/* Main Split-View / Feed Layout */}
-                <div className={`flex flex-1 min-h-0 pt-2 gap-4 lg:gap-6 ${selectedJob ? 'items-stretch' : 'justify-between'}`}>
+                <div className={`flex flex-1 min-h-0 pt-1 gap-4 lg:gap-6 ${selectedJob ? 'items-stretch' : 'justify-between'}`}>
                     
-                    {/* Left: Job List (Adapts: 1-col when split, grid/table when full) */}
-                    <div className={`overflow-y-auto pr-1 pb-4 custom-scrollbar ${
+                    {/* Left: Job List */}
+                    <div className={`overflow-y-auto px-1.5 pt-1 pb-4 custom-scrollbar ${
                         selectedJob 
                             ? 'w-full lg:w-[420px] xl:w-[460px] flex-shrink-0 flex flex-col gap-2.5' 
                             : 'flex-1 min-w-0'
@@ -192,21 +128,19 @@ export default function Saved({ favorites = [], history = [] }) {
                         {activeTab === 'favorites' && (
                             <>
                                 {filteredFavorites.length === 0 ? (
-                                    <div className="glass-panel rounded-2xl p-12 text-center flex flex-col items-center justify-center gap-3 border border-outline-variant/60 my-6 max-w-lg mx-auto">
-                                        <div className="w-14 h-14 rounded-2xl bg-primary/10 text-primary flex items-center justify-center">
-                                            <span className="material-symbols-outlined text-3xl">bookmark_border</span>
-                                        </div>
-                                        <h3 className="text-base font-bold text-on-surface">
+                                    <div className="py-20 text-center flex flex-col items-center justify-center gap-3 max-w-md mx-auto">
+                                        <span aria-hidden="true" className="material-symbols-outlined text-4xl text-outline">bookmark_border</span>
+                                        <h3 className="text-sm font-bold text-on-surface">
                                             {favorites.length === 0 ? 'Aucune offre sauvegardée' : 'Aucune offre ne correspond au filtre'}
                                         </h3>
-                                        <p className="text-xs text-on-surface-variant max-w-sm leading-relaxed">
+                                        <p className="text-xs text-on-surface-variant leading-relaxed">
                                             {favorites.length === 0 
-                                                ? 'Explorez les offres d\'emploi et cliquez sur l\'icône de marque-page pour les retrouver ici à tout moment.' 
+                                                ? 'Cliquez sur le marque-page d\'une offre pour la retrouver ici.' 
                                                 : 'Essayez un autre mot-clé ou effacez le filtre de recherche.'}
                                         </p>
                                         <Link 
                                             href="/" 
-                                            className="mt-2 px-4 py-2 rounded-lg bg-primary text-on-primary text-xs font-semibold hover:bg-primary/90 transition-colors shadow-xs"
+                                            className="mt-1 px-4 py-2 rounded-lg bg-primary text-on-primary text-xs font-semibold hover:bg-primary/90 transition-colors"
                                         >
                                             Explorer les offres
                                         </Link>
@@ -216,7 +150,8 @@ export default function Saved({ favorites = [], history = [] }) {
                                         {filteredFavorites.map(job => {
                                             const isSelected = selectedJob?.id === job.id;
                                             const salaryInfo = formatSalary(job);
-                                            const relativeDate = formatRelativeDate(job.date_of_publi || job.created_at);
+                                            const relativeDate = formatRelativeDate(job.date_of_publi, job.created_at);
+                                            const contractLabel = formatContractType(job.contract_type);
                                             const companyName = job.company?.name || 'Confidentiel';
                                             const logoUrl = job.company?.logo_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(companyName)}&background=eaedff&color=4648d4&bold=true`;
 
@@ -284,9 +219,9 @@ export default function Saved({ favorites = [], history = [] }) {
                                                                 </span>
                                                             ) : null}
 
-                                                            {job.contract_type ? (
-                                                                <span className="px-2 py-0.5 rounded bg-surface-container text-on-surface-variant text-[10px] font-semibold border border-outline-variant/40 capitalize">
-                                                                    {job.contract_type}
+                                                            {contractLabel && contractLabel !== 'Non spécifié' ? (
+                                                                <span className="px-2 py-0.5 rounded bg-surface-container text-on-surface-variant text-[10px] font-semibold border border-outline-variant/40">
+                                                                    {contractLabel}
                                                                 </span>
                                                             ) : null}
                                                         </div>
@@ -318,19 +253,17 @@ export default function Saved({ favorites = [], history = [] }) {
                         {activeTab === 'history' && (
                             <>
                                 {filteredHistory.length === 0 ? (
-                                    <div className="glass-panel rounded-2xl p-12 text-center flex flex-col items-center justify-center gap-3 border border-outline-variant/60 my-6 max-w-lg mx-auto">
-                                        <div className="w-14 h-14 rounded-2xl bg-secondary/10 text-secondary flex items-center justify-center">
-                                            <span className="material-symbols-outlined text-3xl">history</span>
-                                        </div>
-                                        <h3 className="text-base font-bold text-on-surface">
+                                    <div className="py-20 text-center flex flex-col items-center justify-center gap-3 max-w-md mx-auto">
+                                        <span aria-hidden="true" className="material-symbols-outlined text-4xl text-outline">history</span>
+                                        <h3 className="text-sm font-bold text-on-surface">
                                             {history.length === 0 ? 'Aucun historique récent' : 'Aucune offre trouvée dans l\'historique'}
                                         </h3>
-                                        <p className="text-xs text-on-surface-variant max-w-sm leading-relaxed">
-                                            Les offres que vous consultez s'afficheront automatiquement ici pour vous permettre d'y revenir facilement.
+                                        <p className="text-xs text-on-surface-variant leading-relaxed">
+                                            Les offres que vous consultez s'afficheront ici automatiquement.
                                         </p>
                                         <Link 
                                             href="/" 
-                                            className="mt-2 px-4 py-2 rounded-lg bg-primary text-on-primary text-xs font-semibold hover:bg-primary/90 transition-colors shadow-xs"
+                                            className="mt-1 px-4 py-2 rounded-lg bg-primary text-on-primary text-xs font-semibold hover:bg-primary/90 transition-colors"
                                         >
                                             Parcourir les offres
                                         </Link>
@@ -341,7 +274,7 @@ export default function Saved({ favorites = [], history = [] }) {
                                         {filteredHistory.map(job => {
                                             const isSelected = selectedJob?.id === job.id;
                                             const salaryInfo = formatSalary(job);
-                                            const relativeDate = formatRelativeDate(job.date_of_publi || job.created_at);
+                                            const relativeDate = formatRelativeDate(job.date_of_publi, job.created_at);
                                             const companyName = job.company?.name || 'Confidentiel';
                                             const logoUrl = job.company?.logo_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(companyName)}&background=eaedff&color=4648d4&bold=true`;
 
@@ -430,8 +363,8 @@ export default function Saved({ favorites = [], history = [] }) {
                                                                 <div className="flex items-center gap-1.5">
                                                                     <span>{job.location || 'France'}</span>
                                                                     {job.contract_type && (
-                                                                        <span className="px-1.5 py-0.5 rounded bg-surface-container font-semibold text-[10px] capitalize">
-                                                                            {job.contract_type}
+                                                                        <span className="px-1.5 py-0.5 rounded bg-surface-container font-semibold text-[10px]">
+                                                                            {formatContractType(job.contract_type)}
                                                                         </span>
                                                                     )}
                                                                 </div>
@@ -467,13 +400,13 @@ export default function Saved({ favorites = [], history = [] }) {
 
                     {/* Right Column: Full Detail Panel (Split view on Desktop) */}
                     {selectedJob && (
-                        <main className="hidden lg:flex flex-1 min-w-0 h-full pb-4">
+                        <section aria-label="Détail de l'offre" className="hidden lg:flex flex-col flex-1 min-w-0 min-h-0 h-[calc(100vh-14rem)]">
                             <JobDetailPanel 
                                 job={selectedJob} 
                                 onClose={() => setSelectedJob(null)}
                                 isSaved={isJobFavorite(selectedJob.id)}
                             />
-                        </main>
+                        </section>
                     )}
                 </div>
             </div>

@@ -2,22 +2,22 @@
 
 namespace App\Models;
 
-use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Database\Factories\UserFactory;
+use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use Spatie\Permission\Traits\HasRoles;
 use Laravel\Sanctum\HasApiTokens;
+use Spatie\Permission\Traits\HasRoles;
 
 #[Fillable(['name', 'email', 'password', 'bio', 'job_title', 'linkedin_url'])]
 #[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable implements MustVerifyEmail
 {
     /** @use HasFactory<UserFactory> */
-    use HasApiTokens, HasFactory, Notifiable, HasRoles;
+    use HasApiTokens, HasFactory, HasRoles, Notifiable;
 
     protected $appends = ['profile_completion'];
 
@@ -26,10 +26,11 @@ class User extends Authenticatable implements MustVerifyEmail
         $fields = ['name', 'email', 'bio', 'job_title', 'linkedin_url'];
         $filled = 0;
         foreach ($fields as $field) {
-            if (!empty($this->{$field})) {
+            if (! empty($this->{$field})) {
                 $filled++;
             }
         }
+
         return (int) round(($filled / count($fields)) * 100);
     }
 
@@ -54,7 +55,7 @@ class User extends Authenticatable implements MustVerifyEmail
     public function savedJobs()
     {
         return $this->belongsToMany(JobOffer::class, 'offer_views')
-                    ->wherePivot('is_saved', true)
-                    ->withPivot('viewed_at', 'is_saved');
+            ->wherePivot('is_saved', true)
+            ->withPivot('viewed_at', 'is_saved');
     }
 }

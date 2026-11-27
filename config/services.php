@@ -35,4 +35,13 @@ return [
         ],
     ],
 
+    'welovedevs' => [
+        'key' => env('WELOVEDEVS_API_KEY'),
+        'url' => env('WELOVEDEVS_API_URL', 'https://epi-api.welovedevs.com/v1'),
+    ],
+
+    'scraper' => [
+        'url' => env('SCRAPER_URL', 'http://scraper:8000'),
+    ],
+
 ];

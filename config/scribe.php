@@ -1,7 +1,7 @@
 <?php
 
 // Guard: return empty config if Scribe is not installed (production)
-if (!class_exists(\Knuckles\Scribe\Config\AuthIn::class)) {
+if (! class_exists(AuthIn::class)) {
     return [];
 }
 
@@ -34,22 +34,22 @@ return [
     'base_url' => config('app.url'),
 
     'routes' => [
-    [
-        'match' => [
-            // On cible uniquement nos routes utiles
-            'prefixes' => ['api/*', 'admin/*', 'jobs*', 'profile*', 'login', 'register'],
-            'domains' => ['*'],
+        [
+            'match' => [
+                // On cible uniquement nos routes utiles
+                'prefixes' => ['api/*', 'admin/*', 'jobs*', 'profile*', 'login', 'register'],
+                'domains' => ['*'],
+            ],
+            'exclude' => [
+                // On exclut explicitement la debugbar et le stockage
+                '_debugbar/*',
+                'storage/*',
+                'sanctum/*',
+                'up',
+            ],
+            // ...
         ],
-        'exclude' => [
-            // On exclut explicitement la debugbar et le stockage
-            '_debugbar/*',
-            'storage/*',
-            'sanctum/*',
-            'up',
-        ],
-        // ...
     ],
-],
 
     // The type of documentation output to generate.
     // - "static" will generate a static HTMl page in the /public/docs folder,

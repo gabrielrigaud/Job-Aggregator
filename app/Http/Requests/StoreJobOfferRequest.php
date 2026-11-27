@@ -32,7 +32,7 @@ class StoreJobOfferRequest extends FormRequest
                 'max:255',
                 Rule::unique('job_offers')->where(function ($query) {
                     return $query->where('source_internal_id', $this->source_internal_id);
-                })
+                }),
             ],
             'title' => ['required', 'string', 'max:255'],
             'description' => ['required', 'string'],

@@ -2,90 +2,57 @@ import React from 'react';
 import { Link, usePage } from '@inertiajs/react';
 
 export default function AdminSideNavBar() {
-    const { url, props } = usePage();
-    const user = props.auth?.user;
+    const { url } = usePage();
 
-    const isOverview = url.startsWith('/admin/dashboard');
-    const isUsers = url.startsWith('/admin/users');
-    const isJobs = url.startsWith('/admin/jobs');
-    const isAdminMgmt = url.startsWith('/admin/admins');
+    const isOverview = url.startsWith('/panel/dashboard');
+    const isUsers = url.startsWith('/panel/users');
+    const isJobs = url.startsWith('/panel/jobs');
+    const isAdminMgmt = url.startsWith('/panel/admins');
+
+    const linkClass = (active) =>
+        `group flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+            active
+                ? 'bg-primary/10 text-primary'
+                : 'text-on-surface-variant hover:bg-surface-variant/50 hover:text-on-surface'
+        }`;
 
     return (
-        <aside className="flex w-64 flex-col justify-between border-r border-outline-variant bg-surface px-4 py-6">
-            <div>
-                {/* Brand */}
-                <div className="mb-8 flex items-center px-4">
-                    <div className="mr-3 flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-on-primary">
-                        <span className="material-symbols-outlined text-[20px]">admin_panel_settings</span>
-                    </div>
-                    <h1 className="text-lg font-bold tracking-tight text-on-surface">
-                        JobMind <span className="font-normal text-xs text-primary">Admin</span>
-                    </h1>
-                </div>
-
-                {/* Navigation Links */}
-                <nav className="space-y-1">
-                    <Link
-                        className={`flex items-center rounded-lg px-3 py-2.5 transition-all ${
-                            isOverview
-                                ? 'bg-primary/10 text-primary dark:bg-primary/25 dark:text-indigo-300 font-semibold'
-                                : 'text-on-surface-variant hover:bg-surface-variant/50 dark:hover:bg-white/5 font-medium'
-                        }`}
-                        href="/admin/dashboard"
-                    >
-                        <span className="material-symbols-outlined mr-3 text-[20px]">grid_view</span>
-                        <span className="text-sm">Overview</span>
-                    </Link>
-                    <Link
-                        className={`flex items-center rounded-lg px-3 py-2.5 transition-all ${
-                            isUsers
-                                ? 'bg-primary/10 text-primary dark:bg-primary/25 dark:text-indigo-300 font-semibold'
-                                : 'text-on-surface-variant hover:bg-surface-variant/50 dark:hover:bg-white/5 font-medium'
-                        }`}
-                        href="/admin/users"
-                    >
-                        <span className="material-symbols-outlined mr-3 text-[20px]">group</span>
-                        <span className="text-sm">Users</span>
-                    </Link>
-                    <Link
-                        className={`flex items-center rounded-lg px-3 py-2.5 transition-all ${
-                            isJobs
-                                ? 'bg-primary/10 text-primary dark:bg-primary/25 dark:text-indigo-300 font-semibold'
-                                : 'text-on-surface-variant hover:bg-surface-variant/50 dark:hover:bg-white/5 font-medium'
-                        }`}
-                        href="/admin/jobs"
-                    >
-                        <span className="material-symbols-outlined mr-3 text-[20px]">work</span>
-                        <span className="text-sm">Jobs</span>
-                    </Link>
-                    <Link
-                        className={`flex items-center rounded-lg px-3 py-2.5 transition-all ${
-                            isAdminMgmt
-                                ? 'bg-primary/10 text-primary dark:bg-primary/25 dark:text-indigo-300 font-semibold'
-                                : 'text-on-surface-variant hover:bg-surface-variant/50 dark:hover:bg-white/5 font-medium'
-                        }`}
-                        href="/admin/admins"
-                    >
-                        <span className="material-symbols-outlined mr-3 text-[20px]" style={isAdminMgmt ? { fontVariationSettings: "'FILL' 1" } : {}}>shield_person</span>
-                        <span className="text-sm">Admins</span>
-                    </Link>
-                </nav>
+        <nav className="hidden lg:flex flex-col p-4 gap-2 bg-surface-container-low/80 backdrop-blur-xl h-screen w-64 left-0 top-0 border-r border-outline-variant fixed z-40">
+            <div className="mb-8 px-2 pt-2 flex items-baseline gap-1.5">
+                <Link href="/" className="text-xl font-bold text-primary tracking-tight">
+                    JobMind
+                </Link>
+                <span className="text-[11px] font-semibold text-on-surface-variant">Admin</span>
             </div>
 
-            {/* Profile Card Bottom */}
-            <div className="border-t border-outline-variant pt-4">
-                <div className="flex items-center gap-3 px-2">
-                    <img
-                        alt={user?.name || 'Admin User'}
-                        className="h-9 w-9 rounded-full border border-outline-variant object-cover"
-                        src={user?.name ? `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name)}&background=random` : 'https://ui-avatars.com/api/?name=Admin&background=random'}
-                    />
-                    <div className="overflow-hidden">
-                        <p className="text-sm font-semibold text-on-surface truncate">{user?.name || 'Administrator'}</p>
-                        <p className="text-xs text-on-surface-variant">Admin</p>
-                    </div>
-                </div>
+            <div className="flex flex-col space-y-1 flex-1 px-2">
+                <Link className={linkClass(isOverview)} href="/panel/dashboard">
+                    <span className={`material-symbols-outlined text-[20px] ${isOverview ? 'text-primary' : 'text-outline'}`}>grid_view</span>
+                    Vue d'ensemble
+                </Link>
+                <Link className={linkClass(isUsers)} href="/panel/users">
+                    <span className={`material-symbols-outlined text-[20px] ${isUsers ? 'text-primary' : 'text-outline'}`}>group</span>
+                    Utilisateurs
+                </Link>
+                <Link className={linkClass(isJobs)} href="/panel/jobs">
+                    <span className={`material-symbols-outlined text-[20px] ${isJobs ? 'text-primary' : 'text-outline'}`}>work</span>
+                    Offres
+                </Link>
+                <Link className={linkClass(isAdminMgmt)} href="/panel/admins">
+                    <span className={`material-symbols-outlined text-[20px] ${isAdminMgmt ? 'text-primary' : 'text-outline'}`}>shield_person</span>
+                    Administrateurs
+                </Link>
             </div>
-        </aside>
+
+            <div className="px-2 pt-3 border-t border-outline-variant/60">
+                <Link
+                    href="/"
+                    className="group flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium text-on-surface-variant hover:bg-surface-variant/50 hover:text-on-surface transition-colors"
+                >
+                    <span className="material-symbols-outlined text-[20px] text-outline">arrow_back</span>
+                    Retour au site
+                </Link>
+            </div>
+        </nav>
     );
 }

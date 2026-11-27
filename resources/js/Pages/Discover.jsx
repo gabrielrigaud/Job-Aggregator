@@ -1,50 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import { Head, Link, router } from '@inertiajs/react';
 import { Popover, PopoverButton, PopoverPanel } from '@headlessui/react';
+import JobCard from '../Components/JobCard';
 import JobDetailPanel from '../Components/JobDetailPanel';
 import MainLayout from '../Layouts/MainLayout';
+import { formatRelativeDate, formatSalary, formatContractType } from '../utils/jobFormatters';
 
-function formatRelativeDate(dateStr) {
-    if (!dateStr) return "Récemment";
-    const date = new Date(dateStr);
-    const now = new Date();
-    const diffMs = now - date;
-    const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
-    const diffDays = Math.floor(diffHours / 24);
-
-    if (diffHours < 1) return "À l'instant";
-    if (diffHours < 24) return `Il y a ${diffHours}h`;
-    if (diffDays === 1) return "Hier";
-    if (diffDays < 7) return `Il y a ${diffDays}j`;
-    return date.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' });
-}
-
-function formatSalary(job) {
-    if (!job.salary_min && !job.salary_max) {
-        return { text: 'Salaire non communiqué', isDisclosed: false };
-    }
-    
-    const isFreelance = job.contract_type && job.contract_type.toLowerCase() === 'freelance';
-    const formatNum = (num) => {
-        if (!num) return null;
-        const n = Number(num);
-        if (n < 200) return `${n}k`; 
-        if (n >= 1000) return `${Math.round(n / 1000)}k`; 
-        return `${n}`; 
-    };
-    
-    const min = formatNum(job.salary_min);
-    const max = formatNum(job.salary_max);
-    const curr = job.salary_currency === 'USD' ? '$' : '€';
-    const suffix = isFreelance ? ' / j' : ' / an';
-    
-    if (min && max) return { text: `${min} - ${max} ${curr}${suffix}`, isDisclosed: true };
-    if (min) return { text: `Dès ${min} ${curr}${suffix}`, isDisclosed: true };
-    return { text: `Jusqu'à ${max} ${curr}${suffix}`, isDisclosed: true };
-}
-
-export default function Discover({ auth, jobs = [], savedJobIds = [], filters = {}, selectedJobInitial = null }) {
+export default function Discover({ auth, jobs = [], savedJobIds = [], marketSummary = {}, filters = {}, selectedJobInitial = null }) {
     const safeFilters = Array.isArray(filters) ? {} : (filters || {});
+    const jobItems = Array.isArray(jobs) ? jobs : (jobs?.data || []);
+    const totalJobsCount = Array.isArray(jobs) ? jobs.length : (jobs?.total ?? jobItems.length);
+    const currentPage = jobs?.current_page ?? 1;
+    const lastPage = jobs?.last_page ?? 1;
 
     const [selectedJob, setSelectedJob] = useState(selectedJobInitial);
 
@@ -94,6 +61,7 @@ export default function Discover({ auth, jobs = [], savedJobIds = [], filters = 
 
     const updateFilters = (newFilters) => {
         const queryParams = { ...filters, ...newFilters };
+        delete queryParams.page;
         Object.keys(queryParams).forEach(key => {
             if (queryParams[key] === '' || queryParams[key] === null || queryParams[key] === false) {
                 delete queryParams[key];
@@ -132,22 +100,19 @@ export default function Discover({ auth, jobs = [], savedJobIds = [], filters = 
         <MainLayout>
             <Head title="JobMind - Recherche d'offres" />
 
-            {/* Main Application Shell (Full viewport height minus topnav) */}
-            <div className="pt-14 pb-2 px-3 md:px-6 max-w-[1560px] w-full mx-auto flex flex-col h-screen overflow-hidden">
-                
+            {/* Main Application Shell (Full viewport height on desktop, scrollable on mobile) */}
+            <div className="pt-14 pb-20 lg:pb-2 px-4 md:px-8 max-w-[1560px] w-full mx-auto flex flex-col min-h-screen lg:h-screen lg:overflow-hidden">
                 {/* Unified Master Toolbar */}
-                <header className="flex flex-wrap items-center justify-between gap-2.5 py-2.5 flex-shrink-0 border-b border-outline-variant/60">
-                    
-                    {/* Left: Dual Search Capsule + Contract pills + Salary + Remote */}
-                    <div className="flex flex-wrap items-center gap-2">
-                        
+                <header className="flex flex-col gap-2 py-2.5 flex-shrink-0 border-b border-outline-variant/60">
+                    {/* Row 1: Dual Search Capsule + Results Count & Sort */}
+                    <div className="flex flex-wrap items-center justify-between gap-2.5">
                         {/* Unified Search Capsule (Quoi + Où) */}
-                        <div className="flex items-center rounded-lg bg-surface-container-low/90 border border-outline-variant/60 focus-within:border-primary/80 focus-within:bg-surface focus-within:ring-1 focus-within:ring-primary/20 transition-all duration-150 shadow-2xs">
-                            
+                        <div className="flex flex-col sm:flex-row sm:items-center w-full sm:w-auto sm:flex-1 sm:max-w-xl rounded-lg bg-surface-container-low/90 border border-outline-variant/60 focus-within:border-primary/80 focus-within:bg-surface focus-within:ring-1 focus-within:ring-primary/20 transition-all duration-150 shadow-2xs">
                             {/* Keyword Search */}
-                            <div className="flex items-center px-2.5 py-1 min-w-[180px] lg:min-w-[220px]">
-                                <span className="material-symbols-outlined text-outline text-base mr-1.5">search</span>
+                            <div className="flex items-center px-3 py-1 flex-1 min-w-[230px]">
+                                <span aria-hidden="true" className="material-symbols-outlined text-outline text-base mr-1.5">search</span>
                                 <input 
+                                    aria-label="Rechercher un poste, une compétence ou une entreprise"
                                     value={search}
                                     onChange={(e) => setSearch(e.target.value)}
                                     className="w-full bg-transparent border-none text-on-surface placeholder:text-outline focus:ring-0 text-xs py-1 outline-none font-medium" 
@@ -156,21 +121,23 @@ export default function Discover({ auth, jobs = [], savedJobIds = [], filters = 
                                 />
                                 {search && (
                                     <button 
+                                        type="button"
                                         onClick={() => setSearch('')}
                                         className="text-outline hover:text-on-surface p-0.5 rounded-full"
+                                        aria-label="Effacer la recherche"
                                         title="Effacer"
                                     >
-                                        <span className="material-symbols-outlined text-xs">close</span>
+                                        <span aria-hidden="true" className="material-symbols-outlined text-xs">close</span>
                                     </button>
                                 )}
                             </div>
 
-                            <div className="h-4 w-px bg-outline-variant/60"></div>
-
+                            <div className="h-px w-full sm:h-4 sm:w-px bg-outline-variant/60 flex-shrink-0"></div>
                             {/* Location Search */}
-                            <div className="flex items-center px-2.5 py-1 min-w-[140px] lg:min-w-[160px]">
-                                <span className="material-symbols-outlined text-outline text-base mr-1.5">location_on</span>
+                            <div className="flex items-center px-3 py-1 sm:w-48 md:w-52 flex-shrink-0">
+                                <span aria-hidden="true" className="material-symbols-outlined text-outline text-base mr-1.5">location_on</span>
                                 <input 
+                                    aria-label="Rechercher une ville ou région"
                                     value={location}
                                     onChange={(e) => setLocation(e.target.value)}
                                     className="w-full bg-transparent border-none text-on-surface placeholder:text-outline focus:ring-0 text-xs py-1 outline-none font-medium" 
@@ -179,8 +146,10 @@ export default function Discover({ auth, jobs = [], savedJobIds = [], filters = 
                                 />
                                 {location && (
                                     <button 
+                                        type="button"
                                         onClick={() => setLocation('')}
                                         className="text-outline hover:text-on-surface p-0.5 rounded-full"
+                                        aria-label="Effacer la localisation"
                                         title="Effacer"
                                     >
                                         <span className="material-symbols-outlined text-xs">close</span>
@@ -188,9 +157,43 @@ export default function Discover({ auth, jobs = [], savedJobIds = [], filters = 
                                 )}
                             </div>
                         </div>
-
+                        {/* Right: Results Count + Reset + Sort */}
+                        <div className="flex items-center gap-2.5 ml-auto flex-shrink-0">
+                            <span className="text-xs font-semibold text-on-surface-variant whitespace-nowrap">
+                                {totalJobsCount} {totalJobsCount > 1 ? 'offres disponibles' : 'offre disponible'}
+                            </span>
+                            {hasActiveFilters && (
+                                <button
+                                    type="button"
+                                    onClick={resetFilters}
+                                    className="text-xs text-primary font-medium hover:underline flex items-center gap-0.5 whitespace-nowrap"
+                                    title="Réinitialiser"
+                                >
+                                    <span aria-hidden="true" className="material-symbols-outlined text-xs">refresh</span>
+                                    Effacer
+                                </button>
+                            )}
+                            <div className="h-4 w-px bg-outline-variant/60"></div>
+                            <button 
+                                type="button"
+                                onClick={() => {
+                                    const newSort = sort === 'recent' ? 'relevance' : 'recent';
+                                    setSort(newSort);
+                                    updateFilters({ sort: newSort });
+                                }}
+                                className="flex items-center gap-1 text-on-surface text-xs font-medium px-2 py-1 rounded-md hover:bg-surface-variant transition-colors whitespace-nowrap"
+                            >
+                                <span aria-hidden="true" className="material-symbols-outlined text-sm text-primary">
+                                    {sort === 'relevance' ? 'trending_up' : 'schedule'}
+                                </span>
+                                <span>{sort === 'relevance' ? 'Pertinence' : 'Récents'}</span>
+                            </button>
+                        </div>
+                    </div>
+                    {/* Row 2: Contract Pills + Salary + Remote Toggle */}
+                    <div className="flex flex-wrap items-center gap-2">
                         {/* Contract Type Pills */}
-                        <div className="flex items-center gap-1 bg-surface-container/70 p-1 rounded-lg border border-outline-variant/50">
+                        <div className="flex items-center gap-1 bg-surface-container/70 p-1 rounded-lg border border-outline-variant/50 overflow-x-auto max-w-full">
                             {contractOptions.map((opt) => {
                                 const isActive = contractType === opt.value;
                                 return (
@@ -237,6 +240,7 @@ export default function Discover({ auth, jobs = [], savedJobIds = [], filters = 
                                     </div>
                                     
                                     <input 
+                                        aria-label="Salaire annuel minimum"
                                         type="range" 
                                         min="0" max="100000" step="5000"
                                         value={salaryMin || 0}
@@ -270,54 +274,20 @@ export default function Discover({ auth, jobs = [], savedJobIds = [], filters = 
 
                         {/* Remote Toggle */}
                         <button 
+                            type="button"
                             onClick={() => {
                                 const newValue = !remoteOnly;
                                 setRemoteOnly(newValue);
                                 updateFilters({ remote_only: newValue ? 'true' : '' });
                             }}
-                            className={`flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 cursor-pointer transition-all whitespace-nowrap border text-xs font-medium ${
+                            className={`flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 cursor-pointer transition-all whitespace-nowrap shrink-0 border text-xs font-medium ${
                                 remoteOnly 
                                     ? 'bg-primary/10 border-primary text-primary font-semibold shadow-2xs' 
                                     : 'bg-surface-container/70 border-outline-variant/50 hover:border-outline-variant text-on-surface'
                             }`}
                         >
-                            <span className="material-symbols-outlined text-sm">public</span>
+                            <span aria-hidden="true" className="material-symbols-outlined text-sm">public</span>
                             <span>Télétravail</span>
-                        </button>
-                    </div>
-
-                    {/* Right: Results Count + Sort */}
-                    <div className="flex items-center gap-3 ml-auto">
-                        <span className="text-xs font-semibold text-on-surface-variant flex items-center gap-1.5">
-                            <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
-                            {jobs.length} {jobs.length > 1 ? 'offres disponibles' : 'offre disponible'}
-                        </span>
-
-                        {hasActiveFilters && (
-                            <button
-                                onClick={resetFilters}
-                                className="text-xs text-primary font-medium hover:underline flex items-center gap-0.5"
-                                title="Réinitialiser"
-                            >
-                                <span className="material-symbols-outlined text-xs">refresh</span>
-                                Effacer filtres
-                            </button>
-                        )}
-
-                        <div className="h-4 w-px bg-outline-variant/60"></div>
-
-                        <button 
-                            onClick={() => {
-                                const newSort = sort === 'recent' ? 'relevance' : 'recent';
-                                setSort(newSort);
-                                updateFilters({ sort: newSort });
-                            }}
-                            className="flex items-center gap-1 text-on-surface text-xs font-medium px-2 py-1 rounded-md hover:bg-surface-variant transition-colors"
-                        >
-                            <span className="material-symbols-outlined text-sm text-primary">
-                                {sort === 'relevance' ? 'trending_up' : 'schedule'}
-                            </span>
-                            <span>{sort === 'relevance' ? 'Pertinence' : 'Récents'}</span>
                         </button>
                     </div>
                 </header>
@@ -326,12 +296,12 @@ export default function Discover({ auth, jobs = [], savedJobIds = [], filters = 
                 <div className={`flex flex-1 min-h-0 pt-3 gap-4 lg:gap-6 ${selectedJob ? 'items-stretch' : 'justify-between'}`}>
                     
                     {/* Job Cards Container (Adapts: 1-col in split-view, 2-col grid in feed-view) */}
-                    <div className={`overflow-y-auto pr-1 pb-4 custom-scrollbar ${
+                    <div className={`overflow-y-auto px-1.5 pt-1 pb-4 custom-scrollbar ${
                         selectedJob 
                             ? 'w-full lg:w-[420px] xl:w-[460px] flex-shrink-0 flex flex-col gap-2.5' 
                             : 'flex-1 min-w-0'
                     }`}>
-                        {jobs.length === 0 ? (
+                        {jobItems.length === 0 ? (
                             <div className="glass-panel rounded-xl p-8 text-center flex flex-col items-center justify-center gap-3 border border-outline-variant/60 my-auto">
                                 <span className="material-symbols-outlined text-4xl text-outline">search_off</span>
                                 <h3 className="text-sm font-bold text-on-surface">Aucune offre ne correspond à vos critères</h3>
@@ -347,135 +317,91 @@ export default function Discover({ auth, jobs = [], savedJobIds = [], filters = 
                             </div>
                         ) : (
                             <div className={selectedJob ? 'flex flex-col gap-2.5' : 'grid grid-cols-1 md:grid-cols-2 gap-3'}>
-                                {jobs.map(job => {
-                                    const isSelected = selectedJob?.id === job.id;
-                                    const salaryInfo = formatSalary(job);
-                                    const relativeDate = formatRelativeDate(job.date_of_publi || job.created_at);
-                                    const companyName = job.company?.name || 'Confidentiel';
-                                    const logoUrl = job.company?.logo_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(companyName)}&background=eaedff&color=4648d4&bold=true`;
-
-                                    return (
-                                        <article
-                                            key={job.id}
-                                            onClick={() => {
-                                                if (window.innerWidth < 1024) {
-                                                    window.location.href = `/jobs/${job.id}`;
-                                                } else {
-                                                    setSelectedJob(job);
-                                                    if (window.axios) {
-                                                        window.axios.post(`/jobs/${job.id}/view`).catch(() => {});
-                                                    }
+                                {jobItems.map(job => (
+                                    <JobCard
+                                        key={job.id}
+                                        job={job}
+                                        isSelected={selectedJob?.id === job.id}
+                                        isSaved={savedJobIds.includes(job.id)}
+                                        onSelect={(item) => {
+                                            if (window.innerWidth < 1024) {
+                                                window.location.href = `/jobs/${item.id}`;
+                                            } else {
+                                                setSelectedJob(item);
+                                                if (window.axios) {
+                                                    window.axios.post(`/jobs/${item.id}/view`).catch(() => {});
                                                 }
-                                            }}
-                                            className={`rounded-xl p-3.5 flex flex-col justify-between transition-all duration-150 group cursor-pointer relative overflow-hidden border ${
-                                                isSelected
-                                                    ? 'border-primary ring-1 ring-primary bg-primary/[0.04] shadow-xs'
-                                                    : 'border-outline-variant/60 hover:border-primary/50 hover:bg-surface-container-low bg-surface hover:shadow-xs'
+                                            }
+                                        }}
+                                        onToggleSave={(item) => {
+                                            router.post(`/jobs/${item.id}/toggle-save`, {}, { preserveScroll: true, preserveState: true });
+                                        }}
+                                    />
+                                ))}
+                            </div>
+                        )}
+
+                        {lastPage > 1 && (
+                            <nav aria-label="Pagination des offres" className="mt-4 pt-3 border-t border-outline-variant/40 flex items-center justify-between gap-2">
+                                <span className="text-xs text-on-surface-variant font-medium">
+                                    Page {currentPage} sur {lastPage}
+                                </span>
+                                <div className="flex items-center gap-1.5">
+                                    <button
+                                        type="button"
+                                        disabled={!jobs?.prev_page_url}
+                                        onClick={() => jobs?.prev_page_url && router.get(jobs.prev_page_url, {}, { preserveState: true })}
+                                        aria-label="Page précédente"
+                                        className="flex h-8 w-8 items-center justify-center rounded-lg border border-outline-variant/60 bg-surface-container-low text-on-surface hover:border-primary/50 hover:text-primary disabled:opacity-40 disabled:pointer-events-none transition-colors"
+                                    >
+                                        <span aria-hidden="true" className="material-symbols-outlined text-[18px]">chevron_left</span>
+                                    </button>
+
+                                    {Array.from({ length: lastPage }, (_, i) => i + 1).map((pageNum) => (
+                                        <button
+                                            key={pageNum}
+                                            type="button"
+                                            onClick={() => router.get('/', { ...safeFilters, page: pageNum }, { preserveState: true })}
+                                            aria-current={pageNum === currentPage ? 'page' : undefined}
+                                            className={`h-8 min-w-[32px] px-2 rounded-lg text-xs font-semibold transition-colors ${
+                                                pageNum === currentPage
+                                                    ? 'bg-primary text-on-primary'
+                                                    : 'border border-outline-variant/60 bg-surface-container-low text-on-surface-variant hover:border-primary/50 hover:text-primary'
                                             }`}
                                         >
-                                            {isSelected && (
-                                                <div className="absolute left-0 top-0 bottom-0 w-1 bg-primary rounded-l-xl"></div>
-                                            )}
+                                            {pageNum}
+                                        </button>
+                                    ))}
 
-                                            <div>
-                                                {/* Header row: Avatar + Title + Bookmark */}
-                                                <div className="flex items-start gap-3">
-                                                    <div className="w-10 h-10 rounded-lg bg-surface-container-highest border border-outline-variant/60 flex-shrink-0 overflow-hidden flex items-center justify-center p-1 shadow-2xs">
-                                                        <img 
-                                                            className="w-full h-full object-contain" 
-                                                            alt={companyName} 
-                                                            src={logoUrl} 
-                                                        />
-                                                    </div>
-
-                                                    <div className="flex-1 min-w-0">
-                                                        <div className="flex justify-between items-start gap-1">
-                                                            <h3 className="text-xs md:text-sm font-bold text-on-surface group-hover:text-primary transition-colors leading-tight truncate">
-                                                                {job.title}
-                                                            </h3>
-
-                                                            <button
-                                                                onClick={(e) => { 
-                                                                    e.stopPropagation(); 
-                                                                    router.post(`/jobs/${job.id}/toggle-save`, {}, { preserveScroll: true, preserveState: true });
-                                                                }}
-                                                                className="text-outline hover:text-primary transition-colors p-1 rounded-full hover:bg-surface-variant/60 flex-shrink-0 -mt-1"
-                                                                title={savedJobIds.includes(job.id) ? "Sauvegardé" : "Sauvegarder"}
-                                                            >
-                                                                <span 
-                                                                    className="material-symbols-outlined text-[18px]" 
-                                                                    style={savedJobIds.includes(job.id) ? { fontVariationSettings: "'FILL' 1", color: 'var(--primary)' } : {}}
-                                                                >
-                                                                    {savedJobIds.includes(job.id) ? 'bookmark' : 'bookmark_border'}
-                                                                </span>
-                                                            </button>
-                                                        </div>
-                                                        <p className="text-[11px] font-semibold text-on-surface-variant mt-0.5 truncate">
-                                                            {companyName}
-                                                        </p>
-                                                    </div>
-                                                </div>
-
-                                                {/* Metadata Tags Row */}
-                                                <div className="flex flex-wrap items-center gap-1.5 mt-2.5">
-                                                    <span className="px-1.5 py-0.5 rounded bg-surface-container text-on-surface-variant text-[10px] font-medium border border-outline-variant/40 flex items-center gap-0.5">
-                                                        <span className="material-symbols-outlined text-[11px]">location_on</span>
-                                                        {job.location || 'France'}
-                                                    </span>
-
-                                                    {job.is_remote ? (
-                                                        <span className="px-1.5 py-0.5 rounded bg-primary/10 text-primary text-[10px] border border-primary/20 flex items-center gap-0.5 font-semibold">
-                                                            <span className="material-symbols-outlined text-[11px]">public</span>
-                                                            Remote
-                                                        </span>
-                                                    ) : null}
-
-                                                    {job.contract_type ? (
-                                                        <span className="px-1.5 py-0.5 rounded bg-surface-container text-on-surface-variant text-[10px] font-semibold border border-outline-variant/40 capitalize">
-                                                            {job.contract_type}
-                                                        </span>
-                                                    ) : null}
-                                                </div>
-                                            </div>
-
-                                            {/* Salary Badge & Date */}
-                                            <div className="flex justify-between items-center mt-3 pt-2 border-t border-outline-variant/30 text-[10px]">
-                                                <span className={`font-semibold px-1.5 py-0.5 rounded ${
-                                                    salaryInfo.isDisclosed
-                                                        ? 'bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 border border-emerald-500/20'
-                                                        : 'text-on-surface-variant'
-                                                }`}>
-                                                    {salaryInfo.text}
-                                                </span>
-
-                                                <span className="text-outline font-medium">
-                                                    {relativeDate}
-                                                </span>
-                                            </div>
-                                        </article>
-                                    );
-                                })}
-                            </div>
+                                    <button
+                                        type="button"
+                                        disabled={!jobs?.next_page_url}
+                                        onClick={() => jobs?.next_page_url && router.get(jobs.next_page_url, {}, { preserveState: true })}
+                                        aria-label="Page suivante"
+                                        className="flex h-8 w-8 items-center justify-center rounded-lg border border-outline-variant/60 bg-surface-container-low text-on-surface hover:border-primary/50 hover:text-primary disabled:opacity-40 disabled:pointer-events-none transition-colors"
+                                    >
+                                        <span aria-hidden="true" className="material-symbols-outlined text-[18px]">chevron_right</span>
+                                    </button>
+                                </div>
+                            </nav>
                         )}
                     </div>
 
                     {/* Right Column: Full Detail Panel OR Profile Completion Widget */}
                     {selectedJob ? (
-                        <main className="hidden lg:flex flex-1 min-w-0 h-full pb-4">
+                        <section aria-label="Détail de l'offre" className="hidden lg:flex flex-col flex-1 min-w-0 min-h-0 h-full pb-2">
                             <JobDetailPanel 
                                 job={selectedJob} 
                                 onClose={() => setSelectedJob(null)}
                                 isSaved={selectedJob ? savedJobIds.includes(selectedJob.id) : false}
                             />
-                        </main>
+                        </section>
                     ) : (
                         <aside className="hidden xl:flex flex-col w-72 xl:w-80 gap-3.5 sticky top-2 h-max pb-4 flex-shrink-0">
                             {/* Profile Completion Widget */}
-                            <div className="glass-panel rounded-xl p-5 relative overflow-hidden border border-outline-variant/70 shadow-2xs">
-                                <div className="absolute inset-0 opacity-15 pointer-events-none" style={{ backgroundImage: "radial-gradient(circle at 50% -20%, #4648d4 0%, transparent 60%)" }}></div>
-                                
-                                <h4 className="text-sm font-bold text-on-surface mb-1 relative z-10 flex items-center gap-1.5">
-                                    <span className="material-symbols-outlined text-primary text-base">person_check</span>
+                            <div className="glass-panel rounded-xl p-5 shadow-2xs">
+                                <h4 className="text-sm font-bold text-on-surface mb-1 flex items-center gap-1.5">
+                                    <span aria-hidden="true" className="material-symbols-outlined text-primary text-base">person_check</span>
                                     Complétion du profil
                                 </h4>
                                 
@@ -521,24 +447,26 @@ export default function Discover({ auth, jobs = [], savedJobIds = [], filters = 
                                 )}
                             </div>
 
-                            {/* Market Trends Card */}
+                            {/* Market Trends Card (Real DB Data) */}
                             <div className="glass-panel rounded-xl p-4 border border-outline-variant/60 bg-surface-container-low/60 text-xs text-on-surface-variant flex flex-col gap-2">
                                 <span className="font-semibold text-on-surface flex items-center gap-1">
-                                    <span className="material-symbols-outlined text-sm text-emerald-500">trending_up</span>
-                                    Aperçu du marché
+                                    <span aria-hidden="true" className="material-symbols-outlined text-sm text-emerald-500">trending_up</span>
+                                    Aperçu du marché ({marketSummary.totalJobs ?? jobs.length} offres)
                                 </span>
                                 <div className="space-y-1.5 text-[11px]">
                                     <div className="flex justify-between items-center">
                                         <span>Salaire moyen observé</span>
-                                        <span className="font-bold text-on-surface">~43 500 €</span>
+                                        <span className="font-bold text-on-surface">
+                                            {marketSummary.avgSalary ? `${Number(marketSummary.avgSalary).toLocaleString('fr-FR')} €` : 'N/A'}
+                                        </span>
                                     </div>
                                     <div className="flex justify-between items-center">
-                                        <span>Top contrats</span>
-                                        <span className="font-semibold text-primary">CDI (78%)</span>
+                                        <span>Part des CDI</span>
+                                        <span className="font-semibold text-primary">{marketSummary.cdiPercent ?? 0}%</span>
                                     </div>
                                     <div className="flex justify-between items-center">
                                         <span>Offres en télétravail</span>
-                                        <span className="font-semibold text-on-surface">45%</span>
+                                        <span className="font-semibold text-on-surface">{marketSummary.remotePercent ?? 0}%</span>
                                     </div>
                                 </div>
                             </div>

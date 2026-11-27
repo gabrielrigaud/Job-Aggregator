@@ -6,7 +6,6 @@ use Illuminate\Database\Eloquent\Model;
 
 class Source extends Model
 {
-
     protected $fillable = [
         'name',
         'url',
@@ -17,6 +16,5 @@ class Source extends Model
     {
         return $this->hasMany(JobOffer::class, 'source_internal_id');
 
-   
-}
+    }
 }

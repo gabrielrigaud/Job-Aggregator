@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Services;
+
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 
@@ -37,10 +38,9 @@ class UserService
             unset($data['role']);
         }
 
-        if (isset($data['password']) && !empty($data['password'])) {
+        if (isset($data['password']) && ! empty($data['password'])) {
             $data['password'] = Hash::make($data['password']);
-        }
-        else {
+        } else {
             unset($data['password']); // Supprime le mot de passe si vide pour éviter de le mettre à jour
         }
 

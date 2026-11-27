@@ -1,9 +1,13 @@
 <?php
 
+use App\Http\Middleware\AdminAccessMiddleware;
+use App\Http\Middleware\HandleInertiaRequests;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
+use Illuminate\Http\Middleware\AddLinkHeadersForPreloadedAssets;
 use Illuminate\Http\Request;
+use Spatie\Permission\Middleware\RoleMiddleware;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -14,28 +18,14 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->web(append: [
-            \App\Http\Middleware\HandleInertiaRequests::class,
-            \Illuminate\Http\Middleware\AddLinkHeadersForPreloadedAssets::class,
+            HandleInertiaRequests::class,
+            AddLinkHeadersForPreloadedAssets::class,
         ]);
 
         $middleware->alias([
-            'role' => \Spatie\Permission\Middleware\RoleMiddleware::class,
-            'admin' => \App\Http\Middleware\AdminAccessMiddleware::class,
+            'role' => RoleMiddleware::class,
+            'admin' => AdminAccessMiddleware::class,
         ]);
-
-        // Ignorer la vérification CSRF pour les tests d'API dans Postman 
-        $middleware->preventRequestForgery(except: [
-            'admin/*',
-            'jobs/*',
-            'jobs',
-            'profile',
-            'login',
-            'register',
-            'forgot-password',
-            'reset-password',
-            'logout',
-        ]);
-    
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->shouldRenderJsonWhen(

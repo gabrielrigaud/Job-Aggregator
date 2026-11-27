@@ -12,12 +12,12 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('companies', function (Blueprint $table) {
-    $table->id(); 
-    $table->string('name')->unique();
-    $table->string('website_url')->nullable();
-    $table->string('logo_url')->nullable();
-    $table->timestamps(); // Ajoute created_at et updated_at 
-});
+            $table->id();
+            $table->string('name')->unique();
+            $table->string('website_url')->nullable();
+            $table->string('logo_url')->nullable();
+            $table->timestamps(); // Ajoute created_at et updated_at
+        });
     }
 
     /**

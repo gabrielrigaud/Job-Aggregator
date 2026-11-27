@@ -4,18 +4,16 @@ import AdminTopNavBar from '../Components/Admin/AdminTopNavBar';
 
 export default function AdminLayout({ children }) {
     return (
-        <div className="flex h-screen bg-background font-body-md text-on-surface antialiased overflow-hidden">
-            {/* Sidebar */}
+        <div className="min-h-screen bg-background text-on-surface flex">
             <AdminSideNavBar />
 
-            {/* Main Content Area */}
-            <div className="flex flex-1 flex-col overflow-hidden">
-                {/* Top App Bar */}
+            <div className="flex-1 lg:pl-64 flex flex-col min-w-0">
                 <AdminTopNavBar />
 
-                {/* Scrollable Canvas */}
-                <main className="flex-1 overflow-y-auto bg-background p-6">
-                    {children}
+                <main className="flex-1 pt-14 px-4 md:px-8 py-6">
+                    <div className="max-w-[1560px] mx-auto w-full pt-4">
+                        {children}
+                    </div>
                 </main>
             </div>
         </div>

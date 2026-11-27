@@ -130,13 +130,12 @@
   }
 }
 .glass-panel {
-    background-color: rgba(255, 255, 255, 0.8);
-    backdrop-filter: blur(12px);
-    border: 1px solid #c7c4d7;
+    background-color: rgb(var(--color-surface-container-lowest));
+    border: 1px solid rgb(var(--color-outline-variant) / 0.6);
 }
 .dark .glass-panel {
-    background-color: rgba(27, 30, 42, 0.8);
-    border: 1px solid #2b3040;
+    background-color: rgb(var(--color-surface-container));
+    border: 1px solid rgb(var(--color-outline-variant) / 0.6);
 }
 
 .glass-input {

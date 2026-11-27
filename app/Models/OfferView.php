@@ -20,11 +20,13 @@ class OfferView extends Model
         'is_saved' => 'boolean',
     ];
 
-    public function jobOffer() {
+    public function jobOffer()
+    {
         return $this->belongsTo(JobOffer::class);
     }
 
-    public function user() {
+    public function user()
+    {
         return $this->belongsTo(User::class);
     }
 }
